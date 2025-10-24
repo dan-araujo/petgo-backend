@@ -13,7 +13,7 @@ export class Customer {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ unique: true, length: 100 })
+    @Column({ length: 100 })
     name: string;
 
     @Column({ unique: true, length: 100 })
