@@ -5,7 +5,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from './config/configuration';
 import { CustomersModule } from './customers/customers.module';
-import { Customer } from './customers/customer.entity';
 
 @Module({
   imports: [
@@ -22,7 +21,7 @@ import { Customer } from './customers/customer.entity';
         password: configService.get<string>('database.pass'),
         database: configService.get<string>('database.name'),
         autoLoadEntities: true,
-        synchronize: false // Apenas em desenvolvimento, essa linha será removida depois
+        synchronize: true // Apenas em desenvolvimento, essa linha será removida depois
       }),
       inject: [ConfigService],
     }),
