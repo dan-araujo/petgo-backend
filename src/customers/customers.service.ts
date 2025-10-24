@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Customer } from "./customer.entity";
 import { IsNull, Repository } from 'typeorm';
@@ -12,82 +12,73 @@ export class CustomersService {
         private readonly customerRepo: Repository<Customer>,
     ) { }
 
+    private async validateUniqueness(
+        data: Partial<CreateCustomerDTO>, excludeId?: string,
+    ): Promise<void> {
+        const { email, cpf, phone } = data;
+
+        const existing = await this.customerRepo.findOne({
+            where: [{ email }, { cpf }, { phone }],
+        });
+
+        if (!existing) return;
+
+        if (excludeId && existing.id === excludeId) return;
+
+        if (existing.email === email) throw new ConflictException('E-mail já cadastrado');
+        if (cpf && existing.cpf === cpf) throw new ConflictException('Já existe um cliente com esse CPF');
+        if (phone && existing.phone === phone) throw new ConflictException('Telefone já cadastrado');
+    }
+
     async create(data: CreateCustomerDTO): Promise<Customer> {
-        const existingByEmail = await this.customerRepo.findOne({
-            where: { email: data.email },
-        });
-        if (existingByEmail) {
-            throw new ConflictException('E-mail já cadastrado');
-        }
+        try {
+            await this.validateUniqueness(data);
 
-        if (data.cpf) {
-            const existingByCpf = await this.customerRepo.findOne({
-                where: { cpf: data.cpf },
+            const password_hash = await bcrypt.hash(data.password, 10);
+            const customer = this.customerRepo.create({
+                name: data.name,
+                email: data.email,
+                phone: data.phone,
+                cpf: data.cpf,
+                password_hash,
+                role: 'customer',
+                verification_code: this.generatedVerificationCode(),
+                code_expires_at: new Date(Date.now() + 15 * 60 * 1000),
             });
-            if (existingByCpf) {
-                throw new ConflictException('Já existe um cliente com esse CPF');
-            }
-        }
 
-        const existingByPhone = await this.customerRepo.findOne({
-            where: { phone: data.phone },
-        });
-        if (existingByPhone) {
-            throw new ConflictException('Telefone já cadastrado');
-        }
+            return this.customerRepo.save(customer);
+        } catch (error) {
+            console.error('Erro ao criar o cliente: ', error);
 
-        const password_hash = await bcrypt.hash(data.password, 10);
-        const customer = this.customerRepo.create({
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            cpf: data.cpf,
-            password_hash,
-            role: 'customer',
-            verification_code: this.generatedVerificationCode(),
-            code_expires_at: new Date(Date.now() + 15 * 60 * 1000),
-        });
-        return this.customerRepo.save(customer);
+            if (error instanceof ConflictException) throw error;
+
+            throw new InternalServerErrorException('Erro interno ao cadastrar cliente');
+        }
     }
 
     async update(id: string, data: Partial<CreateCustomerDTO>): Promise<Customer> {
-        const customer = await this.customerRepo.findOne({ where: { id } });
+        try {
+            const customer = await this.customerRepo.findOne({ where: { id } });
 
-        if (!customer) {
-            throw new NotFoundException('Cliente não encontrado');
-        }
+            if (!customer) throw new NotFoundException('Cliente não encontrado');
 
-        if (data.email && data.email !== customer.email) {
-            const existingByEmail = await this.customerRepo.findOne({
-                where: { email: data.email },
-            });
-            if (existingByEmail) {
-                throw new ConflictException('E-mail já existe.');
+            await this.validateUniqueness(data, id);
+
+            if('password' in data) {
+                throw new BadRequestException('A senha não pode ser alterada por este endopoint. Use o fluxo de recuperação de senha.')
             }
+
+            // Atualiza apenas os campos enviados
+            Object.assign(customer, data);
+
+            return this.customerRepo.save(customer);
+        } catch (error) {
+            console.error('Erro ao atualizar cliente: ', error);
+
+            if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
+
+            throw new InternalServerErrorException('Erro interno ao atualizar cliente');
         }
-
-        if (data.cpf && data.cpf !== customer.cpf) {
-            const existingByCpf = await this.customerRepo.findOne({
-                where: { cpf: data.cpf },
-            });
-            if (existingByCpf) {
-                throw new ConflictException('CPF já existe.');
-            }
-        }
-
-        if (data.phone && data.phone !== customer.phone) {
-            const existingByPhone = await this.customerRepo.findOne({
-                where: { phone: data.phone },
-            });
-            if (existingByPhone) {
-                throw new ConflictException('Telefone já cadastrado');
-            }
-        }
-
-        // Atualiza apenas os campos enviados
-        Object.assign(customer, data);
-
-        return this.customerRepo.save(customer);
     }
 
     async remove(id: string): Promise<void> {
@@ -97,7 +88,8 @@ export class CustomersService {
                 throw new NotFoundException('Cliente não encontrado');
             }
         } catch (error) {
-            throw error;
+            console.error('Erro ao remover cliente: ', error);
+            throw new InternalServerErrorException('Erro interno ao remover cliente');
         }
     }
 
@@ -130,6 +122,5 @@ export class CustomersService {
     private generatedVerificationCode(): string {
         return Math.floor(100000 + Math.random() * 900000).toString();
     }
-
 
 }
