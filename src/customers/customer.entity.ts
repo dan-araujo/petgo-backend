@@ -1,4 +1,3 @@
-import { timestamp } from 'rxjs';
 import {
     Column,
     CreateDateColumn,
@@ -22,7 +21,7 @@ export class Customer {
     @Column({ unique: true, length: 20, nullable: true })
     phone?: string;
 
-    @Column({ unique: true, length: 14, nullable: true })
+    @Column({ type: 'varchar', unique: true, length: 14, nullable: true })
     cpf?: string;
 
     @Column({ nullable: true })

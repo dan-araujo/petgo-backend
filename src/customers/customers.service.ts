@@ -17,12 +17,15 @@ export class CustomersService {
     ): Promise<void> {
         const { email, cpf, phone } = data;
 
-        const existing = await this.customerRepo.findOne({
-            where: [{ email }, { cpf }, { phone }],
-        });
+        const conditions: any[] = [];
+        if(email) conditions.push({ email });
+        if(cpf) conditions.push({ cpf });
+        if(phone) conditions.push({ phone });
+        if(conditions.length === 0) return;
+
+        const existing = await this.customerRepo.findOne({ where: conditions });
 
         if (!existing) return;
-
         if (excludeId && existing.id === excludeId) return;
 
         if (existing.email === email) throw new ConflictException('E-mail já cadastrado');
@@ -35,11 +38,12 @@ export class CustomersService {
             await this.validateUniqueness(data);
 
             const password_hash = await bcrypt.hash(data.password, 10);
+            const cpf = data.cpf?.trim() === '' ? null : data.cpf;
             const customer = this.customerRepo.create({
                 name: data.name,
                 email: data.email,
                 phone: data.phone,
-                cpf: data.cpf,
+                cpf: cpf as any,
                 password_hash,
                 role: 'customer',
                 verification_code: this.generatedVerificationCode(),
