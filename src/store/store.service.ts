@@ -1,0 +1,111 @@
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { CreateStoreDTO } from './dto/create-store.dto';
+import { UpdateStoreDTO } from './dto/update-store.dto';
+import { Store } from './entities/store.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { IsNull, Repository } from 'typeorm';
+import { BaseService } from '../common/base/base.service';
+import { ValidationMessages } from '../common/constants/validation-messages';
+
+@Injectable()
+export class StoreService extends BaseService<Store> {
+
+  constructor(@InjectRepository(Store) private readonly storeRepo: Repository<Store>) {
+    super(storeRepo);
+  }
+
+
+  async create(data: CreateStoreDTO): Promise<Store> {
+    try {
+      await this.checkUnique(
+        data,
+        ['email', 'cnpj', 'phone'],
+        undefined,
+        {
+          email: ValidationMessages.EMAIL_ALREADY_EXISTS,
+          cnpj: ValidationMessages.CNPJ_ALREADY_EXISTS,
+          phone: ValidationMessages.PHONE_ALREADY_EXISTS
+        });
+
+      const password_hash = await this.hashPassword(data.password);
+      const store = this.storeRepo.create({
+        name: data.name,
+        email: data.email,
+        password_hash,
+        phone: data.phone,
+        cnpj: data.cnpj,
+        category: data.category,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        is_open: true,
+        verification_code: this.generateVerificationCode(),
+        code_expires_at: new Date(Date.now() + 15 * 60 * 1000)
+      });
+
+      return await this.storeRepo.save(store);
+    } catch (error) {
+      console.error('Erro ao criar loja: ', error);
+      if (error instanceof ConflictException) throw error;
+      throw new InternalServerErrorException('Erro interno ao cadastrar loja.');
+    }
+  }
+
+  async update(id: string, data: UpdateStoreDTO): Promise<Store> {
+    try {
+      const store = await this.storeRepo.findOne({ where: { id } });
+
+      if (!store) throw new NotFoundException('Loja não encontrada.');
+
+      await this.checkUnique(
+        data, ['email', 'cnpj', 'phone'],
+        id,
+        {
+          email: ValidationMessages.EMAIL_ALREADY_EXISTS,
+          cnpj: ValidationMessages.CNPJ_ALREADY_EXISTS,
+          phone: ValidationMessages.PHONE_ALREADY_EXISTS
+        });
+
+      if ('password' in data) {
+        throw new BadRequestException(
+          'A senha não pode ser alterada por este endpoint. Use o fluxo de recuperação de senha.',
+        );
+      }
+
+      Object.assign(store, data);
+
+      return this.storeRepo.save(store);
+    } catch (error) {
+      console.error('Erro ao atualizar loja: ', error);
+      if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
+      throw new InternalServerErrorException('Erro interno ao atualizar loja');
+    }
+  }
+
+  async findAll(): Promise<Store[]> {
+    return this.storeRepo.find({ where: { deleted_at: IsNull() } });
+  }
+
+  async findOne(id: string) {
+    const store = await this.storeRepo.findOne({
+      where: { id, deleted_at: IsNull() },
+    });
+
+    if (!store) {
+      throw new NotFoundException('Loja não encontrada');
+    }
+
+    return store;
+  }
+
+  async remove(id: string): Promise<void> {
+    try {
+      const result = await this.storeRepo.softDelete(id);
+
+      if (result.affected === 0) throw new NotFoundException('Loja não encontrada.');
+    } catch (error) {
+      console.error('Erro ao remover loja: ', error);
+      throw new InternalServerErrorException('Erro interno ao remover loja');
+    }
+  }
+}
