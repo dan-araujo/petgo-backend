@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Body, NotFoundException, Param, Patch, UsePipes, ValidationPipe, Delete, ParseUUIDPipe } from '@nestjs/common';
-import { CustomersService } from './customers.service';
+import { CustomerService } from './customer.service';
 import { CreateCustomerDTO } from './dto/create-customer.dto';
 
 @Controller('customers')
-export class CustomersController {
-    constructor(private readonly customersService: CustomersService) { }
+export class CustomerController {
+    constructor(private readonly customersService: CustomerService) { }
 
     @Post('register')
     async register(@Body() dto: CreateCustomerDTO) {

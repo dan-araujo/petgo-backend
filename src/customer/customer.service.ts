@@ -1,41 +1,31 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Customer } from "./customer.entity";
+import { Customer } from "./entities/customer.entity";
 import { IsNull, Repository } from 'typeorm';
 import { CreateCustomerDTO } from "./dto/create-customer.dto";
 import * as bcrypt from 'bcrypt';
+import { UpdateCustomerDTO } from "./dto/update-customer.dto";
+import { BaseService } from "../common/base/base.service";
+import { ValidationMessages } from "../common/constants/validation-messages";
 
 @Injectable()
-export class CustomersService {
-    constructor(
-        @InjectRepository(Customer)
-        private readonly customerRepo: Repository<Customer>,
-    ) { }
-
-    private async validateUniqueness(
-        data: Partial<CreateCustomerDTO>, excludeId?: string,
-    ): Promise<void> {
-        const { email, cpf, phone } = data;
-
-        const conditions: any[] = [];
-        if(email) conditions.push({ email });
-        if(cpf) conditions.push({ cpf });
-        if(phone) conditions.push({ phone });
-        if(conditions.length === 0) return;
-
-        const existing = await this.customerRepo.findOne({ where: conditions });
-
-        if (!existing) return;
-        if (excludeId && existing.id === excludeId) return;
-
-        if (existing.email === email) throw new ConflictException('E-mail já cadastrado');
-        if (cpf && existing.cpf === cpf) throw new ConflictException('Já existe um cliente com esse CPF');
-        if (phone && existing.phone === phone) throw new ConflictException('Telefone já cadastrado');
+export class CustomerService extends BaseService<Customer> {
+    constructor(@InjectRepository(Customer) private readonly customerRepo: Repository<Customer>) {
+        super(customerRepo);
     }
+
 
     async create(data: CreateCustomerDTO): Promise<Customer> {
         try {
-            await this.validateUniqueness(data);
+            await this.checkUnique(
+                data,
+                ['email', 'cpf', 'phone'],
+                undefined,
+                {
+                    email: ValidationMessages.EMAIL_ALREADY_EXISTS,
+                    cpf: ValidationMessages.CPF_ALREADY_EXISTS,
+                    phone: ValidationMessages.PHONE_ALREADY_EXISTS
+                });
 
             const password_hash = await bcrypt.hash(data.password, 10);
             const cpf = data.cpf?.trim() === '' ? null : data.cpf;
@@ -53,23 +43,30 @@ export class CustomersService {
             return this.customerRepo.save(customer);
         } catch (error) {
             console.error('Erro ao criar o cliente: ', error);
-
             if (error instanceof ConflictException) throw error;
-
             throw new InternalServerErrorException('Erro interno ao cadastrar cliente');
         }
     }
 
-    async update(id: string, data: Partial<CreateCustomerDTO>): Promise<Customer> {
+    async update(id: string, data: Partial<UpdateCustomerDTO>): Promise<Customer> {
         try {
             const customer = await this.customerRepo.findOne({ where: { id } });
 
             if (!customer) throw new NotFoundException('Cliente não encontrado');
 
-            await this.validateUniqueness(data, id);
+            await this.checkUnique(
+                data, ['email', 'cpf', 'phone'],
+                id,
+                {
+                    email: ValidationMessages.EMAIL_ALREADY_EXISTS,
+                    cpf: ValidationMessages.CPF_ALREADY_EXISTS,
+                    phone: ValidationMessages.PHONE_ALREADY_EXISTS
+                });
 
-            if('password' in data) {
-                throw new BadRequestException('A senha não pode ser alterada por este endopoint. Use o fluxo de recuperação de senha.')
+            if ('password' in data) {
+                throw new BadRequestException(
+                    'A senha não pode ser alterada por este endopoint. Use o fluxo de recuperação de senha.',
+                )
             }
 
             // Atualiza apenas os campos enviados
@@ -78,9 +75,7 @@ export class CustomersService {
             return this.customerRepo.save(customer);
         } catch (error) {
             console.error('Erro ao atualizar cliente: ', error);
-
             if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
-
             throw new InternalServerErrorException('Erro interno ao atualizar cliente');
         }
     }
