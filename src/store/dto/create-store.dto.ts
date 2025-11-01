@@ -1,6 +1,11 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length, Matches, MinLength } from "class-validator";
 import { ValidationMessages } from "../../common/constants/validation-messages";
 
+export enum StoreCategory {
+    PETSHOP = 'PETSHOP',
+    FEED_STORE = 'FEED_STORE',
+}
+
 export class CreateStoreDTO {
     @IsNotEmpty({ message: ValidationMessages.REQUIRED_NAME })
     @IsString()
@@ -15,11 +20,12 @@ export class CreateStoreDTO {
     @MinLength(6, { message: ValidationMessages.SHORT_PASSWORD(6) })
     password: string;
 
-    @IsOptional()
-    phone?: string;
+    @IsNotEmpty({ message: ValidationMessages.REQUIRED_PHONE })
+    @IsString()
+    phone: string;
 
-    @IsEnum(['PETSHOP', 'FEED_STORE'], { message: ValidationMessages.INVALID_CATEGORY })
-    category: 'PETSHOP' | 'FEED_STORE';
+    @IsEnum(StoreCategory, { message: ValidationMessages.INVALID_CATEGORY })
+    category: StoreCategory;
 
     @IsOptional()
     @IsString()
