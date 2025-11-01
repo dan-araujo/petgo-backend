@@ -1,0 +1,124 @@
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Customer } from "./entities/customer.entity";
+import { IsNull, Repository } from 'typeorm';
+import { CreateCustomerDTO } from "./dto/create-customer.dto";
+import * as bcrypt from 'bcrypt';
+import { UpdateCustomerDTO } from "./dto/update-customer.dto";
+import { BaseService } from "../common/base/base.service";
+import { ValidationMessages } from "../common/constants/validation-messages";
+
+@Injectable()
+export class CustomerService extends BaseService<Customer> {
+    constructor(@InjectRepository(Customer) private readonly customerRepo: Repository<Customer>) {
+        super(customerRepo);
+    }
+
+
+    async create(data: CreateCustomerDTO): Promise<Customer> {
+        try {
+            await this.checkUnique(
+                data,
+                ['email', 'cpf', 'phone'],
+                undefined,
+                {
+                    email: ValidationMessages.EMAIL_ALREADY_EXISTS,
+                    cpf: ValidationMessages.CPF_ALREADY_EXISTS,
+                    phone: ValidationMessages.PHONE_ALREADY_EXISTS
+                });
+
+            const password_hash = await bcrypt.hash(data.password, 10);
+            const customer = this.customerRepo.create({
+                name: data.name,
+                email: data.email,
+                phone: data.phone,
+                cpf: data.cpf,
+                password_hash,
+                role: 'customer',
+                verification_code: this.generatedVerificationCode(),
+                code_expires_at: new Date(Date.now() + 15 * 60 * 1000),
+            });
+
+            return this.customerRepo.save(customer);
+        } catch (error) {
+            console.error('Erro ao criar o cliente: ', error);
+            if (error instanceof ConflictException) throw error;
+            throw new InternalServerErrorException('Erro interno ao cadastrar cliente');
+        }
+    }
+
+    async update(id: string, data: Partial<UpdateCustomerDTO>): Promise<Customer> {
+        try {
+            const customer = await this.customerRepo.findOne({ where: { id } });
+
+            if (!customer) throw new NotFoundException('Cliente não encontrado');
+
+            await this.checkUnique(
+                data, ['email', 'cpf', 'phone'],
+                id,
+                {
+                    email: ValidationMessages.EMAIL_ALREADY_EXISTS,
+                    cpf: ValidationMessages.CPF_ALREADY_EXISTS,
+                    phone: ValidationMessages.PHONE_ALREADY_EXISTS
+                });
+
+            if ('password' in data) {
+                throw new BadRequestException(
+                    'A senha não pode ser alterada por este endopoint. Use o fluxo de recuperação de senha.',
+                )
+            }
+
+            // Atualiza apenas os campos enviados
+            Object.assign(customer, data);
+
+            return this.customerRepo.save(customer);
+        } catch (error) {
+            console.error('Erro ao atualizar cliente: ', error);
+            if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
+            throw new InternalServerErrorException('Erro interno ao atualizar cliente');
+        }
+    }
+
+    async remove(id: string): Promise<void> {
+        try {
+            const result = await this.customerRepo.softDelete(id);
+            if (result.affected === 0) {
+                throw new NotFoundException('Cliente não encontrado');
+            }
+        } catch (error) {
+            console.error('Erro ao remover cliente: ', error);
+            throw new InternalServerErrorException('Erro interno ao remover cliente');
+        }
+    }
+
+    async findAll(): Promise<Customer[]> {
+        return this.customerRepo.find({ where: { deleted_at: IsNull() } });
+    }
+
+    async findOne(id: string) {
+        const customer = await this.customerRepo.findOne({
+            where: { id, deleted_at: IsNull() },
+        });
+
+        if (!customer) {
+            throw new NotFoundException('Cliente não encontrado');
+        }
+
+        return customer;
+    }
+
+    /* Caso queira restaurar cliente antigo 
+    async restore(id: string): Promise<void> {
+        const result = await this.customerRepo.restore(id);
+        if(result.affected === 0) {
+            throw new NotFoundException('Cliente não encontrado');
+        }
+    }
+    */
+
+
+    private generatedVerificationCode(): string {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+}
