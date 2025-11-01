@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 import { ValidationMessages } from '../../common/constants/validation-messages';
 
 export class CreateCustomerDTO {
@@ -15,6 +15,9 @@ export class CreateCustomerDTO {
 
   @IsOptional()
   @IsString()
+  @Matches(/^\d{11}$|^\d{3}\.\d{3}\.\d{3}\-\d{2}$/, {
+  message: ValidationMessages.INVALID_CPF,
+})
   cpf?: string;
 
   @IsNotEmpty({ message: ValidationMessages.REQUIRED_PASSWORD })
