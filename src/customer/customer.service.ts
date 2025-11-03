@@ -36,8 +36,7 @@ export class CustomerService extends BaseService<Customer> {
                 cpf: cpf as any,
                 password_hash,
                 role: 'customer',
-                verification_code: this.generatedVerificationCode(),
-                code_expires_at: new Date(Date.now() + 15 * 60 * 1000),
+                status: 'pending',
             });
 
             return this.customerRepo.save(customer);
@@ -69,7 +68,9 @@ export class CustomerService extends BaseService<Customer> {
                 )
             }
 
-            // Atualiza apenas os campos enviados
+            Object.keys(data).forEach((key) => {
+                if (data[key] === undefined) delete data[key];
+            });
             Object.assign(customer, data);
 
             return this.customerRepo.save(customer);
@@ -107,16 +108,6 @@ export class CustomerService extends BaseService<Customer> {
 
         return customer;
     }
-
-    /* Caso queira restaurar cliente antigo 
-    async restore(id: string): Promise<void> {
-        const result = await this.customerRepo.restore(id);
-        if(result.affected === 0) {
-            throw new NotFoundException('Cliente não encontrado');
-        }
-    }
-    */
-
 
     private generatedVerificationCode(): string {
         return Math.floor(100000 + Math.random() * 900000).toString();
