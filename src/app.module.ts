@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from './config/configuration';
 import { CustomerModule } from './customer/customer.module';
 import { StoreModule } from './store/store.module';
+import { DeliveryModule } from './delivery/delivery.module';
 
 @Module({
   imports: [
@@ -22,12 +23,13 @@ import { StoreModule } from './store/store.module';
         password: configService.get<string>('database.pass'),
         database: configService.get<string>('database.name'),
         autoLoadEntities: true,
-        synchronize: true // Apenas em desenvolvimento, essa linha será removida depois
+        synchronize: false // Apenas em desenvolvimento, essa linha será removida depois
       }),
       inject: [ConfigService],
     }),
     CustomerModule,
     StoreModule,
+    DeliveryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
