@@ -12,6 +12,7 @@ export const ValidationMessages = {
     // Campos de loja, cliente e etc...
     REQUIRED_NAME: 'O nome é obrigatório.',
     REQUIRED_PHONE: 'Telefone é obrigatório',
+    REQUIRED_CNPJ: 'Preencha seu CNPJ',
     SHORT_NAME: 'O nome deve ter pelo menos 3 caracteres.',
     INVALID_CATEGORY: 'A categoria deve ser PETSHOP OU FEED_STORE',
     INVALID_CPF: 'O CPF informado é inválido.',
