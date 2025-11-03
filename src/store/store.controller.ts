@@ -20,7 +20,7 @@ export class StoreController {
   }
 
   @Get()
-  async indAll(): Promise<Store[]> {
+  async findAll(): Promise<Store[]> {
     return this.storeService.findAll();
   }
 
