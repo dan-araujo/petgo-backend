@@ -35,6 +35,9 @@ export class Store {
     @Column({ default: true })
     is_open: boolean;
 
+    @Column({ length: 20, default: 'store' })
+    role: string;
+
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;
 
@@ -49,4 +52,11 @@ export class Store {
 
     @DeleteDateColumn({ type: 'timestamp', nullable: true })
     deleted_at?: Date;
+
+    @Column({
+        type: 'enum',
+        enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],
+        default: 'pending'
+    })
+    status: string;
 }
