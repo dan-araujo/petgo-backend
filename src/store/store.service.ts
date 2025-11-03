@@ -35,12 +35,8 @@ export class StoreService extends BaseService<Store> {
         phone: data.phone,
         cnpj: data.cnpj,
         category: data.category,
-        address: data.address,
-        city: data.city,
-        state: data.state,
-        is_open: true,
-        verification_code: this.generateVerificationCode(),
-        code_expires_at: new Date(Date.now() + 15 * 60 * 1000)
+        role: 'store',
+        status: 'pending',
       });
 
       return await this.storeRepo.save(store);
@@ -72,6 +68,10 @@ export class StoreService extends BaseService<Store> {
         );
       }
 
+      // Evita apaga acidentalmente campos com undefined
+      Object.keys(data).forEach((key) => {
+        if(data[key] === undefined) delete data[key];
+      });
       Object.assign(store, data);
 
       return this.storeRepo.save(store);
