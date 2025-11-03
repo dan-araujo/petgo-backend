@@ -27,23 +27,11 @@ export class CreateStoreDTO {
     @IsEnum(StoreCategory, { message: ValidationMessages.INVALID_CATEGORY })
     category: StoreCategory;
 
-    @IsOptional()
+    @IsNotEmpty({ message: ValidationMessages.REQUIRED_CNPJ })
     @IsString()
     @Matches(/^\d{14}$|^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/, {
         message: ValidationMessages.INVALID_CNPJ,
     })
     cnpj?: string;
-
-    @IsOptional()
-    @IsString()
-    address?: string;
-
-    @IsOptional()
-    @IsString()
-    city?: string;
-
-    @IsOptional()
-    @Length(2, 2)
-    state?: string;
 
 }
