@@ -36,13 +36,19 @@ export class Customer {
     @Column({ length: 20, default: 'customer' })
     role: string;
 
+    @Column({
+        type: 'enum',
+        enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],
+        default: 'pending'
+    })
+    status: string;
+
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;
 
     @UpdateDateColumn({ type: 'timestamp' })
     updated_at: Date;
 
-    // Para exclusão lógica no futuro
     @DeleteDateColumn({ type: 'timestamp', nullable: true })
     deleted_at?: Date;
 
