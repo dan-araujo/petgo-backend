@@ -14,7 +14,7 @@ export const ValidationMessages = {
     REQUIRED_PHONE: 'Telefone é obrigatório',
     REQUIRED_CNPJ: 'Preencha seu CNPJ',
     SHORT_NAME: 'O nome deve ter pelo menos 3 caracteres.',
-    INVALID_CATEGORY: 'A categoria deve ser PETSHOP OU FEED_STORE',
+    INVALID_CATEGORY: 'Selecione uma das opções',
     INVALID_CPF: 'O CPF informado é inválido.',
     INVALID_CNPJ: 'O CNPJ informado é inválido',
 
