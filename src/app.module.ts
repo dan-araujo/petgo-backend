@@ -7,6 +7,7 @@ import configuration from './config/configuration';
 import { CustomerModule } from './customer/customer.module';
 import { StoreModule } from './store/store.module';
 import { DeliveryModule } from './delivery/delivery.module';
+import { VeterinaryModule } from './veterinary/veterinary.module';
 
 @Module({
   imports: [
@@ -23,13 +24,14 @@ import { DeliveryModule } from './delivery/delivery.module';
         password: configService.get<string>('database.pass'),
         database: configService.get<string>('database.name'),
         autoLoadEntities: true,
-        synchronize: false // Apenas em desenvolvimento, essa linha será removida depois
+        synchronize: false // Usar migrações; evitar alterações perigosas no schema em produção/dev compartilhado
       }),
       inject: [ConfigService],
     }),
     CustomerModule,
     StoreModule,
     DeliveryModule,
+    VeterinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
