@@ -41,7 +41,7 @@ export class Customer {
         enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],
         default: 'pending'
     })
-    status: string;
+    status: 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
 
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;
