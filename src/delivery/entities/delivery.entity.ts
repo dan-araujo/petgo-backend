@@ -56,5 +56,5 @@ export class Delivery {
         enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],
         default: 'pending'
     })
-    status: string;
+    status: 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
 }
