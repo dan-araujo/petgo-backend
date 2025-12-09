@@ -1,43 +1,53 @@
 import { Controller, Get, Post, Body, NotFoundException, Param, Patch, UsePipes, ValidationPipe, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { CreateCustomerDTO } from './dto/create-customer.dto';
+import { ApiResponse } from '../common/interfaces/api-response.interface';
+import { Customer } from './entities/customer.entity';
 
 @Controller('customers')
 export class CustomerController {
     constructor(private readonly customerService: CustomerService) { }
 
     @Post('register')
-    async register(@Body() dto: CreateCustomerDTO) {
+    async register(@Body() dto: CreateCustomerDTO): Promise<ApiResponse<Partial<Customer>>> {
         const newCustomer = await this.customerService.create(dto);
         const { password_hash, verification_code, ...safeCustomer } = newCustomer;
-        return { message: 'Cliente cadastrado com sucesso!', customer: safeCustomer };
-    };
+        return {
+            message: 'Cliente cadastrado com sucesso!',
+            data: safeCustomer
+        };
+    }
 
     @Get()
-    async findAll() {
+    async findAll(): Promise<Customer[]> {
         return this.customerService.findAll();
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findOne(@Param('id', ParseUUIDPipe) id: string) {
         const customer = await this.customerService.findOne(id);
         if (!customer) {
             throw new NotFoundException('Cliente não encontrado');
         }
         const { password_hash, verification_code, ...safeCustomer } = customer;
-        return safeCustomer;
+        return { data: safeCustomer }
     }
 
     @Patch(':id')
     @UsePipes(new ValidationPipe({ skipMissingProperties: true }))
-    async update(@Param('id') id: string, @Body() data: Partial<CreateCustomerDTO>) {
-        const updated = await this.customerService.update(id, data);
-        const { password_hash, verification_code, ...safeCustomer } = updated;
-        return { message: 'Cliente atualizado com sucesso!', customer: safeCustomer };
+    async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: Partial<CreateCustomerDTO>):
+        Promise<ApiResponse<Partial<Customer>>> {
+        const updatedCustomer = await this.customerService.update(id, dto);
+        const { password_hash, verification_code, ...safeCustomer } = updatedCustomer;
+        return {
+            message: 'Cliente atualizado com sucesso!',
+            data: safeCustomer,
+        };
     }
 
     @Delete(':id')
-    async remove(@Param('id', new ParseUUIDPipe()) id: string) {
+    async remove(@Param('id', ParseUUIDPipe) id: string):
+        Promise<ApiResponse<Partial<void>>> {
         await this.customerService.remove(id);
         return { message: 'Cliente excluído com sucesso!' };
     }
