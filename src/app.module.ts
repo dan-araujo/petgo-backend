@@ -8,6 +8,7 @@ import { CustomerModule } from './customer/customer.module';
 import { StoreModule } from './store/store.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { VeterinaryModule } from './veterinary/veterinary.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { VeterinaryModule } from './veterinary/veterinary.module';
     StoreModule,
     DeliveryModule,
     VeterinaryModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
