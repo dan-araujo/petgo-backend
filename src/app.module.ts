@@ -25,7 +25,7 @@ import { AuthModule } from './auth/auth.module';
         password: configService.get<string>('database.pass'),
         database: configService.get<string>('database.name'),
         autoLoadEntities: true,
-        synchronize: false // Usar migrações; evitar alterações perigosas no schema em produção/dev compartilhado
+        synchronize: false 
       }),
       inject: [ConfigService],
     }),
