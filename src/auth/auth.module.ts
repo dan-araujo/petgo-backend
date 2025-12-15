@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import type { JwtModuleOptions } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
@@ -13,14 +14,14 @@ import { Store } from '../store/entities/store.entity';
     JwtModule.registerAsync({
       global: true,
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const secret = configService.get<string>('jwt.secret');
-        const expiresIn = configService.get<string>('jwt.expiresIn');
+      useFactory: (configService: ConfigService): JwtModuleOptions => {
+        const secret = configService.get<string>('jwt.secret') || 'fallback_secret';
+        const expiresIn = configService.get<string>('jwt.expiresIn') || '7d';
 
         return {
-          secret: secret || 'fallback_secret',
+          secret,
           signOptions: {
-            expiresIn: expiresIn || '7d',
+            expiresIn: expiresIn as any, // ✅ Type cast necessário para JWT
           },
         };
       },
