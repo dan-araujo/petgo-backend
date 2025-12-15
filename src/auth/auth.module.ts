@@ -6,7 +6,6 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { Store } from '../store/entities/store.entity';
-import { IConfig } from '../config/configuration';
 
 @Module({
   imports: [
@@ -14,12 +13,17 @@ import { IConfig } from '../config/configuration';
     JwtModule.registerAsync({
       global: true,
       inject: [ConfigService],
-      useFactory: (configService: ConfigService<IConfig>) => ({
-        secret: configService.get<string>('jwt.secret'),
-        signOptions: {
-          expiresIn: configService.get<string>('jwt.expiresIn'),
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const secret = configService.get<string>('jwt.secret');
+        const expiresIn = configService.get<string>('jwt.expiresIn');
+
+        return {
+          secret: secret || 'fallback_secret',
+          signOptions: {
+            expiresIn: expiresIn || '7d',
+          },
+        };
+      },
     }),
   ],
   controllers: [AuthController],
