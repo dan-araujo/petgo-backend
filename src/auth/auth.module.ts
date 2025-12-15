@@ -6,16 +6,18 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { Store } from '../store/entities/store.entity';
+import { IConfig } from '../config/configuration';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Store]),
     JwtModule.registerAsync({
       global: true,
-      useFactory: () => ({
-        secret: process.env.JWT_SECRET || 'fallback_secret',
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<IConfig>) => ({
+        secret: configService.get<string>('jwt.secret'),
         signOptions: {
-          expiresIn: process.env.JWT_EXPIRATION || '7d',
+          expiresIn: configService.get<string>('jwt.expiresIn'),
         },
       }),
     }),
