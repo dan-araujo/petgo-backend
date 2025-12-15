@@ -6,18 +6,33 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserRepoHelper, UserType } from '../common/helpers/user-repo.helper';
 import { LoginDTO } from './dto/login.dto';
+import { Customer } from '../customer/entities/customer.entity';
+import { Delivery } from '../delivery/entities/delivery.entity';
+import { Veterinary } from '../veterinary/entities/veterinary.entity';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(Store)
         private readonly storeRepo: Repository<Store>,
+        @InjectRepository(Customer)
+        private readonly customerRepo: Repository<Customer>,
+        @InjectRepository(Delivery)
+        private readonly deliveryRepo: Repository<Delivery>,
+        @InjectRepository(Veterinary)
+        private readonly veterinaryRepo: Repository<Veterinary>,
         private readonly jwtService: JwtService,
     ) { }
 
     async loginUser(type: UserType, dto: LoginDTO) {
         try {
-            const repo = UserRepoHelper.getRepo(type, { storeRepo: this.storeRepo });
+            const repo = UserRepoHelper.getRepo(type, { 
+                storeRepo: this.storeRepo,
+                customerRepo: this.customerRepo,
+                deliveryRepo: this.deliveryRepo,
+                veterinaryRepo: this.veterinaryRepo, 
+            });
+            
             const user = await repo.findOne({ where: { email: dto.email }});
 
             if(!user) throw new UnauthorizedException('Credenciais inválidas');
