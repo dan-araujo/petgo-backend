@@ -35,9 +35,6 @@ export class Store {
     @Column({ default: true })
     is_open: boolean;
 
-    @Column({ length: 20, default: 'store' })
-    role: string;
-
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;
 
@@ -59,4 +56,8 @@ export class Store {
         default: 'pending'
     })
     status: 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
+
+    get role(): string {
+        return 'store';
+    }
 }
