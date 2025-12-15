@@ -21,7 +21,7 @@ import { Store } from '../store/entities/store.entity';
         return {
           secret,
           signOptions: {
-            expiresIn: expiresIn as any, // ✅ Type cast necessário para JWT
+            expiresIn: expiresIn as any, 
           },
         };
       },
