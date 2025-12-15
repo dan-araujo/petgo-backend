@@ -35,7 +35,6 @@ export class StoreService extends BaseService<Store> {
         phone: data.phone,
         cnpj: data.cnpj,
         category: data.category,
-        role: 'store',
         status: 'pending',
       });
 
@@ -68,7 +67,6 @@ export class StoreService extends BaseService<Store> {
         );
       }
 
-      // Evita apaga acidentalmente campos com undefined
       Object.keys(data).forEach((key) => {
         if(data[key] === undefined) delete data[key];
       });
