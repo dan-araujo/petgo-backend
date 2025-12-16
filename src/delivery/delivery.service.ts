@@ -34,7 +34,6 @@ export class DeliveryService extends BaseService<Delivery> {
         phone: data.phone,
         cpf: cpf as any,
         password_hash,
-        role: 'delivery',
         status: 'pending',
       });
 

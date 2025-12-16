@@ -27,14 +27,14 @@ export class Customer {
     @Column({ nullable: true })
     password_hash: string;
 
+    @Column({ length: 20, default: 'customer' }) 
+    role: string;
+
     @Column({ length: 10, nullable: true })
     verification_code?: string;
 
     @Column({ type: 'timestamp', nullable: true })
     code_expires_at?: Date;
-
-    @Column({ length: 20, default: 'customer' })
-    role: string;
 
     @Column({
         type: 'enum',

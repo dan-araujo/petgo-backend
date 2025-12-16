@@ -39,7 +39,7 @@ export class Delivery {
     @Column({ type: 'text', nullable: true })
     photo_url?: string;
 
-    @Column({ default: 'delivery' })
+    @Column({ length: 20, default: 'delivery' }) 
     role: string;
 
     @CreateDateColumn({ type: 'timestamp' })
@@ -57,4 +57,5 @@ export class Delivery {
         default: 'pending'
     })
     status: 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
+
 }

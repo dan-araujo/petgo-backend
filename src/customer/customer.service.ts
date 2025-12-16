@@ -35,7 +35,6 @@ export class CustomerService extends BaseService<Customer> {
                 phone: data.phone,
                 cpf: cpf as any,
                 password_hash,
-                role: 'customer',
                 status: 'pending',
             });
 
