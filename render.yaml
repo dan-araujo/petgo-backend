@@ -5,9 +5,6 @@ services:
     plan: free
     buildCommand: npm install && npm run build
     startCommand: npm run start:prod
-    branches:
-      - branch: dev
-      - branch: main
     envVars:
       - key: DATABASE_URL
         scope: build,runtime
