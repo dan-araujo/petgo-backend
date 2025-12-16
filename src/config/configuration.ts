@@ -1,10 +1,6 @@
 export interface IConfig {
   database: {
-    host: string;
-    port: number;
-    user: string;
-    pass: string;
-    name: string;
+    url: string;
   };
   jwt: {
     secret: string;
@@ -26,16 +22,12 @@ export interface IConfig {
 
 export default (): IConfig => ({
   database: {
-    host: process.env.DATABASE_HOST || 'localhost',
-    port: parseInt(process.env.DATABASE_PORT || '5432', 10),
-    user: process.env.DATABASE_USER || '',
-    pass: process.env.DATABASE_PASS || '',
-    name: process.env.DATABASE_NAME || '',
+    url: process.env.DATABASE_URL || 'postgresql://localhost:5432/petgo',
   },
 
   jwt: {
     secret: process.env.JWT_SECRET || 'fallback_secret',
-    expiresIn: process.env.JWT_EXPIRATION || '7d',
+    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
 
   app: {

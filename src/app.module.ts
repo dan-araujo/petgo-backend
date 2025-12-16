@@ -19,13 +19,10 @@ import { AuthModule } from './auth/auth.module';
     TypeOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get<string>('database.host'),
-        port: configService.get<number>('database.port'),
-        username: configService.get<string>('database.user'),
-        password: configService.get<string>('database.pass'),
-        database: configService.get<string>('database.name'),
+        url: configService.get<string>('database.url'),
         autoLoadEntities: true,
-        synchronize: false 
+        synchronize: false,
+        logging: configService.get<string>('app.nodeEnv') === 'development',
       }),
       inject: [ConfigService],
     }),
