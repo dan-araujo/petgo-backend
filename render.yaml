@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: petgo-backend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    branches:
+      - dev
+      - main
+    envVars:
+      - key: DATABASE_URL
+        scope: build,runtime
+      - key: JWT_SECRET
+        scope: build,runtime
+      - key: NODE_ENV
+        value: production 
