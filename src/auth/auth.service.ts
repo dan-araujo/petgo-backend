@@ -35,10 +35,10 @@ export class AuthService {
             
             const user = await repo.findOne({ where: { email: dto.email }});
 
-            if(!user) throw new UnauthorizedException('Credenciais inválidas');
+            if(!user) throw new UnauthorizedException('E-mail ou senha incorretos');
 
             const isValid = await bcrypt.compare(dto.password, user.password_hash);
-            if(!isValid) throw new UnauthorizedException('Credenciais inválidas');
+            if(!isValid) throw new UnauthorizedException('E-mail ou senha incorretos');
 
             const payload = { sub: user.id, type };
             const token = await this.jwtService.signAsync(payload);
