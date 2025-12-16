@@ -6,8 +6,8 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run start:prod
     branches:
-      - dev
-      - main
+      - branch: dev
+      - branch: main
     envVars:
       - key: DATABASE_URL
         scope: build,runtime
