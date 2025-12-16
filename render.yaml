@@ -7,8 +7,8 @@ services:
     startCommand: npm run start:prod
     envVars:
       - key: DATABASE_URL
-        scope: build,runtime
+        value: ${DATABASE_URL}
       - key: JWT_SECRET
-        scope: build,runtime
+        value: ${JWT_SECRET}
       - key: NODE_ENV
         value: production
