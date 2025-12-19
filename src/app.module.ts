@@ -9,6 +9,9 @@ import { StoreModule } from './store/store.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { VeterinaryModule } from './veterinary/veterinary.module';
 import { AuthModule } from './auth/auth.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { mailerConfig } from './config/mailer.config';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -22,15 +25,20 @@ import { AuthModule } from './auth/auth.module';
         url: configService.get<string>('database.url'),
         autoLoadEntities: true,
         synchronize: false,
-        logging: configService.get<string>('app.nodeEnv') === 'development',
       }),
       inject: [ConfigService],
     }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: mailerConfig,
+    }),
+    UserModule,
+    AuthModule,
     CustomerModule,
     StoreModule,
     DeliveryModule,
     VeterinaryModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
