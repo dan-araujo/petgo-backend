@@ -27,9 +27,6 @@ export class CreateStoreDTO {
     })
     phone: string;
 
-    @IsEnum(StoreCategory, { message: ValidationMessages.INVALID_CATEGORY })
-    category: StoreCategory;
-
     @IsNotEmpty({ message: ValidationMessages.REQUIRED_CNPJ })
     @IsString()
     @Matches(/^\d{14}$|^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/, {
