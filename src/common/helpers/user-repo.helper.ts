@@ -8,7 +8,7 @@ import { Store } from '../../store/entities/store.entity';
 import { Veterinary } from '../../veterinary/entities/veterinary.entity';
 
 import { UserRepositories, UserType, UserTypeToRepoMap } from '../enums/user-type.enum';
-import { User } from '../../databases/entities/user.entity';
+import { User } from '../../modules/user/entities/user.entity';
 
 @Injectable()
 export class UserRepoHelper {
