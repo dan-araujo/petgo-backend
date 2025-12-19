@@ -3,12 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { StoreService } from './store.service';
 import { StoreController } from './store.controller';
 import { Store } from './entities/store.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Store])],
+  imports: [TypeOrmModule.forFeature([Store]),
+    AuthModule,],
   controllers: [StoreController],
   providers: [StoreService],
-  exports: [StoreService], 
+  exports: [StoreService],
 })
-export class StoreModule {}
+export class StoreModule { }
 
