@@ -22,6 +22,9 @@ export class CreateStoreDTO {
 
     @IsNotEmpty({ message: ValidationMessages.REQUIRED_PHONE })
     @IsString()
+    @Matches(/^\d{10,11}$/, {
+        message: ValidationMessages.INVALID_PHONE,
+    })
     phone: string;
 
     @IsEnum(StoreCategory, { message: ValidationMessages.INVALID_CATEGORY })

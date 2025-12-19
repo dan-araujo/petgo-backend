@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 import { ValidationMessages } from '../../common/constants/validation-messages';
 
 export enum VeterinaryCategory {
@@ -16,10 +16,18 @@ export class CreateVeterinaryDTO {
     email: string;
 
     @IsNotEmpty({ message: ValidationMessages.REQUIRED_PHONE })
+    @IsString()
+    @Matches(/^\d{10,11}$/, {
+        message: ValidationMessages.INVALID_PHONE,
+    })
     phone: string;
 
-    @IsEnum(VeterinaryCategory, { message: ValidationMessages.INVALID_CATEGORY })
-    category: VeterinaryCategory;
+    @IsOptional()
+      @IsString()
+      @Matches(/^\d{11}$|^\d{3}\.\d{3}\.\d{3}\-\d{2}$/, {
+        message: ValidationMessages.INVALID_CPF,
+      })
+      cpf?: string;
 
     @IsNotEmpty({ message: ValidationMessages.REQUIRED_PASSWORD })
     @IsString()
