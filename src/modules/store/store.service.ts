@@ -8,7 +8,6 @@ import { BaseService } from '../../common/base/base.service';
 import { ValidationMessages } from '../../common/constants/validation-messages';
 import { AuthResponse, AuthService } from '../auth/auth.service';
 import { UserType } from '../../common/enums/user-type.enum';
-import { UserService } from '../../modules/user/user.service';
 
 @Injectable()
 export class StoreService extends BaseService<Store> {
@@ -17,7 +16,6 @@ export class StoreService extends BaseService<Store> {
     @InjectRepository(Store)
     private readonly storeRepo: Repository<Store>,
     private readonly authService: AuthService,
-    private readonly userService: UserService,
   ) {
     super(storeRepo);
   }
@@ -93,15 +91,6 @@ export class StoreService extends BaseService<Store> {
       Object.keys(data).forEach((key) => {
         if (data[key] === undefined) delete data[key];
       });
-
-      if (data.email && data.email !== store.email) {
-        await this.userService.updateUserEmail(
-          store.id,
-          store.email,
-          data.email,
-          UserType.STORE,
-        );
-      }
 
       Object.assign(store, data);
       return this.storeRepo.save(store);

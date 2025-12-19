@@ -1,29 +1,32 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Customer } from "./entities/customer.entity";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Customer } from './entities/customer.entity';
 import { IsNull, Repository } from 'typeorm';
-import { CreateCustomerDTO } from "./dto/create-customer.dto";
+import { CreateCustomerDTO } from './dto/create-customer.dto';
 import * as bcrypt from 'bcrypt';
-import { UpdateCustomerDTO } from "./dto/update-customer.dto";
-import { BaseService } from "../../common/base/base.service";
-import { ValidationMessages } from "../../common/constants/validation-messages";
-import { AuthResponse, AuthService } from "../auth/auth.service";
-import { UserType } from "../../common/enums/user-type.enum";
-import { UserService } from "../../modules/user/user.service";
+import { UpdateCustomerDTO } from './dto/update-customer.dto';
+import { BaseService } from '../../common/base/base.service';
+import { ValidationMessages } from '../../common/constants/validation-messages';
+import { AuthResponse, AuthService } from '../auth/auth.service';
+import { UserType } from '../../common/enums/user-type.enum';
 
 @Injectable()
 export class CustomerService extends BaseService<Customer> {
-    constructor(
-        @InjectRepository(Customer)
-        private readonly customerRepo: Repository<Customer>,
-        private readonly authService: AuthService,
-        private userService: UserService,
-    ) {
-        super(customerRepo);
-    }
+  constructor(
+    @InjectRepository(Customer)
+    private readonly customerRepo: Repository<Customer>,
+    private readonly authService: AuthService,
+  ) {
+    super(customerRepo);
+  }
 
-
-    async create(data: CreateCustomerDTO): Promise<AuthResponse> {
+  async create(data: CreateCustomerDTO): Promise<AuthResponse> {
         let savedCustomer: Customer | null = null;
 
         try {
@@ -74,75 +77,69 @@ export class CustomerService extends BaseService<Customer> {
         }
     }
 
-    async update(id: string, data: Partial<UpdateCustomerDTO>): Promise<Customer> {
-        try {
-            const customer = await this.customerRepo.findOne({ where: { id } });
+  async update(
+    id: string,
+    data: Partial<UpdateCustomerDTO>,
+  ): Promise<Customer> {
+    try {
+      const customer = await this.customerRepo.findOne({ where: { id } });
+      if (!customer) throw new NotFoundException('Cliente não encontrado');
 
-            if (!customer) throw new NotFoundException('Cliente não encontrado');
+      await this.checkUnique(
+        data,
+        ['email', 'cpf', 'phone'],
+        id,
+        {
+          email: ValidationMessages.EMAIL_ALREADY_EXISTS,
+          cpf: ValidationMessages.CPF_ALREADY_EXISTS,
+          phone: ValidationMessages.PHONE_ALREADY_EXISTS,
+        },
+      );
 
-            await this.checkUnique(
-                data, ['email', 'cpf', 'phone'],
-                id,
-                {
-                    email: ValidationMessages.EMAIL_ALREADY_EXISTS,
-                    cpf: ValidationMessages.CPF_ALREADY_EXISTS,
-                    phone: ValidationMessages.PHONE_ALREADY_EXISTS
-                });
+      if ('password' in data) {
+        throw new BadRequestException(
+          'A senha não pode ser alterada por este endopoint. Use o fluxo de recuperação de senha.',
+        );
+      }
 
-            if ('password' in data) {
-                throw new BadRequestException(
-                    'A senha não pode ser alterada por este endopoint. Use o fluxo de recuperação de senha.',
-                )
-            }
+      Object.keys(data).forEach((key) => {
+        if (data[key] === undefined) delete data[key];
+      });
 
-            Object.keys(data).forEach((key) => {
-                if (data[key] === undefined) delete data[key];
-            });
-
-            if (data.email && data.email !== customer.email) {
-                await this.userService.updateUserEmail(
-                    customer.id,
-                    customer.email,
-                    data.email,
-                    UserType.CUSTOMER,
-                );
-            }
-
-            Object.assign(customer, data);
-            return await this.customerRepo.save(customer);
-        } catch (error) {
-            console.error('Erro ao atualizar cliente: ', error);
-            if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
-            if (error instanceof BadRequestException) throw error;
-            throw new InternalServerErrorException('Erro interno ao atualizar cliente');
-        }
+      Object.assign(customer, data);
+      return await this.customerRepo.save(customer);
+    } catch (error) {
+      console.error('Erro ao atualizar cliente: ', error);
+      if (error instanceof NotFoundException || error instanceof ConflictException)
+        throw error;
+      if (error instanceof BadRequestException) throw error;
+      throw new InternalServerErrorException('Erro interno ao atualizar cliente');
     }
+  }
 
-    async remove(id: string): Promise<void> {
-        try {
-            const result = await this.customerRepo.softDelete(id);
-            if (result.affected === 0) {
-                throw new NotFoundException('Cliente não encontrado');
-            }
-        } catch (error) {
-            console.error('Erro ao remover cliente: ', error);
-            throw new InternalServerErrorException('Erro interno ao remover cliente');
-        }
+  async remove(id: string): Promise<void> {
+    try {
+      const result = await this.customerRepo.softDelete(id);
+      if (result.affected === 0) {
+        throw new NotFoundException('Cliente não encontrado');
+      }
+    } catch (error) {
+      console.error('Erro ao remover cliente: ', error);
+      throw new InternalServerErrorException('Erro interno ao remover cliente');
     }
+  }
 
-    async findAll(): Promise<Customer[]> {
-        return this.customerRepo.find({ where: { deleted_at: IsNull() } });
+  async findAll(): Promise<Customer[]> {
+    return this.customerRepo.find({ where: { deleted_at: IsNull() } });
+  }
+
+  async findOne(id: string): Promise<Customer> {
+    const customer = await this.customerRepo.findOne({
+      where: { id, deleted_at: IsNull() },
+    });
+    if (!customer) {
+      throw new NotFoundException('Cliente não encontrado');
     }
-
-    async findOne(id: string) {
-        const customer = await this.customerRepo.findOne({
-            where: { id, deleted_at: IsNull() },
-        });
-
-        if (!customer) {
-            throw new NotFoundException('Cliente não encontrado');
-        }
-
-        return customer;
-    }
+    return customer;
+  }
 }

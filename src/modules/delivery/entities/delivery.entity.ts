@@ -24,6 +24,12 @@ export class Delivery {
     @Column({ length: 10, nullable: true })
     verification_code?: string;
 
+    @Column({ type: 'timestamp', nullable: true, name: 'code_expires_at' })
+    code_expires_at?: Date;
+
+    @Column({ type: 'timestamp', nullable: true, name: 'last_code_send_at' })
+    last_code_send_at?: Date;
+
     @Column({ length: 20, nullable: true })
     vehicle_type?: string;
 
@@ -39,7 +45,7 @@ export class Delivery {
     @Column({ type: 'text', nullable: true })
     photo_url?: string;
 
-    @Column({ length: 20, default: 'delivery' }) 
+    @Column({ length: 20, default: 'delivery' })
     role: string;
 
     @CreateDateColumn({ type: 'timestamp' })

@@ -1,15 +1,20 @@
-import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import {
+    Injectable,
+    InternalServerErrorException,
+    UnauthorizedException,
+    BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Store } from '../store/entities/store.entity';
-import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { UserType } from '../../common/enums/user-type.enum';
 import { LoginDTO } from './dto/login.dto';
+import { EmailVerificationService } from '../../common/services/email-verification.service';
+import { Repository } from 'typeorm';
+import { Store } from '../store/entities/store.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Customer } from '../customer/entities/customer.entity';
 import { Delivery } from '../delivery/entities/delivery.entity';
 import { Veterinary } from '../veterinary/entities/veterinary.entity';
-import { UserType } from '../../common/enums/user-type.enum';
-import { EmailVerificationService } from '../../common/services/email-verification.service';
 
 export interface AuthResponse {
     status: 'success' | 'pending_code' | 'new_sent_code' | 'error';
@@ -17,7 +22,6 @@ export interface AuthResponse {
     email?: string;
     data?: any;
 }
-
 @Injectable()
 export class AuthService {
     constructor(

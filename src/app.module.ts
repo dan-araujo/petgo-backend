@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from './config/configuration';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { mailerConfig } from './config/mailer.config';
-import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CustomerModule } from './modules/customer/customer.module';
 import { StoreModule } from './modules/store/store.module';
@@ -33,7 +32,6 @@ import { VeterinaryModule } from './modules/veterinary/veterinary.module';
       inject: [ConfigService],
       useFactory: mailerConfig,
     }),
-    UserModule,
     AuthModule,
     CustomerModule,
     StoreModule,

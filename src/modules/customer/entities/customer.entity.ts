@@ -27,7 +27,7 @@ export class Customer {
     @Column({ nullable: true })
     password_hash: string;
 
-    @Column({ length: 20, default: 'customer' }) 
+    @Column({ length: 20, default: 'customer' })
     role: string;
 
     @Column({ length: 10, nullable: true })
@@ -35,6 +35,9 @@ export class Customer {
 
     @Column({ type: 'timestamp', nullable: true })
     code_expires_at?: Date;
+
+    @Column({ type: 'timestamp', nullable: true, name: 'last_code_send_at' })
+    last_code_send_at?: Date;
 
     @Column({
         type: 'enum',

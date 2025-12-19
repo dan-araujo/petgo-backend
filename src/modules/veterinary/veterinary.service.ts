@@ -9,7 +9,6 @@ import * as bcrypt from 'bcrypt';
 import { ValidationMessages } from '../../common/constants/validation-messages';
 import { AuthResponse, AuthService } from '../auth/auth.service';
 import { UserType } from '../../common/enums/user-type.enum';
-import { UserService } from '../../modules/user/user.service';
 
 @Injectable()
 export class VeterinaryService extends BaseService<Veterinary> {
@@ -17,7 +16,6 @@ export class VeterinaryService extends BaseService<Veterinary> {
     @InjectRepository(Veterinary)
     private readonly veterinaryRepo: Repository<Veterinary>,
     private readonly authService: AuthService,
-    private readonly userService: UserService,
   ) {
     super(veterinaryRepo);
   }
@@ -95,15 +93,6 @@ export class VeterinaryService extends BaseService<Veterinary> {
       Object.keys(data).forEach((key) => {
         if (data[key] === undefined) delete data[key];
       });
-
-      if (data.email && data.email !== veterinary.email) {
-        await this.userService.updateUserEmail(
-          veterinary.id,
-          veterinary.email,
-          data.email,
-          UserType.VETERINARY,
-        );
-      }
 
       Object.assign(veterinary, data);
       return await this.veterinaryRepo.save(veterinary);

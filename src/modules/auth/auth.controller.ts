@@ -2,8 +2,8 @@ import { Body, Controller, Param, Post } from '@nestjs/common';
 import { AuthResponse, AuthService } from './auth.service';
 import { LoginDTO } from './dto/login.dto';
 import { UserType } from '../../common/enums/user-type.enum';
-import { resendVerificationCodeDTO } from './dto/resend-verification-code.dto';
 import { EmailVerificationService } from '../../common/services/email-verification.service';
+import { ResendVerificationCodeDTO } from './dto/send-verification-code.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,7 +23,7 @@ export class AuthController {
   }
 
   @Post('resend-verification-code')
-  async resendVerificationCode(@Body() dto: resendVerificationCodeDTO): Promise<AuthResponse> {
+  async resendVerificationCode(@Body() dto: ResendVerificationCodeDTO): Promise<AuthResponse> {
     return await this.emailVerificationService.resendVerificationCode(dto.email);
   }
 

@@ -35,7 +35,7 @@ export class Store {
     @Column({ default: true })
     is_open: boolean;
 
-    @Column({ length: 20, default: 'store' }) 
+    @Column({ length: 20, default: 'store' })
     role: string;
 
     @CreateDateColumn({ type: 'timestamp' })
@@ -49,6 +49,9 @@ export class Store {
 
     @Column({ type: 'timestamp', nullable: true })
     code_expires_at?: Date;
+
+    @Column({ type: 'timestamp', nullable: true, name: 'last_code_send_at' })
+    last_code_send_at?: Date;
 
     @DeleteDateColumn({ type: 'timestamp', nullable: true })
     deleted_at?: Date;

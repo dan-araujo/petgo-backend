@@ -1,4 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateDeliveryDTO } from './dto/create-delivery.dto';
 import { UpdateDeliveryDTO } from './dto/update-delivery.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,16 +14,13 @@ import { BaseService } from '../../common/base/base.service';
 import { ValidationMessages } from '../../common/constants/validation-messages';
 import { AuthResponse, AuthService } from '../auth/auth.service';
 import { UserType } from '../../common/enums/user-type.enum';
-import { UserService } from '../../modules/user/user.service';
 
 @Injectable()
 export class DeliveryService extends BaseService<Delivery> {
-
   constructor(
-    @InjectRepository(Delivery) 
-    private readonly deliveryRepo: Repository<Delivery>, 
-    private authService: AuthService,
-    private userService: UserService,
+    @InjectRepository(Delivery)
+    private readonly deliveryRepo: Repository<Delivery>,
+    private readonly authService: AuthService,
   ) {
     super(deliveryRepo);
   }
@@ -70,10 +73,9 @@ export class DeliveryService extends BaseService<Delivery> {
     }
   }
 
-  async update(id: string, data: UpdateDeliveryDTO): Promise<Delivery> {
+  async update(id: string, data: Partial<UpdateDeliveryDTO>): Promise<Delivery> {
     try {
       const delivery = await this.deliveryRepo.findOne({ where: { id } });
-
       if (!delivery) throw new NotFoundException('Entregador não encontrado.');
 
       await this.checkUnique(
@@ -83,8 +85,9 @@ export class DeliveryService extends BaseService<Delivery> {
         {
           email: ValidationMessages.EMAIL_ALREADY_EXISTS,
           cpf: ValidationMessages.CPF_ALREADY_EXISTS,
-          phone: ValidationMessages.PHONE_ALREADY_EXISTS
-        });
+          phone: ValidationMessages.PHONE_ALREADY_EXISTS,
+        },
+      );
 
       if ('password' in data) {
         throw new BadRequestException(
@@ -92,20 +95,17 @@ export class DeliveryService extends BaseService<Delivery> {
         );
       }
 
-      if (data.email && data.email !== delivery.email) {
-                await this.userService.updateUserEmail(
-                    delivery.id,
-                    delivery.email,
-                    data.email,
-                    UserType.DELIVERY,
-                );
-            }
+      Object.keys(data).forEach((key) => {
+        if (data[key] === undefined) delete data[key];
+      });
 
       Object.assign(delivery, data);
       return this.deliveryRepo.save(delivery);
     } catch (error) {
       console.error('Erro ao atualizar entregador: ', error);
-      if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
+      if (error instanceof NotFoundException || error instanceof ConflictException)
+        throw error;
+      if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException('Erro interno ao atualizar entregador');
     }
   }
@@ -114,21 +114,20 @@ export class DeliveryService extends BaseService<Delivery> {
     return this.deliveryRepo.find({ where: { deleted_at: IsNull() } });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Delivery> {
     const delivery = await this.deliveryRepo.findOne({
       where: { id, deleted_at: IsNull() },
     });
-
     if (!delivery) throw new NotFoundException('Entregador não encontrado');
-
     return delivery;
   }
 
   async remove(id: string): Promise<void> {
     try {
       const result = await this.deliveryRepo.softDelete(id);
-
-      if (result.affected === 0) throw new NotFoundException('Entregador não encontrado.');
+      if (result.affected === 0) {
+        throw new NotFoundException('Entregador não encontrado.');
+      }
     } catch (error) {
       console.error('Erro ao remover entregador: ', error);
       throw new InternalServerErrorException('Erro interno ao remover entregador');
