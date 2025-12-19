@@ -13,7 +13,7 @@ import { PassportModule } from '@nestjs/passport';
 import { VerificationService } from '../common/services/verification.service';
 import { EmailVerificationService } from '../common/services/email-verification.service';
 import { UserRepoHelper } from '../common/helpers/user-repo.helper';
-import { User } from '../databases/entities/user.entity';
+import { User } from '../modules/user/entities/user.entity';
 import { UserModule } from '../modules/user/user.module';
 
 @Module({
