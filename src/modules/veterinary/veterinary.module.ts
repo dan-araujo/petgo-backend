@@ -4,7 +4,7 @@ import { VeterinaryController } from './veterinary.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Veterinary } from './entities/veterinary.entity';
 import { AuthModule } from '../auth/auth.module';
-import { UserModule } from '../modules/user/user.module';
+import { UserModule } from '../../modules/user/user.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Veterinary]), 

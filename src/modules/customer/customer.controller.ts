@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, NotFoundException, Param, Patch, UsePipes, ValidationPipe, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { CreateCustomerDTO } from './dto/create-customer.dto';
-import { ApiResponse } from '../common/interfaces/api-response.interface';
+import { ApiResponse } from '../../common/interfaces/api-response.interface';
 import { Customer } from './entities/customer.entity';
 import { AuthResponse } from '../auth/auth.service';
 

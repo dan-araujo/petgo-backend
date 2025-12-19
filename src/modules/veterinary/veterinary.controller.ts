@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, P
 import { VeterinaryService } from './veterinary.service';
 import { CreateVeterinaryDTO } from './dto/create-veterinary.dto';
 import { UpdateVeterinaryDTO } from './dto/update-veterinary.dto';
-import { ApiResponse } from '../common/interfaces/api-response.interface';
+import { ApiResponse } from '../../common/interfaces/api-response.interface';
 import { Veterinary } from './entities/veterinary.entity';
 import { AuthResponse } from '../auth/auth.service';
 

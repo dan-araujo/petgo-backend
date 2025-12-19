@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
-import configuration from "../config/configuration";
+import configuration from "../../config/configuration";
 
 describe('AuthModule - JWT Configuration', () => {
     let configService: ConfigService;

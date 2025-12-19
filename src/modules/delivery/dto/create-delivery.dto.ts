@@ -1,7 +1,7 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, Length, Matches, MinLength } from 'class-validator';
-import { ValidationMessages } from '../../common/constants/validation-messages';
+import { IsDate, IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from "class-validator";
+import { ValidationMessages } from "../../../common/constants/validation-messages";
 
-export class CreateCustomerDTO {
+export class CreateDeliveryDTO {
   @IsNotEmpty({ message: ValidationMessages.REQUIRED_NAME })
   @IsString()
   @MinLength(3, { message: ValidationMessages.SHORT_NAME })
@@ -28,5 +28,4 @@ export class CreateCustomerDTO {
   @IsString()
   @MinLength(6, { message: ValidationMessages.SHORT_PASSWORD(6) })
   password: string;
-
 }

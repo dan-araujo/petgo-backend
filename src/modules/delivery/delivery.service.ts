@@ -4,11 +4,11 @@ import { UpdateDeliveryDTO } from './dto/update-delivery.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Delivery } from './entities/delivery.entity';
 import { IsNull, Repository } from 'typeorm';
-import { BaseService } from '../common/base/base.service';
-import { ValidationMessages } from '../common/constants/validation-messages';
+import { BaseService } from '../../common/base/base.service';
+import { ValidationMessages } from '../../common/constants/validation-messages';
 import { AuthResponse, AuthService } from '../auth/auth.service';
-import { UserType } from '../common/enums/user-type.enum';
-import { UserService } from '../modules/user/user.service';
+import { UserType } from '../../common/enums/user-type.enum';
+import { UserService } from '../../modules/user/user.service';
 
 @Injectable()
 export class DeliveryService extends BaseService<Delivery> {

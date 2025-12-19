@@ -1,15 +1,15 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateVeterinaryDTO } from './dto/create-veterinary.dto';
 import { UpdateVeterinaryDTO } from './dto/update-veterinary.dto';
-import { BaseService } from '../common/base/base.service';
+import { BaseService } from '../../common/base/base.service';
 import { Veterinary } from './entities/veterinary.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { ValidationMessages } from '../common/constants/validation-messages';
+import { ValidationMessages } from '../../common/constants/validation-messages';
 import { AuthResponse, AuthService } from '../auth/auth.service';
-import { UserType } from '../common/enums/user-type.enum';
-import { UserService } from '../modules/user/user.service';
+import { UserType } from '../../common/enums/user-type.enum';
+import { UserService } from '../../modules/user/user.service';
 
 @Injectable()
 export class VeterinaryService extends BaseService<Veterinary> {

@@ -3,7 +3,7 @@ import { DeliveryService } from './delivery.service';
 import { CreateDeliveryDTO } from './dto/create-delivery.dto';
 import { UpdateDeliveryDTO } from './dto/update-delivery.dto';
 import { Delivery } from './entities/delivery.entity';
-import { ApiResponse } from '../common/interfaces/api-response.interface';
+import { ApiResponse } from '../../common/interfaces/api-response.interface';
 import { AuthResponse } from '../auth/auth.service';
 
 @Controller('delivery')

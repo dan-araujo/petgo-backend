@@ -5,11 +5,11 @@ import { IsNull, Repository } from 'typeorm';
 import { CreateCustomerDTO } from "./dto/create-customer.dto";
 import * as bcrypt from 'bcrypt';
 import { UpdateCustomerDTO } from "./dto/update-customer.dto";
-import { BaseService } from "../common/base/base.service";
-import { ValidationMessages } from "../common/constants/validation-messages";
+import { BaseService } from "../../common/base/base.service";
+import { ValidationMessages } from "../../common/constants/validation-messages";
 import { AuthResponse, AuthService } from "../auth/auth.service";
-import { UserType } from "../common/enums/user-type.enum";
-import { UserService } from "../modules/user/user.service";
+import { UserType } from "../../common/enums/user-type.enum";
+import { UserService } from "../../modules/user/user.service";
 
 @Injectable()
 export class CustomerService extends BaseService<Customer> {

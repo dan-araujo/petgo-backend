@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Store } from '../store/entities/store.entity';
@@ -8,8 +8,8 @@ import { LoginDTO } from './dto/login.dto';
 import { Customer } from '../customer/entities/customer.entity';
 import { Delivery } from '../delivery/entities/delivery.entity';
 import { Veterinary } from '../veterinary/entities/veterinary.entity';
-import { UserType } from '../common/enums/user-type.enum';
-import { EmailVerificationService } from '../common/services/email-verification.service';
+import { UserType } from '../../common/enums/user-type.enum';
+import { EmailVerificationService } from '../../common/services/email-verification.service';
 
 export interface AuthResponse {
     status: 'success' | 'pending_code' | 'new_sent_code' | 'error';

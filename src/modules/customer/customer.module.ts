@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Customer } from './entities/customer.entity';
 import { CustomerService } from './customer.service';
 import { AuthModule } from '../auth/auth.module';
-import { UserModule } from '../modules/user/user.module';
+import { UserModule } from '../../modules/user/user.module';
 
 @Module({
     imports:

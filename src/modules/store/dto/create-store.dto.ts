@@ -1,5 +1,5 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length, Matches, MinLength } from "class-validator";
-import { ValidationMessages } from "../../common/constants/validation-messages";
+import { IsEmail, IsEnum, IsNotEmpty, IsString, Matches, MinLength } from "class-validator";
+import { ValidationMessages } from "../../../common/constants/validation-messages";
 
 export enum StoreCategory {
     PETSHOP = 'PETSHOP',

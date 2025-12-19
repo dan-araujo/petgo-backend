@@ -3,7 +3,7 @@ import { StoreService } from './store.service';
 import { CreateStoreDTO } from './dto/create-store.dto';
 import { UpdateStoreDTO } from './dto/update-store.dto';
 import { Store } from './entities/store.entity';
-import { ApiResponse } from '../common/interfaces/api-response.interface';
+import { ApiResponse } from '../../common/interfaces/api-response.interface';
 import { AuthResponse } from '../auth/auth.service';
 
 @Controller('stores')
