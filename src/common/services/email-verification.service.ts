@@ -9,20 +9,20 @@ import { AuthResponse } from '../../modules/auth/auth.service';
 export type EmailVerificationResult =
   | { shouldContinueLogin: true; response: null }
   | {
-      shouldContinueLogin: false;
-      response: {
-        status: 'pending_code' | 'new_sent_code';
-        message: string;
-        email: string;
-      };
+    shouldContinueLogin: false;
+    response: {
+      status: 'pending_code' | 'new_sent_code';
+      message: string;
+      email: string;
     };
+  };
 
 @Injectable()
 export class EmailVerificationService {
   constructor(
     private readonly verificationService: VerificationService,
     private readonly userRepoHelper: UserRepoHelper,
-  ) {}
+  ) { }
 
   async verifyEmail(
     email: string,
@@ -133,53 +133,53 @@ export class EmailVerificationService {
   }
 
   async resendVerificationCode(email: string): Promise<AuthResponse> {
-  try {
-    const { user, repository } =
-      await this.userRepoHelper.findUserByEmail(email);
+    try {
+      const { user, repository } =
+        await this.userRepoHelper.findUserByEmail(email);
 
-    if (user.last_code_send_at) {
-      const lastSent = new Date(user.last_code_send_at).getTime();
-      const diff = Date.now() - lastSent;
+      if (user.last_code_send_at) {
+        const lastSent = new Date(user.last_code_send_at).getTime();
+        const diff = Date.now() - lastSent;
 
-      if (diff < 60_000) {
-        return {
-          status: 'error' as const,
-          message: `Aguarde ${Math.ceil((60_000 - diff) / 1000)}s antes de reenviar`,
-          email,
-        };
+        if (diff < 60_000) {
+          return {
+            status: 'error' as const,
+            message: `Aguarde ${Math.ceil((60_000 - diff) / 1000)}s antes de reenviar`,
+            email,
+          };
+        }
       }
+
+      const verificationCode = this.verificationService.generateCode();
+      const expiresAt = this.verificationService.getExpirationTime();
+      const now = new Date();
+
+      await repository.update(
+        { id: user.id },
+        {
+          verification_code: verificationCode,
+          code_expires_at: expiresAt,
+          last_code_send_at: now,
+        },
+      );
+
+      await this.verificationService.sendVerificationEmail(
+        user.email,
+        verificationCode,
+        user.name,
+      );
+
+      return {
+        status: 'new_sent_code' as const,
+        message: 'Novo código de verificação enviado para seu email.',
+        email,
+      };
+    } catch (error: any) {
+      console.error('Erro ao reenviar código:', error);
+      return {
+        status: 'error' as const,
+        message: error.message || 'Erro ao processar solicitação',
+      };
     }
-
-    const verificationCode = this.verificationService.generateCode();
-    const expiresAt = this.verificationService.getExpirationTime();
-    const now = new Date();
-
-    await repository.update(
-      { id: user.id },
-      {
-        verification_code: verificationCode,
-        code_expires_at: expiresAt,
-        last_code_send_at: now,
-      },
-    );
-
-    await this.verificationService.sendVerificationEmail(
-      user.email,
-      verificationCode,
-      user.name,
-    );
-
-    return {
-      status: 'new_sent_code' as const,
-      message: 'Novo código de verificação enviado para seu email.',
-      email,
-    };
-  } catch (error: any) {
-    console.error('Erro ao reenviar código:', error);
-    return {
-      status: 'error' as const,
-      message: error.message || 'Erro ao processar solicitação',
-    };
   }
-}
 }
