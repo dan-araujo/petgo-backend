@@ -6,15 +6,19 @@ import { Delivery } from './entities/delivery.entity';
 import { IsNull, Repository } from 'typeorm';
 import { BaseService } from '../common/base/base.service';
 import { ValidationMessages } from '../common/constants/validation-messages';
+import { AuthResponse, AuthService } from '../auth/auth.service';
+import { UserType } from '../common/enums/user-type.enum';
 
 @Injectable()
 export class DeliveryService extends BaseService<Delivery> {
 
-  constructor(@InjectRepository(Delivery) private readonly deliveryRepo: Repository<Delivery>) {
+  constructor(@InjectRepository(Delivery) private readonly deliveryRepo: Repository<Delivery>, private authService: AuthService) {
     super(deliveryRepo);
   }
 
-  async create(data: CreateDeliveryDTO): Promise<Delivery> {
+  async create(data: CreateDeliveryDTO): Promise<AuthResponse> {
+    let savedDelivery: Delivery | null = null;
+
     try {
       await this.checkUnique(
         data,
@@ -37,10 +41,25 @@ export class DeliveryService extends BaseService<Delivery> {
         status: 'pending',
       });
 
-      return await this.deliveryRepo.save(delivery);
+      savedDelivery = await this.deliveryRepo.save(delivery);
+
+      const result = await this.authService.completeUserRegistration(
+        UserType.DELIVERY,
+        savedDelivery.id,
+        savedDelivery.email,
+        savedDelivery.name,
+      );
+
+      return result;
     } catch (error) {
       console.error('Erro ao criar entregador: ', error);
+
+      if(savedDelivery) {
+        console.warn(`Deletando entregador ${savedDelivery.id} por falha no e-mail`);
+        await this.deliveryRepo.delete(savedDelivery.id);
+      }
       if (error instanceof ConflictException) throw error;
+      if(error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException('Erro interno ao cadastrar entregador.');
     }
   }

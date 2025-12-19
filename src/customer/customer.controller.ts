@@ -3,19 +3,15 @@ import { CustomerService } from './customer.service';
 import { CreateCustomerDTO } from './dto/create-customer.dto';
 import { ApiResponse } from '../common/interfaces/api-response.interface';
 import { Customer } from './entities/customer.entity';
+import { AuthResponse } from '../auth/auth.service';
 
 @Controller('customers')
 export class CustomerController {
     constructor(private readonly customerService: CustomerService) { }
 
     @Post('register')
-    async register(@Body() dto: CreateCustomerDTO): Promise<ApiResponse<Partial<Customer>>> {
-        const newCustomer = await this.customerService.create(dto);
-        const { password_hash, verification_code, ...safeCustomer } = newCustomer;
-        return {
-            message: 'Cliente cadastrado com sucesso!',
-            data: safeCustomer
-        };
+    async create(@Body() dto: CreateCustomerDTO): Promise<ApiResponse<Partial<AuthResponse>>> {
+        return await this.customerService.create(dto);
     }
 
     @Get()

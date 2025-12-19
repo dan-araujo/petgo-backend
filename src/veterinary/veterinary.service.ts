@@ -7,48 +7,61 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ValidationMessages } from '../common/constants/validation-messages';
+import { AuthResponse, AuthService } from '../auth/auth.service';
+import { UserType } from '../common/enums/user-type.enum';
 
 @Injectable()
 export class VeterinaryService extends BaseService<Veterinary> {
-  constructor(@InjectRepository(Veterinary) private readonly veterinaryRepo: Repository<Veterinary>) {
+  constructor(@InjectRepository(Veterinary) private readonly veterinaryRepo: Repository<Veterinary>,
+    private readonly authService: AuthService) {
     super(veterinaryRepo);
   }
 
-  async create(data: CreateVeterinaryDTO): Promise<Veterinary> {
+  async create(data: CreateVeterinaryDTO): Promise<AuthResponse> {
+    let savedVeterinary: Veterinary | null = null;
+
     try {
       await this.checkUnique(
         data,
-        ['email', 'phone'],
+        ['email', 'cpf', 'phone'],
         undefined,
         {
           email: ValidationMessages.EMAIL_ALREADY_EXISTS,
+          cpf: ValidationMessages.CPF_ALREADY_EXISTS,
           phone: ValidationMessages.PHONE_ALREADY_EXISTS
         });
 
       const password_hash = await bcrypt.hash(data.password, 10);
+      const cpf = data.cpf?.trim() === '' ? null : data.cpf;
+
       const veterinary = this.veterinaryRepo.create({
         name: data.name,
         email: data.email,
         phone: data.phone,
-        category: data.category,
+        cpf: cpf as any,
         password_hash,
-        role: 'veterinary',
         status: 'pending',
       });
 
-      return await this.veterinaryRepo.save(veterinary);
+      savedVeterinary = await this.veterinaryRepo.save(veterinary);
+
+      const result = await this.authService.completeUserRegistration(
+        UserType.VETERINARY,
+        savedVeterinary.id,
+        savedVeterinary.email,
+        savedVeterinary.name,
+      );
+
+      return result;
     } catch (error) {
       console.error('Erro ao criar veterinário: ', error);
-      if ((error as any)?.code === '23505') {
-        const detail = (error as any)?.detail as string | undefined;
-        let message = 'Conflito de dados.';
-        if (detail?.includes('(email)')) message = ValidationMessages.EMAIL_ALREADY_EXISTS;
-        else if (detail?.includes('(phone)')) message = ValidationMessages.PHONE_ALREADY_EXISTS;
-        else if (detail?.includes('(cpf)')) message = ValidationMessages.CPF_ALREADY_EXISTS;
-        else if (detail?.includes('(cnpj)')) message = ValidationMessages.CNPJ_ALREADY_EXISTS;
-        throw new ConflictException(message);
-      }
-      throw error;
+      if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
+      if (error instanceof BadRequestException) throw error;
+      if (savedVeterinary) {
+                console.warn(`Deletando veterinário ${savedVeterinary.id} por falha no e-mail`);
+                await this.veterinaryRepo.delete(savedVeterinary.id);
+            }
+      throw new InternalServerErrorException('Erro interno ao cadastrar veterinário');
     }
   }
 
@@ -60,11 +73,12 @@ export class VeterinaryService extends BaseService<Veterinary> {
 
       await this.checkUnique(
         data,
-        ['email', 'phone'],
+        ['email', 'cpf', 'phone'],
         id,
         {
           email: ValidationMessages.EMAIL_ALREADY_EXISTS,
-          phone: ValidationMessages.PHONE_ALREADY_EXISTS
+          phone: ValidationMessages.PHONE_ALREADY_EXISTS,
+          cpf: ValidationMessages.CPF_ALREADY_EXISTS,
         });
 
       if ('password' in data) {
@@ -81,14 +95,8 @@ export class VeterinaryService extends BaseService<Veterinary> {
       return await this.veterinaryRepo.save(veterinary);
     } catch (error) {
       console.error('Erro ao atualizar veterinário: ', error);
-      if ((error as any)?.code === '23505') {
-        const detail = (error as any)?.detail as string | undefined;
-        let message = 'Conflito de dados.';
-        if (detail?.includes('(email)')) message = ValidationMessages.EMAIL_ALREADY_EXISTS;
-        else if (detail?.includes('(phone)')) message = ValidationMessages.PHONE_ALREADY_EXISTS;
-        throw new ConflictException(message);
-      }
       if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
+      if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException('Erro ao atualizar veterinário');
     }
   }

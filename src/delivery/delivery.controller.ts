@@ -4,20 +4,15 @@ import { CreateDeliveryDTO } from './dto/create-delivery.dto';
 import { UpdateDeliveryDTO } from './dto/update-delivery.dto';
 import { Delivery } from './entities/delivery.entity';
 import { ApiResponse } from '../common/interfaces/api-response.interface';
+import { AuthResponse } from '../auth/auth.service';
 
 @Controller('delivery')
 export class DeliveryController {
   constructor(private readonly deliveryService: DeliveryService) { }
 
   @Post('register')
-  async create(@Body() dto: CreateDeliveryDTO): Promise<ApiResponse<Partial<Delivery>>> {
-    const newDelivery = await this.deliveryService.create(dto);
-    const { password_hash, verification_code, ...safeDelivery } = newDelivery;
-
-    return {
-      message: 'Entregador cadastrado com sucesso!',
-      data: safeDelivery,
-    };
+  async create(@Body() dto: CreateDeliveryDTO): Promise<ApiResponse<Partial<AuthResponse>>> {
+    return await this.deliveryService.create(dto);
   }
 
   @Get()

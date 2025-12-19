@@ -4,20 +4,15 @@ import { CreateStoreDTO } from './dto/create-store.dto';
 import { UpdateStoreDTO } from './dto/update-store.dto';
 import { Store } from './entities/store.entity';
 import { ApiResponse } from '../common/interfaces/api-response.interface';
+import { AuthResponse } from '../auth/auth.service';
 
 @Controller('stores')
 export class StoreController {
   constructor(private readonly storeService: StoreService) { }
 
   @Post('register')
-  async create(@Body() dto: CreateStoreDTO): Promise<ApiResponse<Partial<Store>>> {
-    const newStore = await this.storeService.create(dto);
-    const { password_hash, verification_code, ...safeStore } = newStore;
-
-    return {
-      message: 'Loja cadastrada com sucesso!',
-      data: safeStore,
-    };
+  async create(@Body() dto: CreateStoreDTO): Promise<ApiResponse<Partial<AuthResponse>>> {
+    return await this.storeService.create(dto);
   }
 
   @Get()
@@ -29,10 +24,10 @@ export class StoreController {
   async findOne(@Param('id') id: string) {
     const store = await this.storeService.findOne(id);
     if (!store) {
-          throw new NotFoundException('Loja não encontrada');
-        }
-        const { password_hash, verification_code, ...safeStore } = store;
-        return { data: safeStore }
+      throw new NotFoundException('Loja não encontrada');
+    }
+    const { password_hash, verification_code, ...safeStore } = store;
+    return { data: safeStore }
   }
 
   @Patch(':id')

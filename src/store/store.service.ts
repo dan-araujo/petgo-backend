@@ -6,16 +6,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { BaseService } from '../common/base/base.service';
 import { ValidationMessages } from '../common/constants/validation-messages';
+import { AuthResponse, AuthService } from '../auth/auth.service';
+import { UserType } from '../common/enums/user-type.enum';
 
 @Injectable()
 export class StoreService extends BaseService<Store> {
 
-  constructor(@InjectRepository(Store) private readonly storeRepo: Repository<Store>) {
+  constructor(@InjectRepository(Store) private readonly storeRepo: Repository<Store>,
+    private readonly authService: AuthService) {
     super(storeRepo);
   }
 
 
-  async create(data: CreateStoreDTO): Promise<Store> {
+  async create(data: CreateStoreDTO): Promise<AuthResponse> {
+    let savedStore: Store | null = null;
     try {
       await this.checkUnique(
         data,
@@ -38,10 +42,25 @@ export class StoreService extends BaseService<Store> {
         status: 'pending',
       });
 
-      return await this.storeRepo.save(store);
+      savedStore = await this.storeRepo.save(store);
+
+      const result = await this.authService.completeUserRegistration(
+        UserType.STORE,
+        savedStore.id,
+        savedStore.email,
+        savedStore.name,
+      );
+
+      return result;
     } catch (error) {
       console.error('Erro ao criar loja: ', error);
+
+      if (savedStore) {
+        console.warn(`Deletando loja ${savedStore.id} por falha no e-mail`);
+        await this.storeRepo.delete(savedStore.id);
+      }
       if (error instanceof ConflictException) throw error;
+      if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException('Erro interno ao cadastrar loja.');
     }
   }
@@ -68,7 +87,7 @@ export class StoreService extends BaseService<Store> {
       }
 
       Object.keys(data).forEach((key) => {
-        if(data[key] === undefined) delete data[key];
+        if (data[key] === undefined) delete data[key];
       });
       Object.assign(store, data);
 

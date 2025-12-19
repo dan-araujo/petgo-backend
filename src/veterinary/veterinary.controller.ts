@@ -4,19 +4,15 @@ import { CreateVeterinaryDTO } from './dto/create-veterinary.dto';
 import { UpdateVeterinaryDTO } from './dto/update-veterinary.dto';
 import { ApiResponse } from '../common/interfaces/api-response.interface';
 import { Veterinary } from './entities/veterinary.entity';
+import { AuthResponse } from '../auth/auth.service';
 
 @Controller('veterinaries')
 export class VeterinaryController {
   constructor(private readonly veterinaryService: VeterinaryService) { }
 
   @Post('register')
-  async create(@Body() dto: CreateVeterinaryDTO): Promise<ApiResponse<Partial<Veterinary>>> {
-    const newVeterinary = await this.veterinaryService.create(dto);
-    const { password_hash, verification_code, ...safeVeterinary } = newVeterinary;
-    return {
-      message: 'Veterinário cadastrado com sucesso!',
-      data: safeVeterinary,
-    };
+  async create(@Body() dto: CreateVeterinaryDTO): Promise<ApiResponse<Partial<AuthResponse>>> {
+    return await this.veterinaryService.create(dto);
   }
 
   @Get()

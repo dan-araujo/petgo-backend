@@ -7,15 +7,21 @@ import * as bcrypt from 'bcrypt';
 import { UpdateCustomerDTO } from "./dto/update-customer.dto";
 import { BaseService } from "../common/base/base.service";
 import { ValidationMessages } from "../common/constants/validation-messages";
+import { AuthResponse, AuthService } from "../auth/auth.service";
+import { UserType } from "../common/enums/user-type.enum";
 
 @Injectable()
 export class CustomerService extends BaseService<Customer> {
-    constructor(@InjectRepository(Customer) private readonly customerRepo: Repository<Customer>) {
+    constructor(@InjectRepository(Customer)
+    private readonly customerRepo: Repository<Customer>,
+        private readonly authService: AuthService) {
         super(customerRepo);
     }
 
 
-    async create(data: CreateCustomerDTO): Promise<Customer> {
+    async create(data: CreateCustomerDTO): Promise<AuthResponse> {
+        let savedCustomer: Customer | null = null;
+
         try {
             await this.checkUnique(
                 data,
@@ -24,11 +30,13 @@ export class CustomerService extends BaseService<Customer> {
                 {
                     email: ValidationMessages.EMAIL_ALREADY_EXISTS,
                     cpf: ValidationMessages.CPF_ALREADY_EXISTS,
-                    phone: ValidationMessages.PHONE_ALREADY_EXISTS
-                });
+                    phone: ValidationMessages.PHONE_ALREADY_EXISTS,
+                },
+            );
 
             const password_hash = await bcrypt.hash(data.password, 10);
             const cpf = data.cpf?.trim() === '' ? null : data.cpf;
+
             const customer = this.customerRepo.create({
                 name: data.name,
                 email: data.email,
@@ -38,10 +46,26 @@ export class CustomerService extends BaseService<Customer> {
                 status: 'pending',
             });
 
-            return this.customerRepo.save(customer);
+            savedCustomer = await this.customerRepo.save(customer);
+
+            const result = await this.authService.completeUserRegistration(
+                UserType.CUSTOMER,
+                savedCustomer.id,
+                savedCustomer.email,
+                savedCustomer.name,
+            );
+
+            return result;
         } catch (error) {
             console.error('Erro ao criar o cliente: ', error);
+
+            if (savedCustomer) {
+                console.warn(`Deletando cliente ${savedCustomer.id} por falha no e-mail`);
+                await this.customerRepo.delete(savedCustomer.id);
+            }
+
             if (error instanceof ConflictException) throw error;
+            if (error instanceof BadRequestException) throw error;
             throw new InternalServerErrorException('Erro interno ao cadastrar cliente');
         }
     }
@@ -72,10 +96,11 @@ export class CustomerService extends BaseService<Customer> {
             });
             Object.assign(customer, data);
 
-            return this.customerRepo.save(customer);
+            return await this.customerRepo.save(customer);
         } catch (error) {
             console.error('Erro ao atualizar cliente: ', error);
             if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
+            if (error instanceof BadRequestException) throw error;
             throw new InternalServerErrorException('Erro interno ao atualizar cliente');
         }
     }
@@ -107,5 +132,4 @@ export class CustomerService extends BaseService<Customer> {
 
         return customer;
     }
-
 }
