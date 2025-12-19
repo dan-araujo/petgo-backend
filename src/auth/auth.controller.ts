@@ -11,7 +11,7 @@ export class AuthController {
 
     @Post('login/:type')
     async login(@Param('type') type: UserType, @Body() dto: LoginDTO): Promise<any>  {
-        return this.authService.loginUser(type, dto);
+        return this.authService.login(type, dto);
     }
 
     @Post('verify-email')

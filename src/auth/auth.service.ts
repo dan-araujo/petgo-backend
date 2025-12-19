@@ -10,7 +10,6 @@ import { Delivery } from '../delivery/entities/delivery.entity';
 import { Veterinary } from '../veterinary/entities/veterinary.entity';
 import { UserType } from '../common/enums/user-type.enum';
 import { EmailVerificationService } from '../common/services/email-verification.service';
-import { UserRepoHelper } from '../common/helpers/user-repo.helper';
 
 export interface AuthResponse {
     status: 'success' | 'pending_code' | 'new_sent_code' | 'error';
@@ -34,7 +33,7 @@ export class AuthService {
         private readonly emailVerificationService: EmailVerificationService,
     ) { }
 
-    async loginUser(type: UserType, dto: LoginDTO): Promise<AuthResponse> {
+    async login(type: UserType, dto: LoginDTO): Promise<AuthResponse> {
         const repo = this._getRepository(type);
         const user = await this._findUser(repo, dto.email);
 
@@ -65,7 +64,6 @@ export class AuthService {
             },
         };
     }
-
 
     async completeUserRegistration(type, userId, email, name): Promise<AuthResponse> {
         const repo = this._getRepository(type);
