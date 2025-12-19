@@ -4,14 +4,14 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from './config/configuration';
-import { CustomerModule } from './customer/customer.module';
-import { StoreModule } from './store/store.module';
-import { DeliveryModule } from './delivery/delivery.module';
-import { VeterinaryModule } from './veterinary/veterinary.module';
-import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { mailerConfig } from './config/mailer.config';
 import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { CustomerModule } from './modules/customer/customer.module';
+import { StoreModule } from './modules/store/store.module';
+import { DeliveryModule } from './modules/delivery/delivery.module';
+import { VeterinaryModule } from './modules/veterinary/veterinary.module';
 
 @Module({
   imports: [

@@ -1,8 +1,8 @@
 import { Repository } from "typeorm";
-import { Store } from "../../store/entities/store.entity";
-import { Customer } from "../../customer/entities/customer.entity";
-import { Delivery } from "../../delivery/entities/delivery.entity";
-import { Veterinary } from "../../veterinary/entities/veterinary.entity";
+import { Store } from "../../modules/store/entities/store.entity";
+import { Customer } from "../../modules/customer/entities/customer.entity";
+import { Delivery } from "../../modules/delivery/entities/delivery.entity";
+import { Veterinary } from "../../modules/veterinary/entities/veterinary.entity";
 
 export enum UserType {
     CUSTOMER = 'customer',

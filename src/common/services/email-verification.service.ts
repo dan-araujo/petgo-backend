@@ -2,8 +2,8 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { VerificationService } from "./verification.service";
 import { UserStatus } from "../enums/user-status.enum";
 import { Repository } from "typeorm";
-import { AuthResponse } from "../../auth/auth.service";
 import { UserRepoHelper } from "../helpers/user-repo.helper";
+import { AuthResponse } from "../../modules/auth/auth.service";
 
 export type EmailVerificationResult = | { shouldContinueLogin: true; response: null } |
 {

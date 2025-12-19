@@ -1,14 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
-import { Customer } from '../../customer/entities/customer.entity';
-import { Delivery } from '../../delivery/entities/delivery.entity';
-import { Store } from '../../store/entities/store.entity';
-import { Veterinary } from '../../veterinary/entities/veterinary.entity';
-
 import { UserRepositories, UserType, UserTypeToRepoMap } from '../enums/user-type.enum';
 import { User } from '../../modules/user/entities/user.entity';
+import { Customer } from '../../modules/customer/entities/customer.entity';
+import { Delivery } from '../../modules/delivery/entities/delivery.entity';
+import { Store } from '../../modules/store/entities/store.entity';
+import { Veterinary } from '../../modules/veterinary/entities/veterinary.entity';
 
 @Injectable()
 export class UserRepoHelper {
