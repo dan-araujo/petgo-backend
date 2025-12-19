@@ -8,11 +8,17 @@ import { BaseService } from '../common/base/base.service';
 import { ValidationMessages } from '../common/constants/validation-messages';
 import { AuthResponse, AuthService } from '../auth/auth.service';
 import { UserType } from '../common/enums/user-type.enum';
+import { UserService } from '../modules/user/user.service';
 
 @Injectable()
 export class DeliveryService extends BaseService<Delivery> {
 
-  constructor(@InjectRepository(Delivery) private readonly deliveryRepo: Repository<Delivery>, private authService: AuthService) {
+  constructor(
+    @InjectRepository(Delivery) 
+    private readonly deliveryRepo: Repository<Delivery>, 
+    private authService: AuthService,
+    private userService: UserService,
+  ) {
     super(deliveryRepo);
   }
 
@@ -86,8 +92,16 @@ export class DeliveryService extends BaseService<Delivery> {
         );
       }
 
-      Object.assign(delivery, data);
+      if (data.email && data.email !== delivery.email) {
+                await this.userService.updateUserEmail(
+                    delivery.id,
+                    delivery.email,
+                    data.email,
+                    UserType.DELIVERY,
+                );
+            }
 
+      Object.assign(delivery, data);
       return this.deliveryRepo.save(delivery);
     } catch (error) {
       console.error('Erro ao atualizar entregador: ', error);

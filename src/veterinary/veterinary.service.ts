@@ -9,11 +9,16 @@ import * as bcrypt from 'bcrypt';
 import { ValidationMessages } from '../common/constants/validation-messages';
 import { AuthResponse, AuthService } from '../auth/auth.service';
 import { UserType } from '../common/enums/user-type.enum';
+import { UserService } from '../modules/user/user.service';
 
 @Injectable()
 export class VeterinaryService extends BaseService<Veterinary> {
-  constructor(@InjectRepository(Veterinary) private readonly veterinaryRepo: Repository<Veterinary>,
-    private readonly authService: AuthService) {
+  constructor(
+    @InjectRepository(Veterinary)
+    private readonly veterinaryRepo: Repository<Veterinary>,
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+  ) {
     super(veterinaryRepo);
   }
 
@@ -58,9 +63,9 @@ export class VeterinaryService extends BaseService<Veterinary> {
       if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
       if (error instanceof BadRequestException) throw error;
       if (savedVeterinary) {
-                console.warn(`Deletando veterinário ${savedVeterinary.id} por falha no e-mail`);
-                await this.veterinaryRepo.delete(savedVeterinary.id);
-            }
+        console.warn(`Deletando veterinário ${savedVeterinary.id} por falha no e-mail`);
+        await this.veterinaryRepo.delete(savedVeterinary.id);
+      }
       throw new InternalServerErrorException('Erro interno ao cadastrar veterinário');
     }
   }
@@ -90,8 +95,17 @@ export class VeterinaryService extends BaseService<Veterinary> {
       Object.keys(data).forEach((key) => {
         if (data[key] === undefined) delete data[key];
       });
-      Object.assign(veterinary, data);
 
+      if (data.email && data.email !== veterinary.email) {
+        await this.userService.updateUserEmail(
+          veterinary.id,
+          veterinary.email,
+          data.email,
+          UserType.VETERINARY,
+        );
+      }
+
+      Object.assign(veterinary, data);
       return await this.veterinaryRepo.save(veterinary);
     } catch (error) {
       console.error('Erro ao atualizar veterinário: ', error);

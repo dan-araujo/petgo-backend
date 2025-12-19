@@ -9,12 +9,16 @@ import { BaseService } from "../common/base/base.service";
 import { ValidationMessages } from "../common/constants/validation-messages";
 import { AuthResponse, AuthService } from "../auth/auth.service";
 import { UserType } from "../common/enums/user-type.enum";
+import { UserService } from "../modules/user/user.service";
 
 @Injectable()
 export class CustomerService extends BaseService<Customer> {
-    constructor(@InjectRepository(Customer)
-    private readonly customerRepo: Repository<Customer>,
-        private readonly authService: AuthService) {
+    constructor(
+        @InjectRepository(Customer)
+        private readonly customerRepo: Repository<Customer>,
+        private readonly authService: AuthService,
+        private userService: UserService,
+    ) {
         super(customerRepo);
     }
 
@@ -94,8 +98,17 @@ export class CustomerService extends BaseService<Customer> {
             Object.keys(data).forEach((key) => {
                 if (data[key] === undefined) delete data[key];
             });
-            Object.assign(customer, data);
 
+            if (data.email && data.email !== customer.email) {
+                await this.userService.updateUserEmail(
+                    customer.id,
+                    customer.email,
+                    data.email,
+                    UserType.CUSTOMER,
+                );
+            }
+
+            Object.assign(customer, data);
             return await this.customerRepo.save(customer);
         } catch (error) {
             console.error('Erro ao atualizar cliente: ', error);
