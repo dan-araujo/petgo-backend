@@ -1,6 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class VerificationService {
@@ -8,8 +7,11 @@ export class VerificationService {
 
   constructor(
     private readonly mailerService: MailerService,
-    private readonly configService: ConfigService,
-  ) { }
+  ) {
+    console.log('MAIL_HOST:', process.env.MAIL_HOST);
+    console.log('MAIL_PORT:', process.env.MAIL_PORT);
+    console.log('MAIL_SECURE:', process.env.MAIL_SECURE);
+  }
 
   generateCode(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
