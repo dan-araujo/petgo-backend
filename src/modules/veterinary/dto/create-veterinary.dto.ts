@@ -2,36 +2,32 @@ import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Matches, MinLength }
 import { ValidationMessages } from '../../../common/constants/validation-messages';
 
 export enum VeterinaryCategory {
-    SOLO = 'SOLO',
-    CLINIC = 'CLINIC',
+  SOLO = 'SOLO',
+  CLINIC = 'CLINIC',
 }
 
 export class CreateVeterinaryDTO {
-    @IsNotEmpty({ message: ValidationMessages.REQUIRED_NAME })
-    @IsString()
-    @MinLength(3, { message: ValidationMessages.SHORT_NAME })
-    name: string;
+  @IsNotEmpty({ message: ValidationMessages.REQUIRED_NAME })
+  @IsString()
+  @MinLength(3, { message: ValidationMessages.SHORT_NAME })
+  name: string;
 
-    @IsEmail({}, { message: ValidationMessages.INVALID_EMAIL })
-    email: string;
+  @IsEmail({}, { message: ValidationMessages.INVALID_EMAIL })
+  email: string;
 
-    @IsNotEmpty({ message: ValidationMessages.REQUIRED_PHONE })
-    @IsString()
-    @Matches(/^\d{10,11}$/, {
-        message: ValidationMessages.INVALID_PHONE,
-    })
-    phone: string;
+  @IsNotEmpty({ message: ValidationMessages.REQUIRED_PHONE })
+  @IsString()
+  @Matches(/^\d{10,11}$/, {
+    message: ValidationMessages.INVALID_PHONE,
+  })
+  phone: string;
 
-    @IsOptional()
-      @IsString()
-      @Matches(/^\d{11}$|^\d{3}\.\d{3}\.\d{3}\-\d{2}$/, {
-        message: ValidationMessages.INVALID_CPF,
-      })
-      cpf?: string;
+  @IsEnum(VeterinaryCategory, { message: ValidationMessages.INVALID_CATEGORY })
+  category: VeterinaryCategory;
 
-    @IsNotEmpty({ message: ValidationMessages.REQUIRED_PASSWORD })
-    @IsString()
-    @MinLength(6, { message: ValidationMessages.SHORT_PASSWORD(6) })
-    password: string;
+  @IsNotEmpty({ message: ValidationMessages.REQUIRED_PASSWORD })
+  @IsString()
+  @MinLength(6, { message: ValidationMessages.SHORT_PASSWORD(6) })
+  password: string;
 }
 
