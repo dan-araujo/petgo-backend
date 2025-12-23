@@ -1,9 +1,11 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
+
 @Injectable()
 export class VerificationService {
   private readonly CODE_EXPIRATIONS_MINUTES = 10;
+
 
   constructor(
     private readonly mailerService: MailerService,
@@ -13,9 +15,11 @@ export class VerificationService {
     console.log('MAIL_SECURE:', process.env.MAIL_SECURE);
   }
 
+
   generateCode(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
+
 
   getExpirationTime(): Date {
     const now = new Date();
@@ -33,6 +37,18 @@ export class VerificationService {
     code: string,
     userName: string,
   ): Promise<void> {
+    console.log('=== INICIANDO ENVIO DE EMAIL ===');
+    console.log('Tentando enviar email para:', email);
+    console.log('Nome do usuário:', userName);
+    console.log('Código gerado:', code);
+    console.log('Configuração SMTP:', {
+      host: process.env.MAIL_HOST,
+      port: process.env.MAIL_PORT,
+      secure: process.env.MAIL_SECURE,
+      user: process.env.MAIL_USER,
+      from: process.env.MAIL_FROM,
+    });
+
     try {
       const htmlContent = this._buildEmailHtml(code, userName);
 
@@ -41,13 +57,22 @@ export class VerificationService {
         subject: 'Código de Verificação - PetGo!',
         html: htmlContent,
       });
+
+      console.log('✅ Email enviado com sucesso para:', email);
+      console.log('=== FIM DO ENVIO DE EMAIL ===');
+
     } catch (error) {
-      console.error('Erro ao enviar email de verificação: ', {
+      console.error('=== ERRO AO ENVIAR EMAIL ===');
+      console.error('Erro detalhado ao enviar email:', {
         email,
-        error: error.message,
+        message: error.message,
         code: error.code,
+        command: error.command,
+        response: error.response,
+        responseCode: error.responseCode,
         stack: error.stack,
       });
+      console.error('=== FIM DO LOG DE ERRO ===');
 
       throw new InternalServerErrorException(
         'Não conseguimos enviar o código de verificação. Por favor tente novamente.',
