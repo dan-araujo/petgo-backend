@@ -11,6 +11,7 @@ import { CustomerModule } from './modules/customer/customer.module';
 import { StoreModule } from './modules/store/store.module';
 import { DeliveryModule } from './modules/delivery/delivery.module';
 import { VeterinaryModule } from './modules/veterinary/veterinary.module';
+import { VerificationService } from './common/services/verification.service';
 
 @Module({
   imports: [
@@ -39,6 +40,6 @@ import { VeterinaryModule } from './modules/veterinary/veterinary.module';
     VeterinaryModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, VerificationService],
 })
 export class AppModule { }
