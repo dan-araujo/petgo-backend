@@ -26,22 +26,20 @@ export class VeterinaryService extends BaseService<Veterinary> {
     try {
       await this.checkUnique(
         data,
-        ['email', 'cpf', 'phone'],
+        ['email', 'phone'],
         undefined,
         {
           email: ValidationMessages.EMAIL_ALREADY_EXISTS,
-          cpf: ValidationMessages.CPF_ALREADY_EXISTS,
-          phone: ValidationMessages.PHONE_ALREADY_EXISTS
+          phone: ValidationMessages.PHONE_ALREADY_EXISTS,
         });
 
       const password_hash = await bcrypt.hash(data.password, 10);
-      const cpf = data.cpf?.trim() === '' ? null : data.cpf;
 
       const veterinary = this.veterinaryRepo.create({
         name: data.name,
         email: data.email,
         phone: data.phone,
-        cpf: cpf as any,
+        category: data.category,
         password_hash,
         status: 'pending',
       });
@@ -76,12 +74,11 @@ export class VeterinaryService extends BaseService<Veterinary> {
 
       await this.checkUnique(
         data,
-        ['email', 'cpf', 'phone'],
+        ['email', 'phone'],
         id,
         {
           email: ValidationMessages.EMAIL_ALREADY_EXISTS,
           phone: ValidationMessages.PHONE_ALREADY_EXISTS,
-          cpf: ValidationMessages.CPF_ALREADY_EXISTS,
         });
 
       if ('password' in data) {
