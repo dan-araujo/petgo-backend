@@ -18,19 +18,23 @@ export class AuthController {
   }
 
   @Post('verify-email')
-  async verifyEmail(@Body() body: { email: string; code: string }): Promise<AuthResponse> {
-    const isValid = await this.emailVerificationService.verifyEmail(body.email, body.code);
+  async verifyEmail(@Body() body: { email: string; code: string; type: string }): Promise<AuthResponse> {
+    const isValid = await this.emailVerificationService.verifyEmail(body.type, body.email, body.code);
 
     if (!isValid) {
       return {
         status: 'error',
+        success: false,  
         message: 'Código de verificação inválido ou expirado',
+        email: body.email,
       };
     }
 
     return {
       status: 'success',
+      success: true, 
       message: 'Email verificado com sucesso!',
+      email: body.email,
     };
   }
 

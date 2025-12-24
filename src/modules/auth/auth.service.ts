@@ -18,6 +18,7 @@ import { Veterinary } from '../veterinary/entities/veterinary.entity';
 
 export interface AuthResponse {
     status: 'success' | 'pending_code' | 'new_sent_code' | 'error';
+    success?: boolean;
     message: string;
     email?: string;
     data?: any;

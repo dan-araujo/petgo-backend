@@ -19,12 +19,22 @@ export class EmailVerificationService {
     @InjectRepository(Veterinary)
     private readonly veterinaryRepo: Repository<Veterinary>,
     private readonly verificationService: VerificationService,
-  ) {}
+  ) { }
 
-  // ✅ Chamado pelo auth.controller (sem repo)
-  async verifyEmail(email: string, code: string): Promise<boolean> {
-    const repo = await this._findRepositoryByEmail(email);
+  async verifyEmail(userType: string, email: string, code: string): Promise<boolean> {
+    const repo = this._getRepository(userType);
     return this.verificationService.verifyEmail(repo, email, code);
+  }
+
+  private _getRepository(type: string) {
+    // Mesma lógica que está em auth.service.ts
+    const repositories = {
+      'store': this.storeRepo,
+      'customer': this.customerRepo,
+      'delivery': this.deliveryRepo,
+      'veterinary': this.veterinaryRepo,
+    };
+    return repositories[type];
   }
 
   // ✅ Chamado pelo auth.controller (sem repo)
