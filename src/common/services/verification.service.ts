@@ -33,10 +33,6 @@ export class VerificationService {
     console.log(`Tipo do código no banco: ${typeof user.verification_code}`);
     console.log(`Tipo do código enviado: ${typeof code}`);
 
-    // ❌ PROBLEMA: comparação fraca, pode aceitar código errado
-    // if (user.verification_code !== code) {
-
-    // ✅ SOLUÇÃO: comparação forte com string conversão
     const codigoIguais = String(user.verification_code) === String(code);
 
     if (!codigoIguais) {

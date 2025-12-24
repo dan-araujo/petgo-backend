@@ -1,17 +1,26 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
-import { Observable, map } from "rxjs";
+import { map, Observable } from "rxjs";
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
-
-    intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
+    intercept(
+        context: ExecutionContext,
+        next: CallHandler,
+    ): Observable<any> {
         return next.handle().pipe(
-            map((data) => ({
-                success: true,
-                message: data?.message || 'Operação realizada com sucesso!',
-                data: data?.data || data,
-            })),
+            map((data) => {
+                // 🔒 Se o controller já definiu success, respeita 100%
+                if (data && typeof data === 'object' && 'success' in data) {
+                    return data;
+                }
+
+                // ✅ Caso padrão de sucesso
+                return {
+                    success: true,
+                    message: 'Operação realizada com sucesso!',
+                    data,
+                };
+            }),
         );
     }
-
 }
