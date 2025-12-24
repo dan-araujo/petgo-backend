@@ -10,7 +10,6 @@ import { UserType } from '../enums/user-type.enum';
 
 @Injectable()
 export class EmailVerificationService {
-  // ✅ CONSTANTE PARA CONTROLAR RESEND
   private readonly RESEND_CODE_COOLDOWN_SECONDS = 60; 
 
   constructor(
@@ -34,7 +33,6 @@ export class EmailVerificationService {
     return this.verificationService.verifyEmail(repo, email, code);
   }
 
-  // ✅ Chamado pelo auth.controller (sem repo)
   async resendVerificationCode(
     userType: string,
     email: string,
@@ -46,7 +44,6 @@ export class EmailVerificationService {
       throw new Error('Usuário não encontrado');
     }
 
-    // ✅ VALIDAÇÃO DE RATE LIMIT
     if (user.last_code_send_at) {
       const lastSendTime = new Date(user.last_code_send_at).getTime();
       const currentTime = new Date().getTime();
@@ -56,8 +53,8 @@ export class EmailVerificationService {
         const remainingSeconds = Math.ceil(
           this.RESEND_CODE_COOLDOWN_SECONDS - elapsedSeconds,
         );
-        throw new BadRequestException(
-          `Por favor ${remainingSeconds} segundos antes de enviar um novo código`,
+        throw new Error(
+          `Por favor aguarde ${remainingSeconds} segundos antes de enviar um novo código`,
         );
       }
     }
@@ -82,7 +79,6 @@ export class EmailVerificationService {
     console.log(`✅ Código enviado com sucesso para: ${email}`);
   }
 
-  // ✅ Chamado pelo auth.service no login (com repo)
   async handleOnLogin(
     repo: Repository<any>,
     user: any,
@@ -93,13 +89,12 @@ export class EmailVerificationService {
     return this.verificationService.handleOnLogin(repo, user);
   }
 
-  // ✅ Chamado no cadastro (com repo e user)
   async sendVerificationCode(
     repo: Repository<any>,
     user: any,
   ): Promise<void> {
     const code = this.verificationService.generateCode();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
 
     await this.verificationService.sendVerificationEmail(
       user.email,
