@@ -1,184 +1,125 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { VerificationService } from './verification.service';
-import { UserStatus } from '../enums/user-status.enum';
+import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { UserRepoHelper } from '../helpers/user-repo.helper';
-import { AuthResponse } from '../../modules/auth/auth.service';
-
-export type EmailVerificationResult =
-  | { shouldContinueLogin: true; response: null }
-  | {
-    shouldContinueLogin: false;
-    response: {
-      status: 'pending_code' | 'new_sent_code';
-      message: string;
-      email: string;
-    };
-  };
+import { MailgunEmailService } from './mailgun-email.service';
 
 @Injectable()
 export class EmailVerificationService {
-  constructor(
-    private readonly verificationService: VerificationService,
-    private readonly userRepoHelper: UserRepoHelper,
-  ) { }
+  private readonly CODE_EXPIRATIONS_MINUTES = 15;
 
-  async verifyEmail(
-    email: string,
-    code: string,
-  ): Promise<{
-    status: string;
-    message: string;
-    email: string;
-  }> {
-    const { user, repository: repo } =
-      await this.userRepoHelper.findUserByEmail(email);
+  constructor(private readonly mailgunService: MailgunEmailService) { }
 
-    await this.validateEmailVerificationCode(user, code);
-    await this.markEmailAsVerified(repo, user);
+  async sendVerificationCode(repo: Repository<any>, user: any): Promise<void> {
+    const code = this.generateCode();
+    const expiresAt = new Date(Date.now() + this.CODE_EXPIRATIONS_MINUTES * 60 * 1000);
 
-    return {
-      status: 'success',
-      message: 'Email verificado com sucesso! Agora você pode fazer login.',
-      email: user.email,
-    };
-  }
+    try {
+      const html = this.getEmailTemplate(code, user.name);
 
-  async validateEmailVerificationCode(user: any, code: string): Promise<void> {
-    if (user.status === UserStatus.ACTIVE) {
-      throw new BadRequestException('Este email já foi verificado.');
-    }
-
-    if (user.verification_code !== code) {
-      throw new BadRequestException('Código inválido');
-    }
-
-    if (this.verificationService.isCodeExpired(user.code_expires_at)) {
-      throw new BadRequestException(
-        'Código expirado. Faça login novamente para receber um novo código.',
+      await this.mailgunService.sendEmail(
+        user.email,
+        'Código de Verificação - PetGo',
+        html,
       );
+
+      await repo.update(user.id, {
+        verification_code: code,
+        code_expires_at: expiresAt,
+        last_code_send_at: new Date(),
+      });
+    } catch (error) {
+      console.error('❌ Erro ao enviar email:', error);
+      throw error;
     }
   }
 
-  async markEmailAsVerified(repo: Repository<any>, user: any): Promise<void> {
-    await repo.update(
-      { id: user.id },
-      {
-        status: UserStatus.ACTIVE,
-        verification_code: null,
-        code_expires_at: null,
-      },
-    );
-  }
+  async handleOnLogin(repo: Repository<any>, user: any): Promise<any> {
+    const isVerified = user.status === 'active';
 
-  async handleOnLogin(
-    repo: Repository<any>,
-    user: any,
-  ): Promise<EmailVerificationResult> {
-    if (user.status === UserStatus.ACTIVE) {
-      return { shouldContinueLogin: true, response: null };
-    }
+    if (!isVerified) {
+      await this.sendVerificationCode(repo, user);
 
-    if (this._hasValidVerificationCode(user)) {
       return {
         shouldContinueLogin: false,
         response: {
           status: 'pending_code',
-          message:
-            'Email ainda não verificado. Use o código enviado para seu email.',
+          message: 'Seu email precisa ser verificado. Código enviado!',
           email: user.email,
         },
       };
     }
 
-    await this.sendVerificationCode(repo, user);
     return {
-      shouldContinueLogin: false,
-      response: {
-        status: 'new_sent_code',
-        message: 'Novo código de verificação enviado para seu e-mail',
-        email: user.email,
-      },
+      shouldContinueLogin: true,
+      response: { status: 'success' },
     };
   }
 
-  private _hasValidVerificationCode(user: any): boolean {
-    return (
-      user.verification_code &&
-      !this.verificationService.isCodeExpired(user.code_expires_at)
-    );
-  }
+  async verifyCode(repo: Repository<any>, email: string, code: string): Promise<boolean> {
+    const user = await repo.findOne({ where: { email } });
 
-  async sendVerificationCode(repo: Repository<any>, user: any): Promise<void> {
-    const verificationCode = this.verificationService.generateCode();
-    const expiresAt = this.verificationService.getExpirationTime();
-    const now = new Date();
-
-    await repo.update(
-      { id: user.id },
-      {
-        verification_code: verificationCode,
-        code_expires_at: expiresAt,
-        status: UserStatus.AWAITING_VERIFICATION,
-        last_code_send_at: now,
-      },
-    );
-
-    await this.verificationService.sendVerificationEmail(
-      user.email,
-      verificationCode,
-      user.name,
-    );
-  }
-
-  async resendVerificationCode(email: string): Promise<AuthResponse> {
-    try {
-      const { user, repository } =
-        await this.userRepoHelper.findUserByEmail(email);
-
-      if (user.last_code_send_at) {
-        const lastSent = new Date(user.last_code_send_at).getTime();
-        const diff = Date.now() - lastSent;
-
-        if (diff < 60_000) {
-          return {
-            status: 'error' as const,
-            message: `Aguarde ${Math.ceil((60_000 - diff) / 1000)}s antes de reenviar`,
-            email,
-          };
-        }
-      }
-
-      const verificationCode = this.verificationService.generateCode();
-      const expiresAt = this.verificationService.getExpirationTime();
-      const now = new Date();
-
-      await repository.update(
-        { id: user.id },
-        {
-          verification_code: verificationCode,
-          code_expires_at: expiresAt,
-          last_code_send_at: now,
-        },
-      );
-
-      await this.verificationService.sendVerificationEmail(
-        user.email,
-        verificationCode,
-        user.name,
-      );
-
-      return {
-        status: 'new_sent_code' as const,
-        message: 'Novo código de verificação enviado para seu email.',
-        email,
-      };
-    } catch (error: any) {
-      console.error('Erro ao reenviar código:', error);
-      return {
-        status: 'error' as const,
-        message: error.message || 'Erro ao processar solicitação',
-      };
+    if (!user || user.verification_code !== code) {
+      return false;
     }
+
+    if (new Date() > user.code_expires_at) {
+      return false;
+    }
+
+    // Marca como verificado
+    await repo.update(user.id, {
+      status: 'active',
+      verification_code: null,
+      code_expires_at: null,
+    });
+
+    return true;
+  }
+
+  async resendCode(repo: Repository<any>, email: string): Promise<void> {
+    const user = await repo.findOne({ where: { email } });
+
+    if (!user) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    // Verifica rate limit (1 código a cada 5 minutos)
+    const lastSend = user.last_code_send_at;
+    if (lastSend && Date.now() - new Date(lastSend).getTime() < 5 * 60 * 1000) {
+      throw new Error('Aguarde 5 minutos antes de solicitar um novo código');
+    }
+
+    await this.sendVerificationCode(repo, user);
+  }
+
+  private generateCode(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  private getEmailTemplate(code: string, userName: string): string {
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h1 style="color: #85AB6D;">Bem-vindo ao PetGo! 🐾</h1>
+        <p>Olá <strong>${userName}</strong>,</p>
+        <p>Para verificar sua conta, use o código abaixo:</p>
+        
+        <div style="
+          background-color: #f0f0f0;
+          padding: 20px;
+          border-radius: 8px;
+          text-align: center;
+          margin: 20px 0;
+        ">
+          <h2 style="color: #85AB6D; letter-spacing: 5px; margin: 0;">${code}</h2>
+        </div>
+        
+        <p><small>⏱️ Este código expira em ${this.CODE_EXPIRATIONS_MINUTES} minutos.</small></p>
+        <p>Se você não solicitou este código, ignore este email.</p>
+        
+        <hr style="margin-top: 40px; border: none; border-top: 1px solid #ccc;">
+        <p style="color: #666; font-size: 12px;">
+          © 2025 PetGo. Todos os direitos reservados.
+        </p>
+      </div>
+    `;
   }
 }

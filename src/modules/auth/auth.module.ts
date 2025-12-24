@@ -14,7 +14,7 @@ import { Delivery } from '../delivery/entities/delivery.entity';
 import { Store } from '../store/entities/store.entity';
 import { Veterinary } from '../veterinary/entities/veterinary.entity';
 import { mailerConfig } from '../../config/mailer.config';
-import { ResendEmailService } from '../../common/services/resend-email.service';
+import { MailgunEmailService } from '../../common/services/mailgun-email.service';
 
 @Module({
   imports: [
@@ -40,8 +40,8 @@ import { ResendEmailService } from '../../common/services/resend-email.service';
     VerificationService,
     EmailVerificationService,
     UserRepoHelper,
-    ResendEmailService, 
+    MailgunEmailService, 
   ],
-  exports: [AuthService, VerificationService, EmailVerificationService, ResendEmailService],
+  exports: [AuthService, VerificationService, EmailVerificationService, MailgunEmailService],
 })
 export class AuthModule {}
