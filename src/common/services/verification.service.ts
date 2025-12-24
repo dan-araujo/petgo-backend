@@ -6,7 +6,7 @@ import { MailgunEmailService } from './mailgun-email.service';
 export class VerificationService {
   private readonly CODE_EXPIRATIONS_MINUTES = 15;
 
-  constructor(private readonly mailgunEmailService: MailgunEmailService) {}
+  constructor(private readonly mailgunEmailService: MailgunEmailService) { }
 
   async sendVerificationEmail(email: string, userName: string, code: string): Promise<void> {
     const html = this.mailgunEmailService.getEmailTemplate(code, userName);
@@ -18,27 +18,52 @@ export class VerificationService {
   }
 
   async verifyEmail(repo: Repository<any>, email: string, code: string): Promise<boolean> {
+    console.log(`🔍 Tentando verificar email: ${email} com código: ${code}`);
+
+    // Busca NOVAMENTE do banco (sempre fresco)
     const user = await repo.findOne({ where: { email } });
 
     if (!user) {
+      console.log('❌ Usuário não encontrado');
       return false;
     }
 
-    if (user.verification_code !== code) {
+    console.log(`Código no banco: ${user.verification_code}`);
+    console.log(`Código enviado: ${code}`);
+    console.log(`Tipo do código no banco: ${typeof user.verification_code}`);
+    console.log(`Tipo do código enviado: ${typeof code}`);
+
+    // ❌ PROBLEMA: comparação fraca, pode aceitar código errado
+    // if (user.verification_code !== code) {
+
+    // ✅ SOLUÇÃO: comparação forte com string conversão
+    const codigoIguais = String(user.verification_code) === String(code);
+
+    if (!codigoIguais) {
+      console.log('❌ Código incorreto');
       return false;
     }
 
-    if (new Date() > user.code_expires_at) {
+    // Verifica se expirou
+    if (!user.code_expires_at) {
+      console.log('❌ Código não existe ou foi expirado');
       return false;
     }
 
-    // Marca como verificado
+    if (new Date() > new Date(user.code_expires_at)) {
+      console.log('❌ Código expirou');
+      return false;
+    }
+
+    // ✅ Marca como verificado
+    console.log('✅ Código válido! Marcando usuário como ativo...');
     await repo.update(user.id, {
       status: 'active',
       verification_code: null,
       code_expires_at: null,
     });
 
+    console.log('✅ Usuário verificado com sucesso!');
     return true;
   }
 
