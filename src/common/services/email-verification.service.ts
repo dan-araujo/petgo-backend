@@ -54,7 +54,7 @@ export class EmailVerificationService {
     };
   }
 
-  async verifyCode(repo: Repository<any>, email: string, code: string): Promise<boolean> {
+  async verifyEmail(repo: Repository<any>, email: string, code: string): Promise<boolean> {
     const user = await repo.findOne({ where: { email } });
 
     if (!user || user.verification_code !== code) {
@@ -75,7 +75,7 @@ export class EmailVerificationService {
     return true;
   }
 
-  async resendCode(repo: Repository<any>, email: string): Promise<void> {
+  async resendVerificationCode(repo: Repository<any>, email: string): Promise<void> {
     const user = await repo.findOne({ where: { email } });
 
     if (!user) {
