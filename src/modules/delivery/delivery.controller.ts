@@ -11,7 +11,7 @@ export class DeliveryController {
   constructor(private readonly deliveryService: DeliveryService) { }
 
   @Post('register')
-  async create(@Body() dto: CreateDeliveryDTO): Promise<ApiResponse<Partial<AuthResponse>>> {
+  async create(@Body() dto: CreateDeliveryDTO): Promise<AuthResponse> {
     return await this.deliveryService.create(dto);
   }
 
