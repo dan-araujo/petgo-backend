@@ -44,7 +44,7 @@ export class ResendEmailService {
 
     try {
       const { data, error } = await this.resend.emails.send({
-        from: 'PetGo! <daniel.ti.info@gmail.com>', 
+        from: 'PetGo! <onboarding@resend.dev>', 
         to: [email],
         subject: 'Código de Verificação - PetGo!',
         html: this._buildEmailHtml(code, userName),
