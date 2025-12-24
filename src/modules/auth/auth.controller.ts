@@ -24,7 +24,7 @@ export class AuthController {
     if (!isValid) {
       return {
         status: 'error',
-        success: false,  
+        success: false,
         message: 'Código de verificação inválido ou expirado',
         email: body.email,
       };
@@ -32,26 +32,34 @@ export class AuthController {
 
     return {
       status: 'success',
-      success: true, 
+      success: true,
       message: 'Email verificado com sucesso!',
       email: body.email,
     };
   }
 
   @Post('resend-verification-code')
-  async resendVerificationCode(@Body() dto: ResendVerificationCodeDTO): Promise<AuthResponse> {
+  async resendVerificationCode(
+    @Body() dto: { email: string; type: string },
+  ): Promise<AuthResponse> {
     try {
-      await this.emailVerificationService.resendVerificationCode(dto.email);
+      await this.emailVerificationService.resendVerificationCode(
+        dto.type,
+        dto.email,
+      );
 
       return {
         status: 'new_sent_code',
+        success: true,
         message: 'Novo código de verificação enviado para seu e-mail',
         email: dto.email,
       };
     } catch (error) {
       return {
         status: 'error',
+        success: false,
         message: error.message || 'Erro ao reenviar código de verificação',
+        email: dto.email,
       };
     }
   }
