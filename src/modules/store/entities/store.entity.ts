@@ -17,7 +17,7 @@ export class Store {
     @Column({ length: 20, nullable: true })
     phone?: string;
 
-    @Column({ length: 30, nullable: false })
+    @Column({ length: 30, nullable: true })
     category: 'PETSHOP' | 'FEED_STORE';
 
     @Column({ length: 20, unique: true, nullable: false })
