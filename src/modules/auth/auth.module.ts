@@ -40,6 +40,7 @@ import { ResendEmailService } from '../../common/services/resend-email.service';
     VerificationService,
     EmailVerificationService,
     UserRepoHelper,
+    ResendEmailService, 
   ],
   exports: [AuthService, VerificationService, EmailVerificationService, ResendEmailService],
 })
