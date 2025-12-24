@@ -13,18 +13,42 @@ export class AuthController {
   ) { }
 
   @Post('login/:type')
-  async login(@Param('type') type: UserType, @Body() dto: LoginDTO): Promise<any> {
+  async login(@Param('type') type: UserType, @Body() dto: LoginDTO): Promise<AuthResponse> {
     return this.authService.login(type, dto);
   }
 
   @Post('verify-email')
-  async verifyEmail(@Body() body: { email: string; code: string }): Promise<any> {
-    return this.emailVerificationService.verifyEmail(body.email, body.code);
+  async verifyEmail(@Body() body: { email: string; code: string }): Promise<AuthResponse> {
+    const isValid = await this.emailVerificationService.verifyEmail(body.email, body.code);
+
+    if (!isValid) {
+      return {
+        status: 'error',
+        message: 'Código de verificação inválido ou expirado',
+      };
+    }
+
+    return {
+      status: 'success',
+      message: 'Email verificado com sucesso!',
+    };
   }
 
   @Post('resend-verification-code')
   async resendVerificationCode(@Body() dto: ResendVerificationCodeDTO): Promise<AuthResponse> {
-    return await this.emailVerificationService.resendVerificationCode(dto.email);
-  }
+    try {
+      await this.emailVerificationService.resendVerificationCode(dto.email);
 
+      return {
+        status: 'new_sent_code',
+        message: 'Novo código de verificação enviado para seu e-mail',
+        email: dto.email,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: error.message || 'Erro ao reenviar código de verificação',
+      };
+    }
+  }
 }
