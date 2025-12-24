@@ -9,27 +9,37 @@ export class MailgunEmailService {
   private readonly CODE_EXPIRATIONS_MINUTES = 15;
 
   constructor() {
-    const apiKey = process.env.MAILGUN_API_KEY;
-    const domain = process.env.MAILGUN_DOMAIN;
+  const apiKey = process.env.MAILGUN_API_KEY;
+  const domain = process.env.MAILGUN_DOMAIN;
 
-    if (!apiKey || !domain) {
-      throw new Error('MAILGUN_API_KEY ou MAILGUN_DOMAIN não configurados');
-    }
+  console.log('🔑 Verificando credenciais Mailgun...');
+  console.log('API Key (primeiros 10 chars):', apiKey?.substring(0, 10));
+  console.log('Domínio:', domain);
 
-    const mailgun = new Mailgun(FormData);
-    this.mailgunClient = mailgun.client({
-      username: 'api',
-      key: apiKey,
-    });
-    this.mailgunDomain = domain;
+  if (!apiKey || !domain) {
+    throw new Error('MAILGUN_API_KEY ou MAILGUN_DOMAIN não configurados');
   }
+
+  const mailgun = new Mailgun(FormData);
+  this.mailgunClient = mailgun.client({
+    username: 'api',
+    key: apiKey,
+  });
+  this.mailgunDomain = domain;
+
+  console.log('✅ Mailgun configurado com sucesso!');
+}
 
   async sendEmail(to: string, subject: string, html: string): Promise<void> {
     try {
       console.log('📧 Enviando email via Mailgun...');
       console.log(`Para: ${to}`);
+      console.log(`Domínio: ${this.mailgunDomain}`); // ✅ Adicione isso
 
-      const fromEmail = `PetGo <noreply@${this.mailgunDomain}>`;
+      // ✅ Use o formato correto
+      const fromEmail = `PetGo <postmaster@${this.mailgunDomain}>`;
+
+      console.log(`From: ${fromEmail}`); // ✅ Adicione isso para debug
 
       const response = await this.mailgunClient.messages.create(this.mailgunDomain, {
         from: fromEmail,
@@ -42,6 +52,8 @@ export class MailgunEmailService {
       console.log(`ID: ${response.id}`);
     } catch (error) {
       console.error('❌ Erro do Mailgun:', error);
+      console.error('❌ API Key (primeiros 10 chars):', process.env.MAILGUN_API_KEY?.substring(0, 10)); // Debug
+      console.error('❌ Domínio:', this.mailgunDomain); // Debug
       throw new InternalServerErrorException('Erro ao enviar email');
     }
   }
