@@ -10,7 +10,7 @@ import { UserType } from '../enums/user-type.enum';
 
 @Injectable()
 export class EmailVerificationService {
-  private readonly RESEND_CODE_COOLDOWN_SECONDS = 60; 
+  private readonly RESEND_CODE_COOLDOWN_SECONDS = 60;
 
   constructor(
     @InjectRepository(Store)
@@ -22,7 +22,7 @@ export class EmailVerificationService {
     @InjectRepository(Veterinary)
     private readonly veterinaryRepo: Repository<Veterinary>,
     private readonly verificationService: VerificationService,
-  ) {}
+  ) { }
 
   async verifyEmail(
     userType: string,
@@ -53,7 +53,7 @@ export class EmailVerificationService {
         const remainingSeconds = Math.ceil(
           this.RESEND_CODE_COOLDOWN_SECONDS - elapsedSeconds,
         );
-        throw new Error(
+        throw new BadRequestException(
           `Por favor aguarde ${remainingSeconds} segundos antes de enviar um novo código`,
         );
       }
@@ -94,7 +94,7 @@ export class EmailVerificationService {
     user: any,
   ): Promise<void> {
     const code = this.verificationService.generateCode();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await this.verificationService.sendVerificationEmail(
       user.email,

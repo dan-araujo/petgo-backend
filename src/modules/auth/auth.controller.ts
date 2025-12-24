@@ -42,25 +42,16 @@ export class AuthController {
   async resendVerificationCode(
     @Body() dto: { email: string; type: string },
   ): Promise<AuthResponse> {
-    try {
-      await this.emailVerificationService.resendVerificationCode(
-        dto.type,
-        dto.email,
-      );
+    await this.emailVerificationService.resendVerificationCode(
+      dto.type,
+      dto.email,
+    );
 
-      return {
-        status: 'new_sent_code',
-        success: true,
-        message: 'Novo código de verificação enviado para seu e-mail',
-        email: dto.email,
-      };
-    } catch (error) {
-      return {
-        status: 'error',
-        success: false,
-        message: error.message || 'Erro ao reenviar código de verificação',
-        email: dto.email,
-      };
-    }
+    return {
+      status: 'new_sent_code',
+      success: true,
+      message: 'Novo código de verificação enviado para seu e-mail',
+      email: dto.email,
+    };
   }
 }
