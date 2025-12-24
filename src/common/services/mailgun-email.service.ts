@@ -9,51 +9,49 @@ export class MailgunEmailService {
   private readonly CODE_EXPIRATIONS_MINUTES = 15;
 
   constructor() {
-  const apiKey = process.env.MAILGUN_API_KEY;
-  const domain = process.env.MAILGUN_DOMAIN;
+    const apiKey = process.env.MAILGUN_API_KEY;
+    const domain = process.env.MAILGUN_DOMAIN;
 
-  console.log('🔑 Verificando credenciais Mailgun...');
-  console.log('API Key (primeiros 10 chars):', apiKey?.substring(0, 10));
-  console.log('Domínio:', domain);
+    console.log('🔑 Verificando credenciais Mailgun...');
+    console.log('API Key (primeiros 10 chars):', apiKey?.substring(0, 10));
+    console.log('Domínio:', domain);
 
-  if (!apiKey || !domain) {
-    throw new Error('MAILGUN_API_KEY ou MAILGUN_DOMAIN não configurados');
+    if (!apiKey || !domain) {
+      throw new Error('MAILGUN_API_KEY ou MAILGUN_DOMAIN não configurados');
+    }
+
+    const mailgun = new Mailgun(FormData);
+    this.mailgunClient = mailgun.client({
+      username: 'api',
+      key: apiKey,
+    });
+    this.mailgunDomain = domain;
+
+    console.log('✅ Mailgun configurado com sucesso!');
   }
-
-  const mailgun = new Mailgun(FormData);
-  this.mailgunClient = mailgun.client({
-    username: 'api',
-    key: apiKey,
-  });
-  this.mailgunDomain = domain;
-
-  console.log('✅ Mailgun configurado com sucesso!');
-}
 
   async sendEmail(to: string, subject: string, html: string): Promise<void> {
     try {
       console.log('📧 Enviando email via Mailgun...');
       console.log(`Para: ${to}`);
-      console.log(`Domínio: ${this.mailgunDomain}`); // ✅ Adicione isso
+      console.log(`Domínio: ${this.mailgunDomain}`);
 
-      // ✅ Use o formato correto
+      // ✅ Formato correto com o domínio
       const fromEmail = `PetGo <postmaster@${this.mailgunDomain}>`;
-
-      console.log(`From: ${fromEmail}`); // ✅ Adicione isso para debug
+      console.log(`From: ${fromEmail}`);
 
       const response = await this.mailgunClient.messages.create(this.mailgunDomain, {
         from: fromEmail,
-        to: to,
+        to: [to], // ✅ Passa como array
         subject: subject,
-        html: html,
+        html: html, // ✅ Usa html em vez de text
       });
 
       console.log('✅ Email enviado com sucesso!');
       console.log(`ID: ${response.id}`);
     } catch (error) {
       console.error('❌ Erro do Mailgun:', error);
-      console.error('❌ API Key (primeiros 10 chars):', process.env.MAILGUN_API_KEY?.substring(0, 10)); // Debug
-      console.error('❌ Domínio:', this.mailgunDomain); // Debug
+      console.error('Detalhes:', error.message);
       throw new InternalServerErrorException('Erro ao enviar email');
     }
   }
