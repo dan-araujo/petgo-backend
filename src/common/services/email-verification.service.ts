@@ -3,7 +3,6 @@ import { VerificationService } from './verification.service';
 import { UserStatus } from '../enums/user-status.enum';
 import { Repository } from 'typeorm';
 import { UserRepoHelper } from '../helpers/user-repo.helper';
-import { UserType } from '../enums/user-type.enum';
 import { AuthResponse } from '../../modules/auth/auth.service';
 
 export type EmailVerificationResult =
