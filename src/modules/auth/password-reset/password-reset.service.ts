@@ -8,14 +8,15 @@ import * as bcrypt from 'bcrypt';
 import { UserType } from "../../../common/enums/user-type.enum";
 import { EmailService } from "../../../common/services/email.service";
 import { UserReposityResolver } from "../../../common/services/user-repository.resolver";
+import { CODE_SECURITY } from "../../../common/constants/code-security.constants";
 
 @Injectable()
 export class PasswordResetService {
-    private readonly CODE_TTL_MINUTES = 10;
-    private readonly RESEND_COOLDOWN_SECONDS = 60;
-    private readonly MAX_ATTEMPTS = 5;
-    private readonly LOCK_MINUTES = 15;
-    private readonly RESET_TOKEN_TTL_MINUTES = 10;
+    private readonly CODE_TTL_MINUTES = CODE_SECURITY.CODE_TTL_MINUTES;
+    private readonly RESEND_COOLDOWN_SECONDS = CODE_SECURITY.RESEND_COOLDOWN_SECONDS;
+    private readonly MAX_ATTEMPTS = CODE_SECURITY.MAX_ATTEMPTS;
+    private readonly LOCK_MINUTES = CODE_SECURITY.LOCK_MINUTES;
+    private readonly RESET_TOKEN_TTL_MINUTES = CODE_SECURITY.RESET_TOKEN_TTL_MINUTES;
 
     constructor(
         @InjectRepository(PasswordResetRequest)
