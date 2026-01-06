@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { UserType } from "../../../../common/enums/user-type.enum";
 
 @Entity('password_reset_requests')
@@ -33,6 +33,6 @@ export class PasswordResetRequest {
     @CreateDateColumn()
     created_at: Date;
 
-    @CreateDateColumn({ type: 'timestamptz' })
+    @UpdateDateColumn({ type: 'timestamptz' })
     updated_at: Date;
 }
