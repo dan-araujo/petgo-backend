@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Customer } from './entities/customer.entity';
 import { IsNull, Repository } from 'typeorm';
@@ -12,70 +6,72 @@ import { CreateCustomerDTO } from './dto/create-customer.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateCustomerDTO } from './dto/update-customer.dto';
 import { BaseService } from '../../common/base/base.service';
-import { ValidationMessages } from '../../common/constants/validation-messages';
-import { AuthResponse, AuthService } from '../auth/auth.service';
+import { ValidationMessages } from '../../common/constants/validation-messages.constants';
+import { AuthResponse } from '../auth/auth.service';
 import { UserType } from '../../common/enums/user-type.enum';
+import { EmailVerificationServiceV2 } from '../auth/email-verification/email-verification.v2.service';
 
 @Injectable()
 export class CustomerService extends BaseService<Customer> {
   constructor(
     @InjectRepository(Customer)
     private readonly customerRepo: Repository<Customer>,
-    private readonly authService: AuthService,
+    private readonly emailVerificationService: EmailVerificationServiceV2,
   ) {
     super(customerRepo);
   }
 
   async create(data: CreateCustomerDTO): Promise<AuthResponse> {
-        let savedCustomer: Customer | null = null;
+    let savedCustomer: Customer | null = null;
 
-        try {
-            await this.checkUnique(
-                data,
-                ['email', 'cpf', 'phone'],
-                undefined,
-                {
-                    email: ValidationMessages.EMAIL_ALREADY_EXISTS,
-                    cpf: ValidationMessages.CPF_ALREADY_EXISTS,
-                    phone: ValidationMessages.PHONE_ALREADY_EXISTS,
-                },
-            );
+    try {
+      await this.checkUnique(
+        data,
+        ['email', 'cpf', 'phone'],
+        undefined,
+        {
+          email: ValidationMessages.EMAIL_ALREADY_EXISTS,
+          cpf: ValidationMessages.CPF_ALREADY_EXISTS,
+          phone: ValidationMessages.PHONE_ALREADY_EXISTS,
+        },
+      );
 
-            const password_hash = await bcrypt.hash(data.password, 10);
-            const cpf = data.cpf?.trim() === '' ? null : data.cpf;
+      const password_hash = await bcrypt.hash(data.password, 10);
+      const cpf = data.cpf?.trim() === '' ? null : data.cpf;
 
-            const customer = this.customerRepo.create({
-                name: data.name,
-                email: data.email,
-                phone: data.phone,
-                cpf: cpf as any,
-                password_hash,
-                status: 'pending',
-            });
+      const customer = this.customerRepo.create({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        cpf: cpf as any,
+        password_hash,
+        status: 'pending',
+      });
 
-            savedCustomer = await this.customerRepo.save(customer);
+      savedCustomer = await this.customerRepo.save(customer);
 
-            const result = await this.authService.completeUserRegistration(
-                UserType.CUSTOMER,
-                savedCustomer.id,
-                savedCustomer.email,
-                savedCustomer.name,
-            );
+      await this.emailVerificationService.sendVerificationCode(savedCustomer.email, UserType.CUSTOMER);
 
-            return result;
-        } catch (error) {
-            console.error('Erro ao criar o cliente: ', error);
+      return {
+            status: 'pending_code',
+            message: 'Cadastro realizado! Código de verificação enviado para seu e-mail.',
+            email: savedCustomer.email,
+            data: { userId: savedCustomer.id },
+        };
 
-            if (savedCustomer) {
-                console.warn(`Deletando cliente ${savedCustomer.id} por falha no e-mail`);
-                await this.customerRepo.delete(savedCustomer.id);
-            }
+    } catch (error) {
+      console.error('Erro ao criar o cliente: ', error);
 
-            if (error instanceof ConflictException) throw error;
-            if (error instanceof BadRequestException) throw error;
-            throw new InternalServerErrorException('Erro interno ao cadastrar cliente');
-        }
+      if (savedCustomer) {
+        console.warn(`Deletando cliente ${savedCustomer.id} por falha no e-mail`);
+        await this.customerRepo.delete(savedCustomer.id);
+      }
+
+      if (error instanceof ConflictException) throw error;
+      if (error instanceof BadRequestException) throw error;
+      throw new InternalServerErrorException('Erro interno ao cadastrar cliente');
     }
+  }
 
   async update(
     id: string,

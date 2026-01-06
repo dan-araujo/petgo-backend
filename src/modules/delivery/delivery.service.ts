@@ -1,26 +1,21 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateDeliveryDTO } from './dto/create-delivery.dto';
 import { UpdateDeliveryDTO } from './dto/update-delivery.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Delivery } from './entities/delivery.entity';
 import { IsNull, Repository } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
-import { ValidationMessages } from '../../common/constants/validation-messages';
-import { AuthResponse, AuthService } from '../auth/auth.service';
+import { ValidationMessages } from '../../common/constants/validation-messages.constants';
+import { AuthResponse } from '../auth/auth.service';
 import { UserType } from '../../common/enums/user-type.enum';
+import { EmailVerificationServiceV2 } from '../auth/email-verification/email-verification.v2.service';
 
 @Injectable()
 export class DeliveryService extends BaseService<Delivery> {
   constructor(
     @InjectRepository(Delivery)
     private readonly deliveryRepo: Repository<Delivery>,
-    private readonly authService: AuthService,
+    private readonly emailVerificationService: EmailVerificationServiceV2,
   ) {
     super(deliveryRepo);
   }
@@ -52,23 +47,24 @@ export class DeliveryService extends BaseService<Delivery> {
 
       savedDelivery = await this.deliveryRepo.save(delivery);
 
-      const result = await this.authService.completeUserRegistration(
-        UserType.DELIVERY,
-        savedDelivery.id,
-        savedDelivery.email,
-        savedDelivery.name,
-      );
+      await this.emailVerificationService.sendVerificationCode(savedDelivery.email, UserType.DELIVERY);
 
-      return result;
+      return {
+        status: 'pending_code',
+        message: 'Cadastro realizado! Código de verificação enviado para seu e-mail.',
+        email: savedDelivery.email,
+        data: { userId: savedDelivery.id },
+      };
+      
     } catch (error) {
       console.error('Erro ao criar entregador: ', error);
 
-      if(savedDelivery) {
+      if (savedDelivery) {
         console.warn(`Deletando entregador ${savedDelivery.id} por falha no e-mail`);
         await this.deliveryRepo.delete(savedDelivery.id);
       }
       if (error instanceof ConflictException) throw error;
-      if(error instanceof BadRequestException) throw error;
+      if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException('Erro interno ao cadastrar entregador.');
     }
   }

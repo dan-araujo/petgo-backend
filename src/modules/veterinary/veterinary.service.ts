@@ -6,16 +6,17 @@ import { Veterinary } from './entities/veterinary.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { ValidationMessages } from '../../common/constants/validation-messages';
-import { AuthResponse, AuthService } from '../auth/auth.service';
+import { ValidationMessages } from '../../common/constants/validation-messages.constants';
+import { AuthResponse } from '../auth/auth.service';
 import { UserType } from '../../common/enums/user-type.enum';
+import { EmailVerificationServiceV2 } from '../auth/email-verification/email-verification.v2.service';
 
 @Injectable()
 export class VeterinaryService extends BaseService<Veterinary> {
   constructor(
     @InjectRepository(Veterinary)
     private readonly veterinaryRepo: Repository<Veterinary>,
-    private readonly authService: AuthService,
+    private readonly emailVerificationService: EmailVerificationServiceV2,
   ) {
     super(veterinaryRepo);
   }
@@ -46,14 +47,15 @@ export class VeterinaryService extends BaseService<Veterinary> {
 
       savedVeterinary = await this.veterinaryRepo.save(veterinary);
 
-      const result = await this.authService.completeUserRegistration(
-        UserType.VETERINARY,
-        savedVeterinary.id,
-        savedVeterinary.email,
-        savedVeterinary.name,
-      );
+      await this.emailVerificationService.sendVerificationCode(savedVeterinary.email, UserType.VETERINARY);
 
-      return result;
+      return {
+        status: 'pending_code',
+        message: 'Cadastro realizado! Código de verificação enviado para seu e-mail.',
+        email: savedVeterinary.email,
+        data: { userId: savedVeterinary.id },
+      };
+
     } catch (error) {
       console.error('Erro ao criar veterinário: ', error);
       if (error instanceof NotFoundException || error instanceof ConflictException) throw error;

@@ -5,9 +5,10 @@ import { Store } from './entities/store.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
-import { ValidationMessages } from '../../common/constants/validation-messages';
-import { AuthResponse, AuthService } from '../auth/auth.service';
+import { ValidationMessages } from '../../common/constants/validation-messages.constants';
+import { AuthResponse } from '../auth/auth.service';
 import { UserType } from '../../common/enums/user-type.enum';
+import { EmailVerificationServiceV2 } from '../auth/email-verification/email-verification.v2.service';
 
 @Injectable()
 export class StoreService extends BaseService<Store> {
@@ -15,7 +16,7 @@ export class StoreService extends BaseService<Store> {
   constructor(
     @InjectRepository(Store)
     private readonly storeRepo: Repository<Store>,
-    private readonly authService: AuthService,
+    private readonly emailVerificationService: EmailVerificationServiceV2,
   ) {
     super(storeRepo);
   }
@@ -46,14 +47,15 @@ export class StoreService extends BaseService<Store> {
 
       savedStore = await this.storeRepo.save(store);
 
-      const result = await this.authService.completeUserRegistration(
-        UserType.STORE,
-        savedStore.id,
-        savedStore.email,
-        savedStore.name,
-      );
+      await this.emailVerificationService.sendVerificationCode(savedStore.email, UserType.STORE);
 
-      return result;
+      return {
+        status: 'pending_code',
+        message: 'Cadastro realizado! Código de verificação enviado para seu e-mail.',
+        email: savedStore.email,
+        data: { userId: savedStore.id },
+      };
+
     } catch (error) {
       console.error('Erro ao criar loja: ', error);
 
