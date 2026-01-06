@@ -1,20 +1,11 @@
-import {
-    Injectable,
-    InternalServerErrorException,
-    UnauthorizedException,
-    BadRequestException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserType } from '../../common/enums/user-type.enum';
-import { LoginDTO } from './dto/login.dto';
-import { EmailVerificationService } from '../../common/services/email-verification.service';
+import { LoginDTO } from './login/dto/login.dto';
 import { Repository } from 'typeorm';
-import { Store } from '../store/entities/store.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Customer } from '../customer/entities/customer.entity';
-import { Delivery } from '../delivery/entities/delivery.entity';
-import { Veterinary } from '../veterinary/entities/veterinary.entity';
+import { UserReposityResolver } from '../../common/services/user-repository.resolver';
+import { EmailVerificationServiceV2 } from './email-verification/email-verification.v2.service';
 
 export interface AuthResponse {
     status: 'success' | 'pending_code' | 'new_sent_code' | 'error';
@@ -26,40 +17,34 @@ export interface AuthResponse {
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectRepository(Store)
-        private readonly storeRepo: Repository<Store>,
-        @InjectRepository(Customer)
-        private readonly customerRepo: Repository<Customer>,
-        @InjectRepository(Delivery)
-        private readonly deliveryRepo: Repository<Delivery>,
-        @InjectRepository(Veterinary)
-        private readonly veterinaryRepo: Repository<Veterinary>,
         private readonly jwtService: JwtService,
-        private readonly emailVerificationService: EmailVerificationService,
+        private readonly emailVerificationService: EmailVerificationServiceV2,
+        private readonly userRepoResolver: UserReposityResolver,
     ) { }
 
-    async login(type: UserType, dto: LoginDTO): Promise<AuthResponse> {
-        const repo = this._getRepository(type);
-        const user = await this._findUser(repo, dto.email);
+    async login(userType: UserType, dto: LoginDTO): Promise<AuthResponse> {
+        const repository = this.userRepoResolver.resolve(userType);
+        const user = await this._findUser(repository, dto.email);
 
-        const isValid = await bcrypt.compare(dto.password, user.password_hash);
-        if (!isValid) throw new UnauthorizedException('E-mail ou senha incorretos');
+        const isValidPassword = await bcrypt.compare(dto.password, user.password_hash);
+        if (!isValidPassword) throw new UnauthorizedException('E-mail ou senha incorretos');
 
-        const emailResult = await this.emailVerificationService.handleOnLogin(repo, user);
-        if (!emailResult.shouldContinueLogin) {
+        if (user.status !== 'active') {
+            await this.emailVerificationService.sendVerificationCode(user.email, userType);
+
             return {
-                status: emailResult.response.status,
-                message: emailResult.response.message,
-                email: emailResult.response.email
+                status: 'pending_code',
+                message: 'Conta não verificada. Código enviado para seu e-mail',
+                email: user.email,
             };
         }
 
-        const token = await this.jwtService.signAsync({ sub: user.id, type });
+        const token = await this.jwtService.signAsync({ sub: user.id, type: userType });
         return {
             status: 'success',
             message: 'Login realizado com sucesso!',
             data: {
-                access_token: await token,
+                access_token: token,
                 user: {
                     id: user.id,
                     name: user.name,
@@ -68,34 +53,6 @@ export class AuthService {
                 },
             },
         };
-    }
-
-    async completeUserRegistration(type, userId, email, name): Promise<AuthResponse> {
-        const repo = this._getRepository(type);
-        const user = { id: userId, email, name }
-        await this.emailVerificationService.sendVerificationCode(repo, user);
-
-        return {
-            status: 'pending_code',
-            message: 'Cadastro realizado! Código de verificação enviado para seu e-mail.',
-            email: email,
-            data: { userId, email },
-        };
-    }
-
-    private _getRepository(type: UserType): Repository<any> {
-        const repositories = {
-            [UserType.STORE]: this.storeRepo,
-            [UserType.CUSTOMER]: this.customerRepo,
-            [UserType.DELIVERY]: this.deliveryRepo,
-            [UserType.VETERINARY]: this.veterinaryRepo,
-        };
-
-        const repo = repositories[type];
-        if (!repo) {
-            throw new InternalServerErrorException(`Tipo de usuário inválido: ${type}`);
-        }
-        return repo;
     }
 
     private async _findUser(repo: Repository<any>, email: string): Promise<any> {
