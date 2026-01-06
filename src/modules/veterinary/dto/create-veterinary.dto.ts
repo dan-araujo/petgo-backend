@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
-import { ValidationMessages } from '../../../common/constants/validation-messages';
+import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
 
 export enum VeterinaryCategory {
   SOLO = 'SOLO',

@@ -1,5 +1,5 @@
 import { IsDate, IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from "class-validator";
-import { ValidationMessages } from "../../../common/constants/validation-messages";
+import { ValidationMessages } from "../../../common/constants/validation-messages.constants";
 
 export class CreateDeliveryDTO {
   @IsNotEmpty({ message: ValidationMessages.REQUIRED_NAME })
