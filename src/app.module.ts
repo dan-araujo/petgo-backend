@@ -11,7 +11,7 @@ import { CustomerModule } from './modules/customer/customer.module';
 import { StoreModule } from './modules/store/store.module';
 import { DeliveryModule } from './modules/delivery/delivery.module';
 import { VeterinaryModule } from './modules/veterinary/veterinary.module';
-import { VerificationService } from './common/services/verification.service';
+import { AuthTokensModule } from './common/auth-tokens/auth-tokens.module';
 
 @Module({
   imports: [
@@ -19,6 +19,7 @@ import { VerificationService } from './common/services/verification.service';
       isGlobal: true,
       load: [configuration],
     }),
+    AuthTokensModule,
     TypeOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
@@ -40,6 +41,6 @@ import { VerificationService } from './common/services/verification.service';
     VeterinaryModule,
   ],
   controllers: [AppController],
-  providers: [AppService, VerificationService],
+  providers: [AppService],
 })
 export class AppModule { }
