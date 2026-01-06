@@ -10,9 +10,9 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // remove os campos que não existem no DTO
-      forbidNonWhitelisted: true, // lança erro se houver campos extras
-      transform: true, // converte tipos automaticamente (string -> number etc)
+      whitelist: true, 
+      forbidNonWhitelisted: true, 
+      transform: true, 
     }),
   );
 
