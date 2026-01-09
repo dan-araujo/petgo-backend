@@ -12,7 +12,10 @@ export abstract class BaseService<T extends ObjectLiteral> {
         messages?: Record<string, string>
     ): Promise<void> {
         const whereConditions = fields.map((f) => ({ [f]: (data as any)[f] }));
-        const existing = await this.repo.findOne({ where: whereConditions as any });
+        const existing = await this.repo.findOne({ 
+            where: whereConditions as any,
+            select: ['id', ...fields.map(f => f as string)],
+        });
 
         if (!existing) return;
         if (excludeId && (existing as any).id === excludeId) return;
