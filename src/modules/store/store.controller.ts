@@ -26,7 +26,7 @@ export class StoreController {
     if (!store) {
       throw new NotFoundException('Loja não encontrada');
     }
-    const { password_hash, verification_code, ...safeStore } = store;
+    const { password_hash, ...safeStore } = store;
     return { data: safeStore }
   }
 
@@ -34,7 +34,7 @@ export class StoreController {
   async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateStoreDTO):
     Promise<ApiResponse<Partial<Store>>> {
     const updatedStore = await this.storeService.update(id, dto);
-    const { password_hash, verification_code, ...safeStore } = updatedStore;
+    const { password_hash, ...safeStore } = updatedStore;
 
     return {
       message: 'Loja atualizada com sucesso!',

@@ -26,7 +26,7 @@ export class VeterinaryController {
     if (!veterinary) {
       throw new NotFoundException('Veterinário não encontrado.');
     }
-    const { password_hash, verification_code, ...safeVeterinary } = veterinary;
+    const { password_hash, ...safeVeterinary } = veterinary;
     return { data: safeVeterinary }
   }
 
@@ -35,7 +35,7 @@ export class VeterinaryController {
   async update(@Param('id') id: string, @Body() dto: Partial<UpdateVeterinaryDTO>):
     Promise<ApiResponse<Partial<Veterinary>>> {
     const updatedVeterinary = await this.veterinaryService.update(id, dto);
-    const { password_hash, verification_code, ...safeVeterinary } = updatedVeterinary;
+    const { password_hash, ...safeVeterinary } = updatedVeterinary;
     return {
       message: 'Veterinário atualizado com sucesso!',
       data: safeVeterinary

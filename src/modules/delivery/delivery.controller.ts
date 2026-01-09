@@ -26,7 +26,7 @@ export class DeliveryController {
     if (!delivery) {
       throw new NotFoundException('Entregador não encontrado');
     }
-    const { password_hash, verification_code, ...safeDelivery } = delivery;
+    const { password_hash, ...safeDelivery } = delivery;
     return { data: safeDelivery }
   }
 
@@ -34,7 +34,7 @@ export class DeliveryController {
   async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateDeliveryDTO):
     Promise<ApiResponse<Partial<Delivery>>> {
     const updatedDelivery = await this.deliveryService.update(id, dto);
-    const { password_hash, verification_code, ...safeDelivery } = updatedDelivery;
+    const { password_hash, ...safeDelivery } = updatedDelivery;
     return {
       message: 'Entregador atualizado com sucesso!',
       data: safeDelivery,
