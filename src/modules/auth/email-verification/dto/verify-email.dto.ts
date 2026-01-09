@@ -13,6 +13,7 @@ export class VerifyEmailDTO {
     @Length(6, 6, { message: ValidationMessages.VERIFICATION_CODE(6) })
     code: string;
 
-    @IsEnum(UserType)
+    @IsNotEmpty({ message: ValidationMessages.REQUIRED_USER_TYPE })
+    @IsEnum(UserType, { message: ValidationMessages.INVALID_USER_TYPE })
     userType: UserType;
 }

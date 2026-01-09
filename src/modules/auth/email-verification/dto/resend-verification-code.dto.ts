@@ -8,6 +8,7 @@ export class ResendVerificationCodeDTO {
   @IsEmail({}, { message: ValidationMessages.INVALID_EMAIL })
   email: string;
 
-  @IsEnum(UserType)
+  @IsNotEmpty({ message: ValidationMessages.REQUIRED_USER_TYPE })
+  @IsEnum(UserType, { message: ValidationMessages.INVALID_USER_TYPE })
   userType: UserType;
 }
