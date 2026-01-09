@@ -30,15 +30,6 @@ export class Customer {
     @Column({ length: 20, default: 'customer' })
     role: string;
 
-    @Column({ length: 10, nullable: true })
-    verification_code?: string;
-
-    @Column({ type: 'timestamp', nullable: true })
-    code_expires_at?: Date;
-
-    @Column({ type: 'timestamp', nullable: true, name: 'last_code_send_at' })
-    last_code_send_at?: Date;
-
     @Column({
         type: 'enum',
         enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],

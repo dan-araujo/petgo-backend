@@ -1,4 +1,11 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    DeleteDateColumn,
+    Entity,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from "typeorm";
 
 @Entity('delivery')
 export class Delivery {
@@ -21,15 +28,6 @@ export class Delivery {
     @Column()
     password_hash: string;
 
-    @Column({ length: 10, nullable: true })
-    verification_code?: string;
-
-    @Column({ type: 'timestamp', nullable: true, name: 'code_expires_at' })
-    code_expires_at?: Date;
-
-    @Column({ type: 'timestamp', nullable: true, name: 'last_code_send_at' })
-    last_code_send_at?: Date;
-
     @Column({ length: 20, nullable: true })
     vehicle_type?: string;
 
@@ -48,6 +46,16 @@ export class Delivery {
     @Column({ length: 20, default: 'delivery' })
     role: string;
 
+    @Column({
+        type: 'enum',
+        enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],
+        default: 'pending'
+    })
+    status: 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
+
+    @Column({ type: 'boolean', default: false })
+    profile_completed: boolean;
+
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;
 
@@ -56,12 +64,5 @@ export class Delivery {
 
     @DeleteDateColumn({ type: 'timestamp', nullable: true })
     deleted_at?: Date;
-
-    @Column({
-        type: 'enum',
-        enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],
-        default: 'pending'
-    })
-    status: 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
 
 }

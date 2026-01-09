@@ -1,4 +1,11 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    DeleteDateColumn,
+    Entity,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from "typeorm";
 
 @Entity('stores')
 export class Store {
@@ -38,29 +45,23 @@ export class Store {
     @Column({ length: 20, default: 'store' })
     role: string;
 
-    @CreateDateColumn({ type: 'timestamp' })
-    created_at: Date;
-
-    @UpdateDateColumn({ type: 'timestamp' })
-    updated_at: Date;
-
-    @Column({ length: 10, nullable: true })
-    verification_code?: string;
-
-    @Column({ type: 'timestamp', nullable: true })
-    code_expires_at?: Date;
-
-    @Column({ type: 'timestamp', nullable: true, name: 'last_code_send_at' })
-    last_code_send_at?: Date;
-
-    @DeleteDateColumn({ type: 'timestamp', nullable: true })
-    deleted_at?: Date;
-
     @Column({
         type: 'enum',
         enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],
         default: 'pending'
     })
     status: 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
+
+    @Column({ type: 'boolean', default: false })
+    profile_completed: boolean;
+
+    @CreateDateColumn({ type: 'timestamp' })
+    created_at: Date;
+
+    @UpdateDateColumn({ type: 'timestamp' })
+    updated_at: Date;
+
+    @DeleteDateColumn({ type: 'timestamp', nullable: true })
+    deleted_at?: Date;
 
 }
