@@ -27,7 +27,13 @@ export class EmailVerificationServiceV2 {
     return String(randomInt(0, 1_000_000)).padStart(6, '0');
   }
 
-  async sendVerificationCode(email: string, userType: UserType): Promise<void> {
+  /**
+   * Send verification code
+   * @param email User email
+   * @param userType Type of user
+   * @param skipRateLimit If true (login flow), don't throw rate limit error. Default false (resend flow).
+   */
+  async sendVerificationCode(email: string, userType: UserType, skipRateLimit = false): Promise<void> {
     const userRepository = this.userRepoResolver.resolve(userType);
     const user = await userRepository.findOne({ where: { email } });
 
@@ -44,7 +50,8 @@ export class EmailVerificationServiceV2 {
       },
     });
 
-    if (active?.last_sent_at) {
+    // Check rate limit only if not skipping (resend flow, not login flow)
+    if (!skipRateLimit && active?.last_sent_at) {
       const elapsed = (Date.now() - new Date(active.last_sent_at).getTime()) / 1000;
 
       if (elapsed < this.RESEND_CODE_COOLDOWN_SECONDS) {
