@@ -37,12 +37,6 @@ export class AuthService {
         }
 
         if (user.status !== 'active') {
-            await this.emailVerificationService.sendVerificationCode(
-                user.email,
-                userType,
-                true
-            );
-
             return {
                 status: 'pending_code',
                 success: false,
