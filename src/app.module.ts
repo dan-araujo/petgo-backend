@@ -12,6 +12,9 @@ import { StoreModule } from './modules/store/store.module';
 import { DeliveryModule } from './modules/delivery/delivery.module';
 import { VeterinaryModule } from './modules/veterinary/veterinary.module';
 import { AuthTokensModule } from './common/auth-tokens/auth-tokens.module';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseInterceptor } from './common/interceptors/interceptor';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 @Module({
   imports: [
@@ -41,6 +44,15 @@ import { AuthTokensModule } from './common/auth-tokens/auth-tokens.module';
     VeterinaryModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule { }
