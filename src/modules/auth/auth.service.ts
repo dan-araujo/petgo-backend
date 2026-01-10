@@ -30,7 +30,9 @@ export class AuthService {
         if (!isValidPassword) throw new UnauthorizedException('E-mail ou senha incorretos');
 
         if (user.status !== 'active') {
-            await this.emailVerificationService.sendVerificationCode(user.email, userType);
+            // Pass skipRateLimit=true so we always send code during login, even if user tries again quickly
+            // The rate limit will still be enforced on the resend endpoint
+            await this.emailVerificationService.sendVerificationCode(user.email, userType, true);
 
             return {
                 status: 'pending_code',
