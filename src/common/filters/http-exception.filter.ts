@@ -1,40 +1,42 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import { Response } from 'express';
+import { ApiResponse, ResponseStatus } from '../interfaces/api-response.interface';
 
-@Catch()
-export class HttpExceptionFilter<T> implements ExceptionFilter {
-  catch(exception: T, host: ArgumentsHost) {
+@Catch(HttpException)
+export class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
+    const response = ctx.getResponse<Response>();
+    const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
 
-    const status = 
-     exception instanceof HttpException
-     ? exception.getStatus()
-     : HttpStatus.INTERNAL_SERVER_ERROR;
+    let message = 'Erro desconhecido';
+    if (typeof exceptionResponse === 'object') {
+      const err = exceptionResponse as any;
+      message = err.message || message;
+    }
 
-     const message = 
-       exception instanceof HttpException
-       ? (exception.getResponse() as any).message ||
-       exception.message ||
-       'Erro inesperado.'
-       : 'Erro interno no servidor.';
+    let apiStatus: ResponseStatus = 'error';
+    if (status === HttpStatus.TOO_MANY_REQUESTS) {
+      apiStatus = 'rate_limited';
+    } else if (status === HttpStatus.BAD_REQUEST) {
+      apiStatus = 'invalid_code';
+    }
 
-      try {
-        if (exception instanceof HttpException) {
-          console.error('[HttpException]', {
-            status,
-            message,
-            path: request?.url,
-          });
-        } else {
-          console.error('[UnhandledException]', exception);
-        }
-      } catch {}
+    const apiResponse: ApiResponse = {
+      status: apiStatus,
+      message,
+      error: {
+        code: `HTTP_${status}`,
+      },
+    };
 
-       response.status(status).json({
-        success: false,
-        statusCode: status,
-        message,
-       });
+    response.status(status).json(apiResponse);
   }
 }
