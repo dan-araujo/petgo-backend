@@ -7,9 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ValidationMessages } from '../../common/constants/validation-messages.constants';
-import { AuthResponse } from '../auth/auth.service';
 import { UserType } from '../../common/enums/user-type.enum';
 import { EmailVerificationServiceV2 } from '../auth/email-verification/email-verification.v2.service';
+import { ApiResponse } from '../../common/interfaces/api-response.interface';
 
 @Injectable()
 export class VeterinaryService extends BaseService<Veterinary> {
@@ -21,9 +21,8 @@ export class VeterinaryService extends BaseService<Veterinary> {
     super(veterinaryRepo);
   }
 
-  async create(data: CreateVeterinaryDTO): Promise<AuthResponse> {
+  async create(data: CreateVeterinaryDTO): Promise<ApiResponse> {
     let savedVeterinary: Veterinary | null = null;
-
     try {
       await this.checkUnique(
         data,
@@ -32,7 +31,8 @@ export class VeterinaryService extends BaseService<Veterinary> {
         {
           email: ValidationMessages.EMAIL_ALREADY_EXISTS,
           phone: ValidationMessages.PHONE_ALREADY_EXISTS,
-        });
+        },
+      );
 
       const password_hash = await bcrypt.hash(data.password, 10);
 
@@ -47,7 +47,10 @@ export class VeterinaryService extends BaseService<Veterinary> {
 
       savedVeterinary = await this.veterinaryRepo.save(veterinary);
 
-      await this.emailVerificationService.sendVerificationCode(savedVeterinary.email, UserType.VETERINARY);
+      await this.emailVerificationService.sendVerificationCode(
+        savedVeterinary.email,
+        UserType.VETERINARY,
+      );
 
       return {
         status: 'pending_code',
@@ -55,7 +58,6 @@ export class VeterinaryService extends BaseService<Veterinary> {
         email: savedVeterinary.email,
         data: { userId: savedVeterinary.id },
       };
-
     } catch (error) {
       console.error('Erro ao criar veterinário: ', error);
       if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
@@ -64,6 +66,7 @@ export class VeterinaryService extends BaseService<Veterinary> {
         console.warn(`Deletando veterinário ${savedVeterinary.id} por falha no e-mail`);
         await this.veterinaryRepo.delete(savedVeterinary.id);
       }
+
       throw new InternalServerErrorException('Erro interno ao cadastrar veterinário');
     }
   }
@@ -71,7 +74,6 @@ export class VeterinaryService extends BaseService<Veterinary> {
   async update(id: string, data: Partial<UpdateVeterinaryDTO>): Promise<Veterinary> {
     try {
       const veterinary = await this.veterinaryRepo.findOne({ where: { id } });
-
       if (!veterinary) throw new NotFoundException('Veterinário não encontrado');
 
       await this.checkUnique(
@@ -81,7 +83,8 @@ export class VeterinaryService extends BaseService<Veterinary> {
         {
           email: ValidationMessages.EMAIL_ALREADY_EXISTS,
           phone: ValidationMessages.PHONE_ALREADY_EXISTS,
-        });
+        },
+      );
 
       if ('password' in data) {
         throw new BadRequestException(
@@ -123,12 +126,10 @@ export class VeterinaryService extends BaseService<Veterinary> {
     const veterinary = await this.veterinaryRepo.findOne({
       where: { id, deleted_at: IsNull() },
     });
-
     if (!veterinary) {
       throw new NotFoundException('Veterinário não encontrado');
     }
 
     return veterinary;
   }
-
 }

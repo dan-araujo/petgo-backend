@@ -6,13 +6,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { ValidationMessages } from '../../common/constants/validation-messages.constants';
-import { AuthResponse } from '../auth/auth.service';
 import { UserType } from '../../common/enums/user-type.enum';
 import { EmailVerificationServiceV2 } from '../auth/email-verification/email-verification.v2.service';
+import { ApiResponse } from '../../common/interfaces/api-response.interface';
 
 @Injectable()
 export class StoreService extends BaseService<Store> {
-
   constructor(
     @InjectRepository(Store)
     private readonly storeRepo: Repository<Store>,
@@ -21,8 +20,7 @@ export class StoreService extends BaseService<Store> {
     super(storeRepo);
   }
 
-
-  async create(data: CreateStoreDTO): Promise<AuthResponse> {
+  async create(data: CreateStoreDTO): Promise<ApiResponse> {
     let savedStore: Store | null = null;
     try {
       await this.checkUnique(
@@ -32,10 +30,12 @@ export class StoreService extends BaseService<Store> {
         {
           email: ValidationMessages.EMAIL_ALREADY_EXISTS,
           cnpj: ValidationMessages.CNPJ_ALREADY_EXISTS,
-          phone: ValidationMessages.PHONE_ALREADY_EXISTS
-        });
+          phone: ValidationMessages.PHONE_ALREADY_EXISTS,
+        },
+      );
 
       const password_hash = await this.hashPassword(data.password);
+
       const store = this.storeRepo.create({
         name: data.name,
         email: data.email,
@@ -47,7 +47,10 @@ export class StoreService extends BaseService<Store> {
 
       savedStore = await this.storeRepo.save(store);
 
-      await this.emailVerificationService.sendVerificationCode(savedStore.email, UserType.STORE);
+      await this.emailVerificationService.sendVerificationCode(
+        savedStore.email,
+        UserType.STORE,
+      );
 
       return {
         status: 'pending_code',
@@ -55,14 +58,13 @@ export class StoreService extends BaseService<Store> {
         email: savedStore.email,
         data: { userId: savedStore.id },
       };
-
     } catch (error) {
       console.error('Erro ao criar loja: ', error);
-
       if (savedStore) {
         console.warn(`Deletando loja ${savedStore.id} por falha no e-mail`);
         await this.storeRepo.delete(savedStore.id);
       }
+
       if (error instanceof ConflictException) throw error;
       if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException('Erro interno ao cadastrar loja.');
@@ -72,17 +74,13 @@ export class StoreService extends BaseService<Store> {
   async update(id: string, data: UpdateStoreDTO): Promise<Store> {
     try {
       const store = await this.storeRepo.findOne({ where: { id } });
-
       if (!store) throw new NotFoundException('Loja não encontrada.');
 
-      await this.checkUnique(
-        data, ['email', 'cnpj', 'phone'],
-        id,
-        {
-          email: ValidationMessages.EMAIL_ALREADY_EXISTS,
-          cnpj: ValidationMessages.CNPJ_ALREADY_EXISTS,
-          phone: ValidationMessages.PHONE_ALREADY_EXISTS
-        });
+      await this.checkUnique(data, ['email', 'cnpj', 'phone'], id, {
+        email: ValidationMessages.EMAIL_ALREADY_EXISTS,
+        cnpj: ValidationMessages.CNPJ_ALREADY_EXISTS,
+        phone: ValidationMessages.PHONE_ALREADY_EXISTS,
+      });
 
       if ('password' in data) {
         throw new BadRequestException(
@@ -111,7 +109,6 @@ export class StoreService extends BaseService<Store> {
     const store = await this.storeRepo.findOne({
       where: { id, deleted_at: IsNull() },
     });
-
     if (!store) {
       throw new NotFoundException('Loja não encontrada');
     }
@@ -122,7 +119,6 @@ export class StoreService extends BaseService<Store> {
   async remove(id: string): Promise<void> {
     try {
       const result = await this.storeRepo.softDelete(id);
-
       if (result.affected === 0) throw new NotFoundException('Loja não encontrada.');
     } catch (error) {
       console.error('Erro ao remover loja: ', error);

@@ -6,14 +6,12 @@ import { LoginDTO } from './login/dto/login.dto';
 import { Repository } from 'typeorm';
 import { UserReposityResolver } from '../../common/services/user-repository.resolver';
 import { EmailVerificationServiceV2 } from './email-verification/email-verification.v2.service';
+import {
+    ApiResponse,
+    LoginSuccessData,
+    VerificationData
+} from '../../common/interfaces/api-response.interface';
 
-export interface AuthResponse {
-    status: 'success' | 'pending_code' | 'new_sent_code' | 'error';
-    success?: boolean;
-    message: string;
-    email?: string;
-    data?: any;
-}
 @Injectable()
 export class AuthService {
     constructor(
@@ -22,28 +20,49 @@ export class AuthService {
         private readonly userRepoResolver: UserReposityResolver,
     ) { }
 
-    async login(userType: UserType, dto: LoginDTO): Promise<AuthResponse> {
+    async login(
+        userType: UserType,
+        dto: LoginDTO
+    ): Promise<ApiResponse<LoginSuccessData | VerificationData>> {
         const repository = this.userRepoResolver.resolve(userType);
         const user = await this._findUser(repository, dto.email);
 
-        const isValidPassword = await bcrypt.compare(dto.password, user.password_hash);
-        if (!isValidPassword) throw new UnauthorizedException('E-mail ou senha incorretos');
+        const isValidPassword = await bcrypt.compare(
+            dto.password,
+            user.password_hash
+        );
+
+        if (!isValidPassword) {
+            throw new UnauthorizedException('E-mail ou senha incorretos');
+        }
 
         if (user.status !== 'active') {
-            // Pass skipRateLimit=true so we always send code during login, even if user tries again quickly
-            // The rate limit will still be enforced on the resend endpoint
-            await this.emailVerificationService.sendVerificationCode(user.email, userType, true);
+            await this.emailVerificationService.sendVerificationCode(
+                user.email,
+                userType,
+                true
+            );
 
             return {
                 status: 'pending_code',
+                success: false,
                 message: 'Conta não verificada. Código enviado para seu e-mail',
                 email: user.email,
+                data: {
+                    email: user.email,
+                    expiresIn: 10 * 60,
+                },
             };
         }
 
-        const token = await this.jwtService.signAsync({ sub: user.id, type: userType });
+        const token = await this.jwtService.signAsync({
+            sub: user.id,
+            type: userType,
+        });
+
         return {
             status: 'success',
+            success: true,
             message: 'Login realizado com sucesso!',
             data: {
                 access_token: token,
@@ -59,10 +78,11 @@ export class AuthService {
 
     private async _findUser(repo: Repository<any>, email: string): Promise<any> {
         const user = await repo.findOne({ where: { email } });
+
         if (!user) {
             throw new UnauthorizedException('E-mail ou senha incorretos');
         }
+
         return user;
     }
-
 }

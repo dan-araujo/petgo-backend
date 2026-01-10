@@ -7,9 +7,9 @@ import * as bcrypt from 'bcrypt';
 import { UpdateCustomerDTO } from './dto/update-customer.dto';
 import { BaseService } from '../../common/base/base.service';
 import { ValidationMessages } from '../../common/constants/validation-messages.constants';
-import { AuthResponse } from '../auth/auth.service';
 import { UserType } from '../../common/enums/user-type.enum';
 import { EmailVerificationServiceV2 } from '../auth/email-verification/email-verification.v2.service';
+import { ApiResponse } from '../../common/interfaces/api-response.interface';
 
 @Injectable()
 export class CustomerService extends BaseService<Customer> {
@@ -21,9 +21,8 @@ export class CustomerService extends BaseService<Customer> {
     super(customerRepo);
   }
 
-  async create(data: CreateCustomerDTO): Promise<AuthResponse> {
+  async create(data: CreateCustomerDTO): Promise<ApiResponse> {
     let savedCustomer: Customer | null = null;
-
     try {
       await this.checkUnique(
         data,
@@ -50,18 +49,19 @@ export class CustomerService extends BaseService<Customer> {
 
       savedCustomer = await this.customerRepo.save(customer);
 
-      await this.emailVerificationService.sendVerificationCode(savedCustomer.email, UserType.CUSTOMER);
+      await this.emailVerificationService.sendVerificationCode(
+        savedCustomer.email,
+        UserType.CUSTOMER,
+      );
 
       return {
-            status: 'pending_code',
-            message: 'Cadastro realizado! Código de verificação enviado para seu e-mail.',
-            email: savedCustomer.email,
-            data: { userId: savedCustomer.id },
-        };
-
+        status: 'pending_code',
+        message: 'Cadastro realizado! Código de verificação enviado para seu e-mail.',
+        email: savedCustomer.email,
+        data: { userId: savedCustomer.id },
+      };
     } catch (error) {
       console.error('Erro ao criar o cliente: ', error);
-
       if (savedCustomer) {
         console.warn(`Deletando cliente ${savedCustomer.id} por falha no e-mail`);
         await this.customerRepo.delete(savedCustomer.id);
@@ -73,24 +73,16 @@ export class CustomerService extends BaseService<Customer> {
     }
   }
 
-  async update(
-    id: string,
-    data: Partial<UpdateCustomerDTO>,
-  ): Promise<Customer> {
+  async update(id: string, data: Partial<UpdateCustomerDTO>): Promise<Customer> {
     try {
       const customer = await this.customerRepo.findOne({ where: { id } });
       if (!customer) throw new NotFoundException('Cliente não encontrado');
 
-      await this.checkUnique(
-        data,
-        ['email', 'cpf', 'phone'],
-        id,
-        {
-          email: ValidationMessages.EMAIL_ALREADY_EXISTS,
-          cpf: ValidationMessages.CPF_ALREADY_EXISTS,
-          phone: ValidationMessages.PHONE_ALREADY_EXISTS,
-        },
-      );
+      await this.checkUnique(data, ['email', 'cpf', 'phone'], id, {
+        email: ValidationMessages.EMAIL_ALREADY_EXISTS,
+        cpf: ValidationMessages.CPF_ALREADY_EXISTS,
+        phone: ValidationMessages.PHONE_ALREADY_EXISTS,
+      });
 
       if ('password' in data) {
         throw new BadRequestException(
@@ -106,8 +98,7 @@ export class CustomerService extends BaseService<Customer> {
       return await this.customerRepo.save(customer);
     } catch (error) {
       console.error('Erro ao atualizar cliente: ', error);
-      if (error instanceof NotFoundException || error instanceof ConflictException)
-        throw error;
+      if (error instanceof NotFoundException || error instanceof ConflictException) throw error;
       if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException('Erro interno ao atualizar cliente');
     }
@@ -136,6 +127,7 @@ export class CustomerService extends BaseService<Customer> {
     if (!customer) {
       throw new NotFoundException('Cliente não encontrado');
     }
+
     return customer;
   }
 }
