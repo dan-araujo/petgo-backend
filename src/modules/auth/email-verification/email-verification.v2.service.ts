@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { randomInt } from 'crypto';
 import { EmailVerificationRequest } from './entities/email-verification-request.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ApiResponse, SendCodeResponse, VerifyCodeResponse } from '../../../common/interfaces/api-response.interface';
 
 @Injectable()
 export class EmailVerificationServiceV2 {
@@ -27,13 +28,11 @@ export class EmailVerificationServiceV2 {
     return String(randomInt(0, 1_000_000)).padStart(6, '0');
   }
 
-  /**
-   * Send verification code
-   * @param email User email
-   * @param userType Type of user
-   * @param skipRateLimit If true (login flow), don't throw rate limit error. Default false (resend flow).
-   */
-  async sendVerificationCode(email: string, userType: UserType, skipRateLimit = false): Promise<void> {
+  async sendVerificationCode(
+    email: string,
+    userType: UserType,
+    skipRateLimit = false,
+  ): Promise<ApiResponse<SendCodeResponse>> {
     const userRepository = this.userRepoResolver.resolve(userType);
     const user = await userRepository.findOne({ where: { email } });
 
@@ -50,46 +49,74 @@ export class EmailVerificationServiceV2 {
       },
     });
 
-    // Check rate limit only if not skipping (resend flow, not login flow)
     if (!skipRateLimit && active?.last_sent_at) {
-      const elapsed = (Date.now() - new Date(active.last_sent_at).getTime()) / 1000;
+      const elapsed =
+        (Date.now() - new Date(active.last_sent_at).getTime()) / 1000;
 
       if (elapsed < this.RESEND_CODE_COOLDOWN_SECONDS) {
+        const remainingSeconds = Math.ceil(
+          this.RESEND_CODE_COOLDOWN_SECONDS - elapsed
+        );
+
         throw new BadRequestException(
-          `Aguarde ${Math.ceil(this.RESEND_CODE_COOLDOWN_SECONDS - elapsed)}s para reenviar`
+          `Aguarde ${remainingSeconds}s para reenviar`
         );
       }
     }
 
     const code = this.generateCode();
     const codeHash = await bcrypt.hash(code, 10);
-    const expiresAt = new Date(Date.now() + this.CODE_TTL_MINUTES * 60 * 1000);
-    const entity = active ? this.repository.merge(active, {
-      code_hash: codeHash,
-      expires_at: expiresAt,
-      attempts: 0,
-      locked_until: null,
-      last_sent_at: new Date(),
-    }) : this.repository.create({
-      email,
-      user_type: userType,
-      code_hash: codeHash,
-      expires_at: expiresAt,
-      last_sent_at: new Date(),
-    });
+    const expiresAt = new Date(
+      Date.now() + this.CODE_TTL_MINUTES * 60 * 1000
+    );
+
+    const entity = active
+      ? this.repository.merge(active, {
+        code_hash: codeHash,
+        expires_at: expiresAt,
+        attempts: 0,
+        locked_until: null,
+        last_sent_at: new Date(),
+      })
+      : this.repository.create({
+        email,
+        user_type: userType,
+        code_hash: codeHash,
+        expires_at: expiresAt,
+        last_sent_at: new Date(),
+      });
 
     await this.repository.save(entity);
-    await this.emailService.sendVerificationCodeEmail(email, user.name, code, this.CODE_TTL_MINUTES);
+
+    await this.emailService.sendVerificationCodeEmail(
+      email,
+      user.name,
+      code,
+      this.CODE_TTL_MINUTES
+    );
+
+    return {
+      status: 'success',
+      message: 'Código de verificação enviado para seu e-mail',
+      data: {
+        email,
+        expiresIn: this.CODE_TTL_MINUTES * 60,
+      },
+    };
   }
 
-  async verifyCode(email: string, userType: UserType, code: string): Promise<boolean> {
+  async verifyCode(
+    email: string,
+    userType: UserType,
+    code: string
+  ): Promise<ApiResponse<VerifyCodeResponse>> {
     const request = await this.repository.findOne({
       where: {
         email,
         user_type: userType,
         used_at: IsNull(),
         expires_at: MoreThan(new Date()),
-      }
+      },
     });
 
     if (!request) {
@@ -97,7 +124,9 @@ export class EmailVerificationServiceV2 {
     }
 
     if (request.locked_until && request.locked_until > new Date()) {
-      throw new BadRequestException('Muitas tentativas. Tente novamente mais tarde.');
+      throw new BadRequestException(
+        'Muitas tentativas. Tente novamente mais tarde.'
+      );
     }
 
     const valid = await bcrypt.compare(code, request.code_hash);
@@ -106,7 +135,9 @@ export class EmailVerificationServiceV2 {
       request.attempts += 1;
 
       if (request.attempts >= this.MAX_ATTEMPTS) {
-        request.locked_until = new Date(Date.now() + this.LOCK_MINUTES * 60 * 1000);
+        request.locked_until = new Date(
+          Date.now() + this.LOCK_MINUTES * 60 * 1000
+        );
       }
 
       await this.repository.save(request);
@@ -116,12 +147,18 @@ export class EmailVerificationServiceV2 {
     request.used_at = new Date();
     request.attempts = 0;
     request.locked_until = null;
-
     await this.repository.save(request);
 
     const userRepository = this.userRepoResolver.resolve(userType);
     await userRepository.update({ email }, { status: 'active' });
 
-    return true;
+    // ✅ RESPOSTA PADRONIZADA
+    return {
+      status: 'success',
+      message: 'E-mail verificado com sucesso!',
+      data: {
+        verified: true,
+      },
+    };
   }
 }

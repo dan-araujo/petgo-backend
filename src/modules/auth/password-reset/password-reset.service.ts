@@ -111,7 +111,6 @@ export class PasswordResetService {
         userType: UserType,
     ): Promise<{
         status: 'success';
-        success: true;
         message: string;
         email: string;
     }> {
@@ -146,7 +145,6 @@ export class PasswordResetService {
 
         return {
             status: 'success',
-            success: true,
             message: 'Senha atualizada com sucesso!',
             email: payload.email,
         };
