@@ -1,39 +1,34 @@
-import { Body, Controller, Post } from "@nestjs/common";
-import { AuthResponse } from "../auth.service";
-import { UserType } from "../../../common/enums/user-type.enum";
-import { EmailVerificationServiceV2 } from "./email-verification.v2.service";
+import { Body, Controller, Post } from '@nestjs/common';
+import { UserType } from '../../../common/enums/user-type.enum';
+import { EmailVerificationServiceV2 } from './email-verification.v2.service';
+import { ApiResponse, VerifyCodeResponse, SendCodeResponse } from '../../../common/interfaces/api-response.interface';
 
 @Controller('auth')
 export class EmailVerificationController {
     constructor(private readonly emailVerificationService: EmailVerificationServiceV2) { }
 
     @Post('verify-email')
-    async verifyEmail(@Body() body: { email: string; code: string; userType: UserType },
-    ): Promise<AuthResponse> {
-        await this.emailVerificationService.verifyCode(body.email, body.userType, body.code);
+    async verifyEmail(
+        @Body() body: { email: string; code: string; userType: UserType },
+    ): Promise<ApiResponse<VerifyCodeResponse>> {
+        const response = await this.emailVerificationService.verifyCode(
+            body.email,
+            body.userType,
+            body.code,
+        );
 
-        return {
-            status: 'success',
-            success: true,
-            message: 'Email verificado com sucesso!',
-            email: body.email,
-        };
+        return response;
     }
 
     @Post('resend-verification-code')
     async resendVerificationCode(
         @Body() dto: { email: string; userType: UserType },
-    ): Promise<AuthResponse> {
-        await this.emailVerificationService.sendVerificationCode(
+    ): Promise<ApiResponse<SendCodeResponse>> {
+        const response = await this.emailVerificationService.sendVerificationCode(
             dto.email,
             dto.userType,
         );
 
-        return {
-            status: 'new_sent_code',
-            success: true,
-            message: 'Novo código de verificação enviado para seu e-mail',
-            email: dto.email,
-        };
+        return response;
     }
 }

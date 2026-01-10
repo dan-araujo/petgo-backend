@@ -19,10 +19,10 @@ import { UpdateCustomerDTO } from './dto/update-customer.dto';
 
 @Controller('customers')
 export class CustomerController {
-  constructor(private readonly customerService: CustomerService) {}
+  constructor(private readonly customerService: CustomerService) { }
 
   @Post('register')
-  async create(@Body() dto: CreateCustomerDTO): Promise<ApiResponse<any>> {
+  async create(@Body() dto: CreateCustomerDTO): Promise<ApiResponse> {
     return await this.customerService.create(dto);
   }
 
@@ -30,19 +30,25 @@ export class CustomerController {
   async findAll(): Promise<ApiResponse<Customer[]>> {
     const customers = await this.customerService.findAll();
     return {
+      status: 'success',
       message: 'Clientes recuperados com sucesso!',
       data: customers,
     };
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ApiResponse<Partial<Customer>>> {
     const customer = await this.customerService.findOne(id);
     if (!customer) {
       throw new NotFoundException('Cliente não encontrado');
     }
+
     const { password_hash, ...safeCustomer } = customer;
-    return { data: safeCustomer };
+    return {
+      status: 'success',
+      message: 'Cliente recuperado com sucesso!',
+      data: safeCustomer,
+    };
   }
 
   @Patch(':id')
@@ -52,19 +58,20 @@ export class CustomerController {
     @Body() dto: Partial<UpdateCustomerDTO>,
   ): Promise<ApiResponse<Partial<Customer>>> {
     const updatedCustomer = await this.customerService.update(id, dto);
-    const { password_hash, ...safeCustomer } =
-      updatedCustomer;
+    const { password_hash, ...safeCustomer } = updatedCustomer;
     return {
+      status: 'success',
       message: 'Cliente atualizado com sucesso!',
       data: safeCustomer,
     };
   }
 
   @Delete(':id')
-  async remove(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<ApiResponse<null>> {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ApiResponse<null>> {
     await this.customerService.remove(id);
-    return { message: 'Cliente excluído com sucesso!' };
+    return {
+      status: 'success',
+      message: 'Cliente excluído com sucesso!',
+    };
   }
 }
