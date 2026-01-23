@@ -2,7 +2,6 @@ import {
   CallHandler,
   ExecutionContext,
   Injectable,
-  Logger,
   NestInterceptor,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
@@ -11,20 +10,12 @@ import { ApiResponse } from '../interfaces/api-response.interface';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
-  private readonly logger = new Logger(ResponseInterceptor.name);
-
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data) => {
         if (this._isValidApiResponse(data)) {
           return data;
         }
-
-        // Se não for, wrappa (fallback)
-        this.logger.warn(
-          `Resposta não padronizada detectada:`,
-          JSON.stringify(data).substring(0, 200)
-        );
 
         return {
           status: 'success',
