@@ -6,6 +6,8 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
+import { UserType } from '../../../common/enums/user-type.enum';
+import { UserStatus } from '../../../common/enums/user-status.enum';
 
 @Entity('customers')
 export class Customer {
@@ -30,12 +32,15 @@ export class Customer {
     @Column({ length: 20, default: 'customer' })
     role: string;
 
+    @Column({ type: 'enum', enum: UserType, default: UserType.CUSTOMER })
+    user_type: UserType;
+
     @Column({
         type: 'enum',
-        enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],
-        default: 'pending'
+        enum: UserStatus,
+        default: UserStatus.PENDING
     })
-    status: 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
+    status: UserStatus;
 
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;

@@ -6,6 +6,8 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
+import { UserType } from "../../../common/enums/user-type.enum";
+import { UserStatus } from "../../../common/enums/user-status.enum";
 
 @Entity('delivery')
 export class Delivery {
@@ -46,12 +48,15 @@ export class Delivery {
     @Column({ length: 20, default: 'delivery' })
     role: string;
 
+    @Column({ type: 'enum', enum: UserType, default: UserType.DELIVERY })
+    user_type: UserType;
+
     @Column({
         type: 'enum',
-        enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],
-        default: 'pending'
+        enum: UserStatus,
+        default: UserStatus.PENDING
     })
-    status: 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
+    status: UserStatus;
 
     @Column({ type: 'boolean', default: false })
     profile_completed: boolean;

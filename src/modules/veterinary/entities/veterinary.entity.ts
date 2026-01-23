@@ -6,6 +6,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserType } from '../../../common/enums/user-type.enum';
+import { UserStatus } from '../../../common/enums/user-status.enum';
 
 @Entity('veterinaries')
 export class Veterinary {
@@ -31,26 +33,8 @@ export class Veterinary {
   })
   category: 'SOLO' | 'CLINIC';
 
-  @Column({ type: 'varchar', unique: true, length: 14, nullable: true })
-  cpf?: string;
-
-  @Column({ type: 'varchar', unique: true, length: 20, nullable: true })
-  cnpj?: string;
-
-  @Column({ type: 'varchar', unique: true, length: 20, nullable: true })
-  crmv?: string;
-
   @Column({ type: 'varchar', length: 50, nullable: true })
   speciality?: string;
-
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  city?: string;
-
-  @Column({ type: 'char', length: 2, nullable: true })
-  state?: string;
-
-  @Column({ type: 'text', nullable: true })
-  address?: string;
 
   @Column({ type: 'boolean', default: false })
   home_service: boolean;
@@ -61,12 +45,15 @@ export class Veterinary {
   @Column({ length: 20, default: 'veterinary' })
   role: string;
 
+  @Column({ type: 'enum', enum: UserType, default: UserType.VETERINARY })
+  user_type: UserType;
+
   @Column({
     type: 'enum',
-    enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],
-    default: 'pending',
+    enum: UserStatus,
+    default: UserStatus.PENDING
   })
-  status: 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
+  status: UserStatus;
 
   @Column({ type: 'boolean', default: false })
   profile_completed: boolean;

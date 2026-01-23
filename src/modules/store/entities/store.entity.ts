@@ -6,6 +6,8 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
+import { UserStatus } from "../../../common/enums/user-status.enum";
+import { UserType } from "../../../common/enums/user-type.enum";
 
 @Entity('stores')
 export class Store {
@@ -30,27 +32,21 @@ export class Store {
     @Column({ length: 20, unique: true, nullable: false })
     cnpj?: string;
 
-    @Column({ type: 'text', nullable: true })
-    address?: string;
-
-    @Column({ length: 50, nullable: true })
-    city?: string;
-
-    @Column({ length: 2, nullable: true })
-    state?: string;
-
     @Column({ default: true })
     is_open: boolean;
 
     @Column({ length: 20, default: 'store' })
     role: string;
 
+    @Column({ type: 'enum', enum: UserType, default: UserType.STORE })
+    user_type: UserType;
+
     @Column({
         type: 'enum',
-        enum: ['pending', 'awaiting_verification', 'active', 'suspended', 'deleted'],
-        default: 'pending'
+        enum: UserStatus,
+        default: UserStatus.PENDING
     })
-    status: 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
+    status: UserStatus;
 
     @Column({ type: 'boolean', default: false })
     profile_completed: boolean;
