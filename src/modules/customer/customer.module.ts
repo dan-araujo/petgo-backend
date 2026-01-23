@@ -1,14 +1,22 @@
 import { Module } from '@nestjs/common';
-import { CustomerController } from './customer.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Customer } from './entities/customer.entity';
-import { CustomerService } from './customer.service';
 import { EmailVerificationModule } from '../auth/email-verification/email-verification.module';
+import { CustomerService } from './services/customer.service';
+import { CustomerController } from './controllers/customer.controller';
+import { CustomerAddress } from './entities/customer-address.entity';
+import { AddressModule } from '../address/address.module';
+import { CustomerAddressService } from './services/customer-address.service';
+import { CustomerAddressController } from './controllers/customer-address.controller';
+import { Address } from '../address/entities/address.base.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Customer]), EmailVerificationModule],
-    providers: [CustomerService],
-    controllers: [CustomerController],
+    imports: [TypeOrmModule.forFeature([Customer, CustomerAddress, Address]), 
+    EmailVerificationModule,
+    AddressModule,
+],
+    providers: [CustomerService, CustomerAddressService],
+    controllers: [CustomerController, CustomerAddressController],
     exports: [CustomerService],
 })
 export class CustomerModule { }
