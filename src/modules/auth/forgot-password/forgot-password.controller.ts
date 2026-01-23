@@ -1,9 +1,9 @@
 import { Body, Controller, Logger, Post } from "@nestjs/common";
-import { PasswordResetService } from "./password-reset.service";
-import { ResetPasswordDTO } from "./dto/reset-password.dto";
-import { RequestPasswordResetDTO } from "./dto/request-password-reset.dto";
-import { PasswordResetCodeDTO } from "./dto/password-reset-code.dto";
 import { ApiResponse } from "../../../common/interfaces/api-response.interface";
+import { ForgotPasswordDTO } from "./dto/forgot-password.dto";
+import { ForgotPasswordService } from "./forgot-password.service";
+import { ForgotPasswordCodeDTO } from "./dto/forgot-password-code.dto";
+import { RequestPasswordResetDTO } from "./dto/request-password-reset.dto";
 
 interface ResetTokenData {
   reset_token: string;
@@ -15,17 +15,17 @@ interface PasswordResetData {
 }
 
 @Controller('auth')
-export class PasswordResetController {
-  constructor(private readonly passwordResetService: PasswordResetService) {}
+export class ForgotPasswordController {
+  constructor(private readonly forgotPasswordService: ForgotPasswordService) {}
 
-  private readonly logger = new Logger(PasswordResetController.name);
+  private readonly logger = new Logger(ForgotPasswordController.name);
 
   @Post('reset-password')
   async resetPassword(
-    @Body() dto: ResetPasswordDTO,
+    @Body() dto: ForgotPasswordDTO,
   ): Promise<ApiResponse<PasswordResetData>> {
     try {
-      const result = await this.passwordResetService.resetPassword(
+      const result = await this.forgotPasswordService.resetPassword(
         dto.resetToken,
         dto.newPassword,
         dto.confirmPassword,
@@ -54,7 +54,7 @@ export class PasswordResetController {
     @Body() dto: RequestPasswordResetDTO,
   ): Promise<ApiResponse<{ email: string }>> {
     try {
-      await this.passwordResetService.requestPasswordReset(dto.email, dto.userType);
+      await this.forgotPasswordService.requestPasswordReset(dto.email, dto.userType);
 
       return {
         status: 'success',
@@ -74,10 +74,10 @@ export class PasswordResetController {
 
   @Post('verify-reset-code')
   async verifyResetCode(
-    @Body() dto: PasswordResetCodeDTO,
+    @Body() dto: ForgotPasswordCodeDTO,
   ): Promise<ApiResponse<ResetTokenData>> {
     try {
-      const result = await this.passwordResetService.verifyResetCode(
+      const result = await this.forgotPasswordService.verifyResetCode(
         dto.email,
         dto.userType,
         dto.code,

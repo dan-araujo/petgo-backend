@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { PasswordResetRequest } from "./entities/password-reset-request.entity";
 import { IsNull, MoreThan, Repository } from "typeorm";
 import { JwtService } from "@nestjs/jwt";
 import { randomInt } from "crypto";
@@ -9,9 +8,10 @@ import { UserType } from "../../../common/enums/user-type.enum";
 import { EmailService } from "../../../common/services/email.service";
 import { UserReposityResolver } from "../../../common/services/user-repository.resolver";
 import { CODE_SECURITY } from "../../../common/constants/code-security.constants";
+import { ForgotPasswordRequest } from "./entities/forgot-password-request.entity";
 
 @Injectable()
-export class PasswordResetService {
+export class ForgotPasswordService {
     private readonly CODE_TTL_MINUTES = CODE_SECURITY.CODE_TTL_MINUTES;
     private readonly RESEND_COOLDOWN_SECONDS = CODE_SECURITY.RESEND_COOLDOWN_SECONDS;
     private readonly MAX_ATTEMPTS = CODE_SECURITY.MAX_ATTEMPTS;
@@ -19,8 +19,8 @@ export class PasswordResetService {
     private readonly RESET_TOKEN_TTL_MINUTES = CODE_SECURITY.RESET_TOKEN_TTL_MINUTES;
 
     constructor(
-        @InjectRepository(PasswordResetRequest)
-        private readonly prrRepo: Repository<PasswordResetRequest>,
+        @InjectRepository(ForgotPasswordRequest)
+        private readonly prrRepo: Repository<ForgotPasswordRequest>,
         private readonly jwtService: JwtService,
         private readonly emailService: EmailService,
         private readonly userRepoResolver: UserReposityResolver,
@@ -44,7 +44,7 @@ export class PasswordResetService {
         const codeHash = await bcrypt.hash(code, 10);
         const expiresAt = new Date(Date.now() + this.CODE_TTL_MINUTES * 60 * 1000);
 
-        const patch: Partial<PasswordResetRequest> = {
+        const patch: Partial<ForgotPasswordRequest> = {
             code_hash: codeHash,
             expires_at: expiresAt,
             attempts: 0,

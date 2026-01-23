@@ -1,7 +1,7 @@
 import { IsEmail, IsEnum, IsString, Length } from "class-validator";
 import { UserType } from "../../../../common/enums/user-type.enum";
 
-export class PasswordResetCodeDTO {
+export class ForgotPasswordCodeDTO {
     @IsEmail()
     email: string;
 

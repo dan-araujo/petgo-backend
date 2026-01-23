@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 import { UserType } from "../../../../common/enums/user-type.enum";
 
 @Entity('password_reset_requests')
-export class PasswordResetRequest {
+export class ForgotPasswordRequest {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
