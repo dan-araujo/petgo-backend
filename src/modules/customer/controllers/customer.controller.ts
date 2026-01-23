@@ -11,11 +11,12 @@ import {
   Delete,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { CustomerService } from './customer.service';
-import { CreateCustomerDTO } from './dto/create-customer.dto';
-import { ApiResponse } from '../../common/interfaces/api-response.interface';
-import { Customer } from './entities/customer.entity';
-import { UpdateCustomerDTO } from './dto/update-customer.dto';
+import { CustomerService } from '../services/customer.service';
+import { CreateCustomerDTO } from '../dto/create-customer.dto';
+import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { Customer } from '../entities/customer.entity';
+import { UpdateCustomerDTO } from '../dto/update-customer.dto';
+
 
 @Controller('customers')
 export class CustomerController {

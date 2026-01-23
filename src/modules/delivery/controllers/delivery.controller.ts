@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, NotFoundException } from '@nestjs/common';
-import { DeliveryService } from './delivery.service';
-import { CreateDeliveryDTO } from './dto/create-delivery.dto';
-import { UpdateDeliveryDTO } from './dto/update-delivery.dto';
-import { Delivery } from './entities/delivery.entity';
-import { ApiResponse } from '../../common/interfaces/api-response.interface';
+import { CreateDeliveryDTO } from '../dto/create-delivery.dto';
+import { UpdateDeliveryDTO } from '../dto/update-delivery.dto';
+import { Delivery } from '../entities/delivery.entity';
+import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { DeliveryService } from '../services/delivery.service';
 
 @Controller('delivery')
 export class DeliveryController {

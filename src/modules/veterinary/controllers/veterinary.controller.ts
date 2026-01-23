@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, ParseUUIDPipe, UsePipes, ValidationPipe } from '@nestjs/common';
-import { VeterinaryService } from './veterinary.service';
-import { CreateVeterinaryDTO } from './dto/create-veterinary.dto';
-import { UpdateVeterinaryDTO } from './dto/update-veterinary.dto';
-import { ApiResponse } from '../../common/interfaces/api-response.interface';
-import { Veterinary } from './entities/veterinary.entity';
+import { CreateVeterinaryDTO } from '../dto/create-veterinary.dto';
+import { UpdateVeterinaryDTO } from '../dto/update-veterinary.dto';
+import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { Veterinary } from '../entities/veterinary.entity';
+import { VeterinaryService } from '../services/veterinary.service';
 
 @Controller('veterinaries')
 export class VeterinaryController {
@@ -62,4 +62,6 @@ export class VeterinaryController {
       message: 'Veterinário excluído com sucesso!',
     };
   }
+
+  // TODO: Adicionar PATCH :id/profile
 }
