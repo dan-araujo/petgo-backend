@@ -5,7 +5,6 @@ import { UserType } from '../../common/enums/user-type.enum';
 import { LoginDTO } from './login/dto/login.dto';
 import { Repository } from 'typeorm';
 import { UserReposityResolver } from '../../common/services/user-repository.resolver';
-import { EmailVerificationServiceV2 } from './email-verification/email-verification.v2.service';
 import {
     ApiResponse,
     LoginSuccessData,
@@ -16,7 +15,6 @@ import {
 export class AuthService {
     constructor(
         private readonly jwtService: JwtService,
-        private readonly emailVerificationService: EmailVerificationServiceV2,
         private readonly userRepoResolver: UserReposityResolver,
     ) { }
 
