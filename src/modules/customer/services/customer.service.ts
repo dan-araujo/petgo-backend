@@ -1,15 +1,17 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Customer } from './entities/customer.entity';
 import { IsNull, Repository } from 'typeorm';
-import { CreateCustomerDTO } from './dto/create-customer.dto';
 import * as bcrypt from 'bcrypt';
-import { UpdateCustomerDTO } from './dto/update-customer.dto';
-import { BaseService } from '../../common/base/base.service';
-import { ValidationMessages } from '../../common/constants/validation-messages.constants';
-import { UserType } from '../../common/enums/user-type.enum';
-import { EmailVerificationServiceV2 } from '../auth/email-verification/email-verification.v2.service';
-import { ApiResponse } from '../../common/interfaces/api-response.interface';
+import { Customer } from '../entities/customer.entity';
+import { BaseService } from '../../../common/base/base.service';
+import { EmailVerificationServiceV2 } from '../../auth/email-verification/email-verification.v2.service';
+import { CreateCustomerDTO } from '../dto/create-customer.dto';
+import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
+import { UserType } from '../../../common/enums/user-type.enum';
+import { UpdateCustomerDTO } from '../dto/update-customer.dto';
+import { UserStatus } from '../../../common/enums/user-status.enum';
+
 
 @Injectable()
 export class CustomerService extends BaseService<Customer> {
@@ -44,7 +46,7 @@ export class CustomerService extends BaseService<Customer> {
         phone: data.phone,
         cpf: cpf as any,
         password_hash,
-        status: 'pending',
+        status: UserStatus.PENDING,
       });
 
       savedCustomer = await this.customerRepo.save(customer);

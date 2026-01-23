@@ -1,15 +1,16 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateVeterinaryDTO } from './dto/create-veterinary.dto';
-import { UpdateVeterinaryDTO } from './dto/update-veterinary.dto';
-import { BaseService } from '../../common/base/base.service';
-import { Veterinary } from './entities/veterinary.entity';
+import { CreateVeterinaryDTO } from '../dto/create-veterinary.dto';
+import { UpdateVeterinaryDTO } from '../dto/update-veterinary.dto';
+import { BaseService } from '../../../common/base/base.service';
+import { Veterinary } from '../entities/veterinary.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { ValidationMessages } from '../../common/constants/validation-messages.constants';
-import { UserType } from '../../common/enums/user-type.enum';
-import { EmailVerificationServiceV2 } from '../auth/email-verification/email-verification.v2.service';
-import { ApiResponse } from '../../common/interfaces/api-response.interface';
+import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
+import { UserType } from '../../../common/enums/user-type.enum';
+import { EmailVerificationServiceV2 } from '../../auth/email-verification/email-verification.v2.service';
+import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { UserStatus } from '../../../common/enums/user-status.enum';
 
 @Injectable()
 export class VeterinaryService extends BaseService<Veterinary> {
@@ -42,7 +43,7 @@ export class VeterinaryService extends BaseService<Veterinary> {
         phone: data.phone,
         category: data.category,
         password_hash,
-        status: 'pending',
+        status: UserStatus.PENDING,
       });
 
       savedVeterinary = await this.veterinaryRepo.save(veterinary);
@@ -132,4 +133,6 @@ export class VeterinaryService extends BaseService<Veterinary> {
 
     return veterinary;
   }
-}
+
+  // TODO: Adicionar método completeProfile()
+} 

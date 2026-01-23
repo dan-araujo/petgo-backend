@@ -1,14 +1,15 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateDeliveryDTO } from './dto/create-delivery.dto';
-import { UpdateDeliveryDTO } from './dto/update-delivery.dto';
+import { CreateDeliveryDTO } from '../dto/create-delivery.dto';
+import { UpdateDeliveryDTO } from '../dto/update-delivery.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Delivery } from './entities/delivery.entity';
+import { Delivery } from '../entities/delivery.entity';
 import { IsNull, Repository } from 'typeorm';
-import { BaseService } from '../../common/base/base.service';
-import { ValidationMessages } from '../../common/constants/validation-messages.constants';
-import { UserType } from '../../common/enums/user-type.enum';
-import { EmailVerificationServiceV2 } from '../auth/email-verification/email-verification.v2.service';
-import { ApiResponse } from '../../common/interfaces/api-response.interface';
+import { BaseService } from '../../../common/base/base.service';
+import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
+import { UserType } from '../../../common/enums/user-type.enum';
+import { EmailVerificationServiceV2 } from '../../auth/email-verification/email-verification.v2.service';
+import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { UserStatus } from '../../../common/enums/user-status.enum';
 
 @Injectable()
 export class DeliveryService extends BaseService<Delivery> {
@@ -43,7 +44,7 @@ export class DeliveryService extends BaseService<Delivery> {
         phone: data.phone,
         cpf: cpf as any,
         password_hash,
-        status: 'pending',
+        status: UserStatus.PENDING,
       });
 
       savedDelivery = await this.deliveryRepo.save(delivery);

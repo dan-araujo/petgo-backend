@@ -1,14 +1,15 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateStoreDTO } from './dto/create-store.dto';
-import { UpdateStoreDTO } from './dto/update-store.dto';
-import { Store } from './entities/store.entity';
+import { CreateStoreDTO } from '../dto/create-store.dto';
+import { UpdateStoreDTO } from '../dto/update-store.dto';
+import { Store } from '../entities/store.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
-import { BaseService } from '../../common/base/base.service';
-import { ValidationMessages } from '../../common/constants/validation-messages.constants';
-import { UserType } from '../../common/enums/user-type.enum';
-import { EmailVerificationServiceV2 } from '../auth/email-verification/email-verification.v2.service';
-import { ApiResponse } from '../../common/interfaces/api-response.interface';
+import { BaseService } from '../../../common/base/base.service';
+import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
+import { UserType } from '../../../common/enums/user-type.enum';
+import { EmailVerificationServiceV2 } from '../../auth/email-verification/email-verification.v2.service';
+import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { UserStatus } from '../../../common/enums/user-status.enum';
 
 @Injectable()
 export class StoreService extends BaseService<Store> {
@@ -42,7 +43,7 @@ export class StoreService extends BaseService<Store> {
         password_hash,
         phone: data.phone,
         cnpj: data.cnpj,
-        status: 'pending',
+        status: UserStatus.PENDING,
       });
 
       savedStore = await this.storeRepo.save(store);
