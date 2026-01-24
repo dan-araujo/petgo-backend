@@ -9,7 +9,7 @@ import { ValidationMessages } from '../../../common/constants/validation-message
 import { UserType } from '../../../common/enums/user-type.enum';
 import { EmailVerificationServiceV2 } from '../../auth/email-verification/email-verification.v2.service';
 import { ApiResponse } from '../../../common/interfaces/api-response.interface';
-import { UserStatus } from '../../../common/enums/user-status.enum';
+import { AccountStatus } from '../../../common/enums/account-status.enum';
 
 @Injectable()
 export class StoreService extends BaseService<Store> {
@@ -43,7 +43,7 @@ export class StoreService extends BaseService<Store> {
         password_hash,
         phone: data.phone,
         cnpj: data.cnpj,
-        status: UserStatus.PENDING,
+        status: AccountStatus.PENDING,
       });
 
       savedStore = await this.storeRepo.save(store);

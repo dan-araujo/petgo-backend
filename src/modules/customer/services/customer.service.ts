@@ -10,7 +10,7 @@ import { ApiResponse } from '../../../common/interfaces/api-response.interface';
 import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
 import { UserType } from '../../../common/enums/user-type.enum';
 import { UpdateCustomerDTO } from '../dto/update-customer.dto';
-import { UserStatus } from '../../../common/enums/user-status.enum';
+import { AccountStatus } from '../../../common/enums/account-status.enum';
 
 
 @Injectable()
@@ -46,7 +46,7 @@ export class CustomerService extends BaseService<Customer> {
         phone: data.phone,
         cpf: cpf as any,
         password_hash,
-        status: UserStatus.PENDING,
+        status: AccountStatus.PENDING,
       });
 
       savedCustomer = await this.customerRepo.save(customer);

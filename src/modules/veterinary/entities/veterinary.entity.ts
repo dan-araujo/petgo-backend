@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserType } from '../../../common/enums/user-type.enum';
-import { UserStatus } from '../../../common/enums/user-status.enum';
+import { AccountStatus } from '../../../common/enums/account-status.enum';
 
 @Entity('veterinaries')
 export class Veterinary {
@@ -42,18 +42,15 @@ export class Veterinary {
   @Column({ type: 'boolean', default: true })
   is_available: boolean;
 
-  @Column({ length: 20, default: 'veterinary' })
-  role: string;
-
   @Column({ type: 'enum', enum: UserType, default: UserType.VETERINARY })
   user_type: UserType;
 
   @Column({
     type: 'enum',
-    enum: UserStatus,
-    default: UserStatus.PENDING
+    enum: AccountStatus,
+    default: AccountStatus.PENDING
   })
-  status: UserStatus;
+  status: AccountStatus;
 
   @Column({ type: 'boolean', default: false })
   profile_completed: boolean;

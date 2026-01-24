@@ -1,4 +1,4 @@
-export enum UserStatus {
+export enum AccountStatus {
     PENDING = 'pending',
     AWAITING_VERIFICATION = 'awaiting_verification',
     ACTIVE = 'active',
@@ -6,4 +6,4 @@ export enum UserStatus {
     DELETED = 'deleted',
 }
 
-export type UserStatusType = 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';
+export type AccountStatusType = 'pending' | 'awaiting_verification' | 'active' | 'suspended' | 'deleted';

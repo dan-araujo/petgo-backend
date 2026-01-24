@@ -7,7 +7,7 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { UserType } from '../../../common/enums/user-type.enum';
-import { UserStatus } from '../../../common/enums/user-status.enum';
+import { AccountStatus } from '../../../common/enums/account-status.enum';
 
 @Entity('customers')
 export class Customer {
@@ -29,18 +29,15 @@ export class Customer {
     @Column({ nullable: true })
     password_hash: string;
 
-    @Column({ length: 20, default: 'customer' })
-    role: string;
-
     @Column({ type: 'enum', enum: UserType, default: UserType.CUSTOMER })
     user_type: UserType;
 
     @Column({
         type: 'enum',
-        enum: UserStatus,
-        default: UserStatus.PENDING
+        enum: AccountStatus,
+        default: AccountStatus.PENDING
     })
-    status: UserStatus;
+    status: AccountStatus;
 
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;
