@@ -6,7 +6,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
-import { UserStatus } from "../../../common/enums/user-status.enum";
+import { AccountStatus } from "../../../common/enums/account-status.enum";
 import { UserType } from "../../../common/enums/user-type.enum";
 
 @Entity('stores')
@@ -26,30 +26,40 @@ export class Store {
     @Column({ length: 20, nullable: true })
     phone?: string;
 
-    @Column({ length: 30, nullable: true })
-    category: 'PETSHOP' | 'FEED_STORE';
+    @Column({ type: 'enum', enumName: 'store_type' })
+    store_type: 'PETSHOP' | 'PET_SUPPLY';
 
     @Column({ length: 20, unique: true, nullable: false })
-    cnpj?: string;
+    cnpj: string;
 
     @Column({ default: true })
     is_open: boolean;
 
-    @Column({ length: 20, default: 'store' })
-    role: string;
+    @Column({
+        type: 'enum',
+        enum: AccountStatus,
+        enumName: 'account_status',
+        default: AccountStatus.PENDING
+    })
+    status: AccountStatus;
+
+    @Column({ default: false })
+    profile_completed: boolean;
+
+    @Column({ length: 500, nullable: true })
+    logo_url?: string;
+
+    @Column({ type: 'text', nullable: true })
+    description?: string;
+
+    @Column({ type: 'numeric', precision: 3, scale: 2, nullable: true })
+    rating?: number;
+
+    @Column({ type: 'int', default: 0 })
+    total_reviews: number;
 
     @Column({ type: 'enum', enum: UserType, default: UserType.STORE })
     user_type: UserType;
-
-    @Column({
-        type: 'enum',
-        enum: UserStatus,
-        default: UserStatus.PENDING
-    })
-    status: UserStatus;
-
-    @Column({ type: 'boolean', default: false })
-    profile_completed: boolean;
 
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;
