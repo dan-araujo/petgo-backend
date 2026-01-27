@@ -3,11 +3,14 @@ import {
     CreateDateColumn,
     DeleteDateColumn,
     Entity,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
 import { AccountStatus } from "../../../common/enums/account-status.enum";
 import { UserType } from "../../../common/enums/user-type.enum";
+import { StoreBusinessHours } from "./store-business-hour.entity";
+import { StoreSpecialHours } from "./store-special-hour.entity";
 
 @Entity('stores')
 export class Store {
@@ -70,4 +73,9 @@ export class Store {
     @DeleteDateColumn({ type: 'timestamp', nullable: true })
     deleted_at?: Date;
 
+    @OneToMany(() => StoreBusinessHours, (businessHours) => businessHours.store)
+    business_hours: StoreBusinessHours[];
+
+    @OneToMany(() => StoreSpecialHours, (specialHours) => specialHours.store)
+    special_hours: StoreSpecialHours[];
 }
