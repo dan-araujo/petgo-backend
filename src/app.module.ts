@@ -16,6 +16,8 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { AddressModule } from './modules/address/address.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
+import { OrderModule } from './modules/order/order.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { AddressModule } from './modules/address/address.module';
     DeliveryModule,
     VeterinaryModule,
     AddressModule,
+    CatalogModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService,
