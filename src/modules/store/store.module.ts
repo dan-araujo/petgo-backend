@@ -9,9 +9,19 @@ import { Address } from '../address/entities/address.base.entity';
 import { AddressModule } from '../address/address.module';
 import { StoreAddressController } from './controllers/store-address.controller';
 import { StoreAddressService } from './services/store-address.service';
+import { StoreBusinessHours } from './entities/store-business-hour.entity';
+import { StoreSpecialHours } from './entities/store-special-hour.entity';
+import { Petshop } from './entities/petshop.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Store, StoreAddress, Address]),
+  imports: [TypeOrmModule.forFeature([
+    Store, 
+    StoreAddress, 
+    Address,
+    StoreBusinessHours,
+    StoreSpecialHours,
+    Petshop,
+  ]),
     EmailVerificationModule,
     AddressModule,
   ],
