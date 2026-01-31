@@ -1,11 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, NotFoundException, UseGuards, Req } from '@nestjs/common';
 import { StoreService } from '../services/store.service';
 import { CreateStoreDTO } from '../dto/create-store.dto';
 import { ApiResponse } from '../../../common/interfaces/api-response.interface';
 import { Store } from '../entities/store.entity';
 import { UpdateStoreDTO } from '../dto/update-store.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { SelectStoreTypeDTO } from '../dto/select-store-type.dto';
 
-
+@ApiTags('Stores')
 @Controller('stores')
 export class StoreController {
   constructor(private readonly storeService: StoreService) { }
@@ -62,4 +65,14 @@ export class StoreController {
       message: 'Loja excluída com sucesso.',
     };
   }
+
+  @Patch('select-type')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async selectStoreType(@Req() req: any, @Body() dto: SelectStoreTypeDTO) {
+    const storeId = req.user.id;
+    return await this.storeService.selectStoreType(storeId, dto);
+  }
 }
+
+

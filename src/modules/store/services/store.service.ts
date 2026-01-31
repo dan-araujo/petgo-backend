@@ -10,6 +10,8 @@ import { UserType } from '../../../common/enums/user-type.enum';
 import { EmailVerificationServiceV2 } from '../../auth/email-verification/email-verification.v2.service';
 import { ApiResponse } from '../../../common/interfaces/api-response.interface';
 import { AccountStatus } from '../../../common/enums/account-status.enum';
+import { SelectStoreTypeDTO } from '../dto/select-store-type.dto';
+import { StoreType } from '../../../common/enums/store-type.enum';
 
 @Injectable()
 export class StoreService extends BaseService<Store> {
@@ -125,5 +127,16 @@ export class StoreService extends BaseService<Store> {
       console.error('Erro ao remover loja: ', error);
       throw new InternalServerErrorException('Erro interno ao remover loja');
     }
+  }
+
+  async selectStoreType(storeId: string, dto: SelectStoreTypeDTO): Promise<Store> {
+    const store = await this.storeRepo.findOne({ where: { id: storeId } });
+    
+    if(!store) throw new NotFoundException('Loja não encontrada');
+
+    store.store_type = dto.store_type;
+    store.profile_completed = true;
+
+    return await this.storeRepo.save(store);
   }
 }

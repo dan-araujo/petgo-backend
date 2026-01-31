@@ -11,6 +11,7 @@ import { AccountStatus } from "../../../common/enums/account-status.enum";
 import { UserType } from "../../../common/enums/user-type.enum";
 import { StoreBusinessHours } from "./store-business-hour.entity";
 import { StoreSpecialHours } from "./store-special-hour.entity";
+import { StoreType } from "../../../common/enums/store-type.enum";
 
 @Entity('stores')
 export class Store {
@@ -29,8 +30,8 @@ export class Store {
     @Column({ length: 20, nullable: true })
     phone?: string;
 
-    @Column({ type: 'enum', enumName: 'store_type' })
-    store_type: 'PETSHOP' | 'PET_SUPPLY';
+    @Column({ type: 'enum', enumName: 'store_type', nullable: true })
+    store_type: StoreType | null;
 
     @Column({ length: 20, unique: true, nullable: false })
     cnpj: string;

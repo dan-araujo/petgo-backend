@@ -1,10 +1,5 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, Matches, MinLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, Matches, MinLength } from "class-validator";
 import { ValidationMessages } from "../../../common/constants/validation-messages.constants";
-
-export enum StoreCategory {
-    PETSHOP = 'PETSHOP',
-    FEED_STORE = 'FEED_STORE',
-}
 
 export class CreateStoreDTO {
     @IsNotEmpty({ message: ValidationMessages.REQUIRED_NAME })
