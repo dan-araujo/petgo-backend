@@ -43,6 +43,14 @@ export class StoreController {
     };
   }
 
+  @Patch('select-type')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async selectStoreType(@Req() req: any, @Body() dto: SelectStoreTypeDTO) {
+    const storeId = req.user.id;
+    return await this.storeService.selectStoreType(storeId, dto);
+  }
+
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -64,14 +72,6 @@ export class StoreController {
       status: 'success',
       message: 'Loja excluída com sucesso.',
     };
-  }
-
-  @Patch('select-type')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async selectStoreType(@Req() req: any, @Body() dto: SelectStoreTypeDTO) {
-    const storeId = req.user.id;
-    return await this.storeService.selectStoreType(storeId, dto);
   }
 }
 

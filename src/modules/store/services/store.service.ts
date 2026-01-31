@@ -74,6 +74,17 @@ export class StoreService extends BaseService<Store> {
     }
   }
 
+  async selectStoreType(storeId: string, dto: SelectStoreTypeDTO): Promise<Store> {
+    const store = await this.storeRepo.findOne({ where: { id: storeId } });
+
+    if (!store) throw new NotFoundException('Loja não encontrada');
+
+    store.store_type = dto.store_type;
+    store.profile_completed = true;
+
+    return await this.storeRepo.save(store);
+  }
+
   async update(id: string, data: UpdateStoreDTO): Promise<Store> {
     try {
       const store = await this.storeRepo.findOne({ where: { id } });
@@ -127,16 +138,5 @@ export class StoreService extends BaseService<Store> {
       console.error('Erro ao remover loja: ', error);
       throw new InternalServerErrorException('Erro interno ao remover loja');
     }
-  }
-
-  async selectStoreType(storeId: string, dto: SelectStoreTypeDTO): Promise<Store> {
-    const store = await this.storeRepo.findOne({ where: { id: storeId } });
-    
-    if(!store) throw new NotFoundException('Loja não encontrada');
-
-    store.store_type = dto.store_type;
-    store.profile_completed = true;
-
-    return await this.storeRepo.save(store);
   }
 }
