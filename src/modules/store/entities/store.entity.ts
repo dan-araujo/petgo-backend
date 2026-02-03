@@ -50,8 +50,11 @@ export class Store {
     @Column({ default: false })
     profile_completed: boolean;
 
-    @Column({ length: 500, nullable: true })
+    @Column({ type: 'varchar', length: 500, nullable: true })
     logo_url?: string;
+
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    banner_url?: string;
 
     @Column({ type: 'text', nullable: true })
     description?: string;
