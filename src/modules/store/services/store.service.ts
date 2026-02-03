@@ -12,6 +12,10 @@ import { ApiResponse } from '../../../common/interfaces/api-response.interface';
 import { AccountStatus } from '../../../common/enums/account-status.enum';
 import { SelectStoreTypeDTO } from '../dto/select-store-type.dto';
 import { StoreType } from '../../../common/enums/store-type.enum';
+import { ManageBusinessHoursDTO } from '../dto/business-hours.dto';
+import { StoreBusinessHours } from '../entities/store-business-hour.entity';
+import { CreateSpecialHourDTO } from '../dto/special-hours.dto';
+import { StoreSpecialHours } from '../entities/store-special-hour.entity';
 
 @Injectable()
 export class StoreService extends BaseService<Store> {
@@ -122,6 +126,7 @@ export class StoreService extends BaseService<Store> {
   async findOne(id: string) {
     const store = await this.storeRepo.findOne({
       where: { id, deleted_at: IsNull() },
+      relations: ['business_hours', 'special_hours'],
     });
     if (!store) {
       throw new NotFoundException('Loja não encontrada');
@@ -138,5 +143,87 @@ export class StoreService extends BaseService<Store> {
       console.error('Erro ao remover loja: ', error);
       throw new InternalServerErrorException('Erro interno ao remover loja');
     }
+  }
+
+  async updateBusinessHours(storeId: string, dto: ManageBusinessHoursDTO) {
+    const store = await this.findOne(storeId);
+
+    for (const hourDTO of dto.hours) {
+      const existingHour = await this.storeRepo.manager.findOne(StoreBusinessHours, {
+        where: {
+          store_id: store.id,
+          day_of_week: hourDTO.day_of_week,
+        },
+      });
+
+      if (existingHour) {
+        existingHour.opens_at = hourDTO.opens_at;
+        existingHour.closes_at = hourDTO.closes_at;
+        existingHour.is_closed = hourDTO.is_closed;
+        await this.storeRepo.manager.save(existingHour);
+      } else {
+        const newHour = this.storeRepo.manager.create(StoreBusinessHours, {
+          store: store,
+          day_of_week: hourDTO.day_of_week,
+          opens_at: hourDTO.opens_at,
+          closes_at: hourDTO.closes_at,
+          is_closed: hourDTO.is_closed,
+        });
+        await this.storeRepo.manager.save(newHour);
+      }
+    }
+
+    return { message: 'Horários de negócios atualizados com sucesso!' };
+  }
+
+  async findBusinessHours(storeId: string): Promise<StoreBusinessHours[]> {
+    return await this.storeRepo.manager.find(StoreBusinessHours, {
+      where: { store_id: storeId },
+      order: { day_of_week: 'ASC' },
+    });
+  }
+
+  async updateSpecialHours(storeId: string, dto: CreateSpecialHourDTO) {
+    const store = await this.findOne(storeId);
+
+    let specialHour = await this.storeRepo.manager.findOne(StoreSpecialHours, {
+      where: { store_id: store.id, date: dto.specific_date }
+    });
+
+    if (specialHour) {
+      specialHour.opens_at = dto.opens_at;
+      specialHour.closes_at = dto.closes_at;
+      specialHour.is_closed = dto.is_closed;
+      specialHour.date = dto.specific_date;
+    } else {
+      specialHour = this.storeRepo.manager.create(StoreSpecialHours, {
+        store: store,
+        date: dto.specific_date,
+        opens_at: dto.opens_at,
+        closes_at: dto.closes_at,
+        is_closed: dto.is_closed,
+      });
+    }
+
+    return await this.storeRepo.manager.save(specialHour);
+  }
+
+  async findAllSpecialHours(storeId: string): Promise<StoreSpecialHours[]> {
+    return await this.storeRepo.manager.find(StoreSpecialHours, {
+      where: { store_id: storeId },
+      order: { date: 'ASC' },
+    });
+  }
+
+  async removeSpecialHour(storeId: string, specialHourId: string) {
+    const specialHour = await this.storeRepo.manager.findOne(StoreSpecialHours, {
+      where: { id: specialHourId, store_id: storeId }
+    });
+
+    if (!specialHour) throw new NotFoundException('Horário especial não encontrado.');
+
+    await this.storeRepo.manager.remove(specialHour);
+
+    return { message: 'Horário especial removido com sucesso!' };
   }
 }
