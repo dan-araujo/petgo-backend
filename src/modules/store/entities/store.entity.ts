@@ -74,7 +74,7 @@ export class Store {
     @DeleteDateColumn({ type: 'timestamp', nullable: true })
     deleted_at?: Date;
 
-    @OneToMany(() => StoreBusinessHours, (businessHours) => businessHours.store)
+    @OneToMany(() => StoreBusinessHours, (businessHours) => businessHours.store, { cascade: true })
     business_hours: StoreBusinessHours[];
 
     @OneToMany(() => StoreSpecialHours, (specialHours) => specialHours.store)
