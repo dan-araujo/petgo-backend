@@ -57,11 +57,20 @@ export class StoreController {
     return await this.storeService.updateBusinessHours(storeId, dto);
   }
 
+  @Delete('business-hours/reset')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async resetBusinessHours(@Req() req: any) {
+    const storeId = req.user.id;
+    return await this.storeService.resetBusinessHours(storeId);
+  }
+
   @Post('special-hours')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   async setSpecialHours(@Req() req: any, @Body() dto: CreateSpecialHourDTO) {
-    return await this.storeService.updateSpecialHours(req.user.id, dto);
+    const storeId = req.user.id;
+    return await this.storeService.updateSpecialHours(storeId, dto);
   }
 
   @Get(':id')
@@ -82,8 +91,16 @@ export class StoreController {
   ): Promise<Partial<Store>> {
     const updatedStore = await this.storeService.update(id, dto);
     const { password_hash, ...safeStore } = updatedStore;
-    
+
     return safeStore;
+  }
+
+  @Delete('special-hours/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async removeSpecialHour(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
+    const storeId = req.user.id;
+    return await this.storeService.removeSpecialHour(storeId, id);
   }
 
   @Delete(':id')
@@ -93,14 +110,6 @@ export class StoreController {
       status: 'success',
       message: 'Loja excluída com sucesso.',
     };
-  }
-
-  @Delete('special-hours/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async removeSpecialHour(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
-    const storeId = req.user.id;
-    return await this.storeService.removeSpecialHour(storeId, id);
   }
 }
 

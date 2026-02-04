@@ -14,7 +14,7 @@ export class StoreSpecialHours {
     store_id: string;
 
     @Column({ type: 'date' })
-    date: string;
+    specific_date: string;
 
     @Column({ type: 'time', nullable: true })
     opens_at: string | null;
