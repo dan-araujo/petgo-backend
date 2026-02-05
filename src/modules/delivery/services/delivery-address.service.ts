@@ -54,9 +54,6 @@ export class DeliveryAddressService extends AddressBaseService {
             const deliveryAddress = manager.create(DeliveryAddress, {
                 id: address.id,
                 is_current_location: input.is_current_location ?? false,
-                heading: input.heading ?? null,
-                accuracy: input.accuracy ?? null,
-                speed: input.speed ?? null,
             });
 
             await manager.save(deliveryAddress);
@@ -101,10 +98,6 @@ export class DeliveryAddressService extends AddressBaseService {
 
                 deliveryAddress.is_current_location = true;
             }
-
-            if (dto.heading !== undefined) deliveryAddress.heading = dto.heading;
-            if (dto.accuracy !== undefined) deliveryAddress.accuracy = dto.accuracy;
-            if (dto.speed !== undefined) deliveryAddress.speed = dto.speed;
 
             await manager.save(deliveryAddress);
 

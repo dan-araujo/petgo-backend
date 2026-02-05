@@ -13,13 +13,4 @@ export class DeliveryAddress {
 
     @Column({ type: 'boolean', default: false })
     is_current_location: boolean;
-
-    @Column({ type: 'numeric', precision: 5, scale: 2, nullable: true })
-    heading: number | null;
-
-    @Column({ type: 'numeric', precision: 8, scale: 2, nullable: true })
-    accuracy: number | null;
-
-    @Column({ type: 'numeric', precision: 6, scale: 2, nullable: true })
-    speed: number | null;
 }
