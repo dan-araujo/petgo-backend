@@ -3,6 +3,7 @@ import { DeepPartial, EntityManager, EntityTarget, In, ObjectLiteral, Repository
 import { Address } from "./entities/address.base.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { AddressType } from "../../common/enums/address-type.enum";
+import { GeolocationService } from "../logistics/services/geolocation.service";
 
 @Injectable()
 export class AddressBaseService {
@@ -127,5 +128,47 @@ export class AddressBaseService {
         );
     }
 
+    protected async tryGetCoordinates(dto: any, geoService: GeolocationService)
+        : Promise<{ latitude: number | null, longitude: number | null }> {
+        // Ajuste fino do usuário para o front-end
+        if (dto.latitude && dto.longitude) {
+            return {
+                latitude: Number(dto.latitude),
+                longitude: Number(dto.longitude),
+            }
+        }
+
+        // Validação mínima
+        if (!dto.street || !dto.city || !dto.state) {
+            return { latitude: null, longitude: null };
+        }
+
+        try {
+            // Tentativa 1: Busca exata (Ideal para avenidas principais e locais bem mapeados)
+            const fullAddress = this.buildFullAddress(dto);
+            const coords = await geoService.getCoordinatesFromAddress(fullAddress);
+
+            if (coords) {
+                return { latitude: coords.lat, longitude: coords.lon };
+            }
+
+            // Tentativa 2 (Fallback): Busca aprimorada, o pino cai no meio da rua e o usuário ajusta no front-end
+            console.log('Tentativa exata falhou. Tentando busca apromixamada (apenas rua)...');
+            const streetAddress = `${dto.street}, ${dto.city} - ${dto.state}`;
+            const approximateCoordinates = await geoService.getCoordinatesFromAddress(streetAddress);
+
+            if (approximateCoordinates) {
+                return { latitude: approximateCoordinates.lat, longitude: approximateCoordinates.lon };
+            }
+        } catch (error) {
+            console.warn(`[AddressBaseService] Falha na geolocalização automática: ${error.message}`);
+        }
+
+        return { latitude: null, longitude: null };
+    }
+
+    buildFullAddress(dto: any): string {
+        return `${dto.street}, ${dto.number || ''}, ${dto.city} - ${dto.state}, ${dto.zip_code || ''}`;
+    }
 
 }

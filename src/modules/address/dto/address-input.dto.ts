@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, Length, MaxLength } from 'class-validator';
 
 export class AddressInputDTO {
@@ -24,7 +24,8 @@ export class AddressInputDTO {
   state: string;
 
   @IsString()
-  @Length(8, 10)
+  @Length(8, 8, { message: 'O CEP deve ter 8 dígitos numéricos' })
+  @Transform(({ value }) => value?.replace(/\D/g, ''))
   zip_code: string;
 
   @IsOptional()
