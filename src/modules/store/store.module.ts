@@ -12,6 +12,10 @@ import { StoreAddressService } from './services/store-address.service';
 import { StoreBusinessHours } from './entities/store-business-hour.entity';
 import { StoreSpecialHours } from './entities/store-special-hour.entity';
 import { Petshop } from './entities/petshop.entity';
+import { StoreHoursService } from './services/store-hours.service';
+import { LogisticsModule } from '../logistics/logistics.module';
+import { StoreHoursController } from './controllers/store-hours.controller';
+import { GeolocationService } from '../logistics/services/geolocation.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
@@ -24,10 +28,11 @@ import { Petshop } from './entities/petshop.entity';
   ]),
     EmailVerificationModule,
     AddressModule,
+    LogisticsModule,
   ],
-  controllers: [StoreController, StoreAddressController],
-  providers: [StoreService, StoreAddressService],
-  exports: [StoreService],
+  controllers: [StoreController, StoreAddressController, StoreHoursController],
+  providers: [StoreService, StoreAddressService, StoreHoursService, GeolocationService],
+  exports: [StoreService, StoreAddressService, StoreHoursService],
 })
 export class StoreModule { }
 

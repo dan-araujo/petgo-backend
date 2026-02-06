@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, NotFoundException, UseGuards, Req, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, NotFoundException, UseGuards, Req } from '@nestjs/common';
 import { StoreService } from '../services/store.service';
 import { CreateStoreDTO } from '../dto/create-store.dto';
 import { ApiResponse } from '../../../common/interfaces/api-response.interface';
@@ -7,8 +7,6 @@ import { UpdateStoreDTO } from '../dto/update-store.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { SelectStoreTypeDTO } from '../dto/select-store-type.dto';
-import { ManageBusinessHoursDTO } from '../dto/business-hours.dto';
-import { CreateSpecialHourDTO } from '../dto/special-hours.dto';
 
 @ApiTags('Stores')
 @Controller('stores')
@@ -25,52 +23,12 @@ export class StoreController {
     return await this.storeService.findAll();
   }
 
-  @Get('business-hours')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async getBusinessHours(@Req() req: any) {
-    const storeId = req.user.id;
-    return await this.storeService.findBusinessHours(storeId);
-  }
-
-  @Get('special-hours')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async findAllSpecialHours(@Req() req: any) {
-    const storeId = req.user.id;
-    return await this.storeService.findAllSpecialHours(storeId);
-  }
-
   @Patch('select-type')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   async selectStoreType(@Req() req: any, @Body() dto: SelectStoreTypeDTO) {
     const storeId = req.user.id;
     return await this.storeService.selectStoreType(storeId, dto);
-  }
-
-  @Put('business-hours')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async updateBusinessHours(@Req() req: any, @Body() dto: ManageBusinessHoursDTO) {
-    const storeId = req.user.id;
-    return await this.storeService.updateBusinessHours(storeId, dto);
-  }
-
-  @Delete('business-hours/reset')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async resetBusinessHours(@Req() req: any) {
-    const storeId = req.user.id;
-    return await this.storeService.resetBusinessHours(storeId);
-  }
-
-  @Post('special-hours')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async setSpecialHours(@Req() req: any, @Body() dto: CreateSpecialHourDTO) {
-    const storeId = req.user.id;
-    return await this.storeService.updateSpecialHours(storeId, dto);
   }
 
   @Get(':id')
@@ -93,14 +51,6 @@ export class StoreController {
     const { password_hash, ...safeStore } = updatedStore;
 
     return safeStore;
-  }
-
-  @Delete('special-hours/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async removeSpecialHour(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
-    const storeId = req.user.id;
-    return await this.storeService.removeSpecialHour(storeId, id);
   }
 
   @Delete(':id')
