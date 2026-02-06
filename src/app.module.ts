@@ -18,6 +18,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { AddressModule } from './modules/address/address.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { OrderModule } from './modules/order/order.module';
+import { LogisticsModule } from './modules/logistics/logistics.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { OrderModule } from './modules/order/order.module';
     AddressModule,
     CatalogModule,
     OrderModule,
+    LogisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService,
