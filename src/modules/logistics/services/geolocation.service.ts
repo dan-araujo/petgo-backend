@@ -1,9 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
+import axios from "axios";
 
 @Injectable()
 export class GeolocationService {
-
+    private readonly logger = new Logger(GeolocationService.name);
     private readonly EARTH_RADIUS_KM = 6371;
+    private userAgent = 'PetGoApp/1.0 (petgo.noreply@gmail.com)';
 
     calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
         const deltaLat = this.degreesToRadians(lat2 - lat1);
@@ -19,6 +21,36 @@ export class GeolocationService {
 
     private degreesToRadians(degrees: number): number {
         return degrees * (Math.PI / 180);
+    }
+
+    async getCoordinatesFromAddress(fullAddress: string): Promise<{ lat: number, lon: number } | null> {
+        try {
+            const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+                params: {
+                    q: fullAddress,
+                    format: 'json',
+                    addressdetails: 1,
+                    limit: 1,
+                },
+                headers: {
+                    'User-Agent': this.userAgent,
+                },
+            });
+
+            if (response.data && response.data.length > 0) {
+                const result = response.data[0];
+                return {
+                    lat: parseFloat(result.lat),
+                    lon: parseFloat(result.lon),
+                };
+            }
+
+            this.logger.warn(`Endereço não encontrado no OSM: ${fullAddress}`);
+            return null;
+        } catch (error) {
+            this.logger.error(`Erro ao buscar geolocalização: ${error.message}`);
+            return null;
+        }
     }
 
     isWithinRange(distanceKm: number, maxRadiusKm: number): boolean {
