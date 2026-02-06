@@ -8,6 +8,7 @@ import { AddressType } from "../../../common/enums/address-type.enum";
 import { StoreAddress } from "../entities/store-address.entity";
 import { CreateStoreAddressDTO, UpdateStoreAddressDTO } from "../dto/store-address.dto";
 import { AddressContextDTO } from "../../address/dto/address-context.dto";
+import { GeolocationService } from "../../logistics/services/geolocation.service";
 
 @Injectable()
 export class StoreAddressService extends AddressBaseService {
@@ -17,6 +18,7 @@ export class StoreAddressService extends AddressBaseService {
         @InjectRepository(StoreAddress)
         private readonly storeAddressRepo: Repository<StoreAddress>,
         private readonly dataSource: DataSource,
+        private readonly geoService: GeolocationService,
     ) {
         super(addressRepo);
     }
@@ -36,6 +38,8 @@ export class StoreAddressService extends AddressBaseService {
             user_id: context.user_id,
         });
 
+        const coordinates = await this.tryGetCoordinates(input, this.geoService);
+
         return this.dataSource.transaction(async manager => {
             if (input.is_main_address === true) {
                 await this.unsetAllMainAddressesForUser(manager, {
@@ -49,7 +53,10 @@ export class StoreAddressService extends AddressBaseService {
             const address = manager.create(Address, {
                 ...input,
                 ...context,
+                latitude: coordinates.latitude,
+                longitude: coordinates.longitude,
             });
+
             await manager.save(address);
 
             const storeAddress = manager.create(StoreAddress, {
@@ -71,23 +78,40 @@ export class StoreAddressService extends AddressBaseService {
         dto: UpdateStoreAddressDTO,
         userId: string,
     ): Promise<StoreAddress> {
+        const currentAddress = await this.storeAddressRepo.findOne({
+            where: { id: addressId },
+            relations: ['address'],
+        });
+
+        if (!currentAddress) {
+            throw new NotFoundException('Endereço não encontrado');
+        }
+
+        if (currentAddress.address.user_id !== userId) {
+            throw new ForbiddenException('Você não tem permissão para alterar esse endereço');
+        }
+
+        const hasAddressChanged = !!(dto.street || dto.number || dto.city || dto.state || dto.zip_code);
+        let newCoordinates = {};
+
+        if (hasAddressChanged) {
+            const mergeAddressData = { ...currentAddress.address, ...dto };
+            const coordinates = await this.tryGetCoordinates(mergeAddressData, this.geoService);
+
+            if (coordinates.latitude && coordinates.longitude) {
+                newCoordinates = {
+                    latitude: coordinates.latitude,
+                    longitude: coordinates.longitude
+                };
+            }
+        }
+
         return this.dataSource.transaction(async manager => {
-            const storeAddress = await manager.findOne(StoreAddress, {
-                where: { id: addressId },
-                relations: ['address'],
-            });
+            const finalUpdateData = { ...dto, ...newCoordinates };
 
-            if (!storeAddress) {
-                throw new NotFoundException('Endereço não encontrado');
-            }
+            await this.updateBaseAddressFields(manager, addressId, finalUpdateData);
 
-            if (storeAddress.address.user_id !== userId) {
-                throw new ForbiddenException('Você não tem permissão para alterar esse endereço');
-            }
-
-            await this.updateBaseAddressFields(manager, addressId, dto);
-
-            if (dto.is_main_address === true && !storeAddress.is_main_address) {
+            if (dto.is_main_address === true && !currentAddress.is_main_address) {
                 await this.unsetAllMainAddressesForUser(manager, {
                     addressType: AddressType.STORE,
                     userId,
@@ -95,10 +119,10 @@ export class StoreAddressService extends AddressBaseService {
                     flagField: 'is_main_address',
                 });
 
-                storeAddress.is_main_address = true;
+                currentAddress.is_main_address = true;
             }
 
-            await manager.save(storeAddress);
+            await manager.save(currentAddress);
 
             return manager.findOneOrFail(StoreAddress, {
                 where: { id: addressId },
