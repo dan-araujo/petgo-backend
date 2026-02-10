@@ -1,10 +1,11 @@
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { CatalogService } from "./catalog.service";
 import { Product } from "../entities/product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateProductDTO } from "../dto/create-product.dto";
 import { UpdateProductDTO } from "../dto/update-product.dto";
+import { OrderItemDTO } from "../../order/dto/create-order.dto";
 
 @Injectable()
 export class ProductService {
@@ -14,19 +15,19 @@ export class ProductService {
     ) { }
 
     async create(storeId: string, dto: CreateProductDTO): Promise<Product> {
-        const category = await this.catalogService.findOneCategory(storeId, dto.category_id);
+        const category = await this.catalogService.findOneCategory(storeId, dto.categoryId);
         const product = this.productRepo.create({
             ...dto,
-            store_id: storeId,
+            storeId: storeId,
         });
 
         return await this.productRepo.save(product);
     }
 
     async findAll(storeId: string, categoryId?: string): Promise<Product[]> {
-        const whereClause: any = { store_id: storeId };
+        const whereClause: any = { storeId: storeId };
 
-        if (categoryId) whereClause.category_id = categoryId;
+        if (categoryId) whereClause.categoryId = categoryId;
 
         return await this.productRepo.find({
             where: whereClause,
@@ -37,7 +38,7 @@ export class ProductService {
 
     async findOne(storeId: string, id: string): Promise<Product> {
         const product = await this.productRepo.findOne({
-            where: { id, store_id: storeId },
+            where: { id, storeId: storeId },
             relations: ['category']
         });
 
@@ -49,8 +50,8 @@ export class ProductService {
     async update(storeId: string, id: string, dto: UpdateProductDTO): Promise<Product> {
         const product = await this.findOne(storeId, id);
 
-        if (dto.category_id && dto.category_id !== product.category_id) {
-            await this.catalogService.findOneCategory(storeId, dto.category_id);
+        if (dto.categoryId && dto.categoryId !== product.categoryId) {
+            await this.catalogService.findOneCategory(storeId, dto.categoryId);
         }
 
         Object.assign(product, dto);
@@ -59,8 +60,21 @@ export class ProductService {
     }
 
     async remove(storeId: string, id: string): Promise<void> {
-        const result = await this.productRepo.softDelete({ id, store_id: storeId });
+        const result = await this.productRepo.softDelete({ id, storeId: storeId });
 
         if (result.affected === 0) throw new NotFoundException('Produto não encontrado.');
+    }
+
+    async getStoreProducts(dto: OrderItemDTO[], storeId: string): Promise<Product[]> {
+        const productIds = dto.map((item) => item.productId);
+        const products = await this.productRepo.find({
+            where: { id: In(productIds), storeId: storeId },
+        });
+
+        if (products.length !== productIds.length) {
+            throw new BadRequestException('Alguns produtos não foram encontrados ou pertencem a outra loja.')
+        }
+
+        return products;
     }
 }
