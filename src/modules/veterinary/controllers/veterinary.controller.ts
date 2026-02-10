@@ -31,7 +31,7 @@ export class VeterinaryController {
       throw new NotFoundException('Veterinário não encontrado.');
     }
 
-    const { password_hash, ...safeVeterinary } = veterinary;
+    const { passwordHash: passwordHash, ...safeVeterinary } = veterinary;
     return {
       status: 'success',
       message: 'Veterinário recuperado com sucesso!',
@@ -46,7 +46,7 @@ export class VeterinaryController {
     @Body() dto: Partial<UpdateVeterinaryDTO>,
   ): Promise<ApiResponse<Partial<Veterinary>>> {
     const updatedVeterinary = await this.veterinaryService.update(id, dto);
-    const { password_hash, ...safeVeterinary } = updatedVeterinary;
+    const { passwordHash: passwordHash, ...safeVeterinary } = updatedVeterinary;
     return {
       status: 'success',
       message: 'Veterinário atualizado com sucesso!',

@@ -31,7 +31,7 @@ export class DeliveryController {
       throw new NotFoundException('Entregador não encontrado');
     }
 
-    const { password_hash, ...safeDelivery } = delivery;
+    const { passwordHash: passwordHash, ...safeDelivery } = delivery;
     return {
       status: 'success',
       message: 'Entregador recuperado com sucesso!',
@@ -45,7 +45,7 @@ export class DeliveryController {
     @Body() dto: UpdateDeliveryDTO,
   ): Promise<ApiResponse<Partial<Delivery>>> {
     const updatedDelivery = await this.deliveryService.update(id, dto);
-    const { password_hash, ...safeDelivery } = updatedDelivery;
+    const { passwordHash: passwordHash, ...safeDelivery } = updatedDelivery;
     return {
       status: 'success',
       message: 'Entregador atualizado com sucesso!',

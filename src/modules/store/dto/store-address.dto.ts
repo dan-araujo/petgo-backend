@@ -5,11 +5,11 @@ import { UpdateBaseAddressDTO } from "../../address/dto/update-address.dto";
 export class CreateStoreAddressDTO extends AddressInputDTO {
     @IsOptional()
     @IsBoolean()
-    is_main_address?: boolean;
+    isMainAddress?: boolean;
 }
 
 export class UpdateStoreAddressDTO extends UpdateBaseAddressDTO {
     @IsOptional()
     @IsBoolean()
-    is_main_address?: boolean;
+    isMainAddress?: boolean;
 }

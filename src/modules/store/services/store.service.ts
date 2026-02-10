@@ -36,12 +36,12 @@ export class StoreService extends BaseService<Store> {
         },
       );
 
-      const password_hash = await this.hashPassword(data.password);
+      const passwordHash = await this.hashPassword(data.password);
 
       const store = this.storeRepo.create({
         name: data.name,
         email: data.email,
-        password_hash,
+        passwordHash: passwordHash,
         phone: data.phone,
         cnpj: data.cnpj,
         status: AccountStatus.PENDING,
@@ -78,8 +78,8 @@ export class StoreService extends BaseService<Store> {
 
     if (!store) throw new NotFoundException('Loja não encontrada');
 
-    store.store_type = dto.store_type;
-    store.profile_completed = true;
+    store.storeType = dto.store_type;
+    store.profileCompleted = true;
 
     return await this.storeRepo.save(store);
   }
@@ -115,13 +115,13 @@ export class StoreService extends BaseService<Store> {
   }
 
   async findAll(): Promise<Store[]> {
-    return this.storeRepo.find({ where: { deleted_at: IsNull() } });
+    return this.storeRepo.find({ where: { deletedAt: IsNull() } });
   }
 
   async findOne(id: string) {
     const store = await this.storeRepo.findOne({
-      where: { id, deleted_at: IsNull() },
-      relations: ['business_hours', 'special_hours'],
+      where: { id, deletedAt: IsNull() },
+      relations: ['businessHours', 'specialHours'],
     });
     if (!store) {
       throw new NotFoundException('Loja não encontrada');

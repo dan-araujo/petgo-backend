@@ -27,23 +27,23 @@ export class VeterinaryAddressService extends AddressBaseService {
     ): Promise<VeterinaryAddress> {
 
         this.validateAddressType(
-            context.address_type,
-            context.user_type,
+            context.addressType,
+            context.userType,
             AddressType.VETERINARY,
         );
 
         await this.checkDuplicateAddress({
             ...input,
-            user_id: context.user_id,
+            userId: context.userId,
         });
 
         return this.dataSource.transaction(async manager => {
-            if (input.is_main_location === true) {
+            if (input.isMainLocation === true) {
                 await this.unsetAllMainAddressesForUser(manager, {
                     addressType: AddressType.VETERINARY,
-                    userId: context.user_id,
+                    userId: context.userId,
                     relationEntity: VeterinaryAddress,
-                    flagField: 'is_main_location',
+                    flagField: 'isMainLocation',
                 });
             }
 
@@ -55,7 +55,9 @@ export class VeterinaryAddressService extends AddressBaseService {
 
             const veterinaryAddress = manager.create(VeterinaryAddress, {
                 id: address.id,
-                is_main_location: input.is_main_location ?? false,
+                veterinaryId: context.userId,
+                addressType: AddressType.VETERINARY,
+                isMainLocation: input.isMainLocation ?? false,
             });
 
             await manager.save(veterinaryAddress);
@@ -83,21 +85,21 @@ export class VeterinaryAddressService extends AddressBaseService {
                 throw new NotFoundException('Endereço não encontrado');
             }
 
-            if (veterinaryAddress.address.user_id !== userId) {
+            if (veterinaryAddress.address.userId !== userId) {
                 throw new ForbiddenException('Você não tem permissão para alterar esse endereço');
             }
 
             await this.updateBaseAddressFields(manager, addressId, dto);
 
-            if (dto.is_main_location === true && !veterinaryAddress.is_main_location) {
+            if (dto.isMainLocation === true && !veterinaryAddress.isMainLocation) {
                 await this.unsetAllMainAddressesForUser(manager, {
                     addressType: AddressType.VETERINARY,
                     userId,
                     relationEntity: VeterinaryAddress,
-                    flagField: 'is_main_location',
+                    flagField: 'isMainLocation',
                 });
 
-                veterinaryAddress.is_main_location = true;
+                veterinaryAddress.isMainLocation = true;
             }
 
             await manager.save(veterinaryAddress);
@@ -117,7 +119,7 @@ export class VeterinaryAddressService extends AddressBaseService {
             throw new NotFoundException('Endereço não encontrado');
         }
 
-        if (address.user_id !== userId) {
+        if (address.userId !== userId) {
             throw new ForbiddenException('Você não tem permissão para excluir esse endereço');
         }
 
@@ -128,29 +130,15 @@ export class VeterinaryAddressService extends AddressBaseService {
 
     async findAllByUser(userId: string): Promise<VeterinaryAddress[]> {
         return this.veterinaryAddressRepo.find({
-            where: {
-                address: {
-                    user_id: userId,
-                    address_type: AddressType.VETERINARY,
-                },
-            },
+            where: { veterinaryId: userId },
             relations: ['address'],
-            order: {
-                is_main_location: 'DESC',
-                address: { created_at: 'DESC' },
-            },
+            order: { isMainLocation: 'DESC' },
         });
     }
 
     async findMainAddress(userId: string): Promise<VeterinaryAddress | null> {
         return this.veterinaryAddressRepo.findOne({
-            where: {
-                is_main_location: true,
-                address: {
-                    user_id: userId,
-                    address_type: AddressType.VETERINARY,
-                },
-            },
+            where: { veterinaryId: userId, isMainLocation: true },
             relations: ['address'],
         });
     }

@@ -10,9 +10,9 @@ export class UpdateStoreDTO extends PartialType(CreateStoreDTO) {
 
     @IsOptional()
     @IsUrl({}, { message: 'URL da logo inválida' })
-    logo_url?: string;
+    logoUrl?: string;
 
     @IsOptional()
     @IsUrl({}, { message: 'URL do banner inválida' })
-    banner_url?: string;
+    bannerUrl?: string;
 }

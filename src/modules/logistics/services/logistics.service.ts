@@ -14,7 +14,7 @@ export class LogisticsService {
     userType: UserType.STORE | UserType.VETERINARY,
     dto: UpsertLogisticsDTO,
   ): Promise<LogisticsConfig> {
-    const whereClause = userType === UserType.STORE ? { store_id: userId } : { veterinary_id: userId };
+    const whereClause = userType === UserType.STORE ? { storeId: userId } : { veterinaryId: userId };
     let config = await this.logisticRepo.findOne({ where: whereClause });
 
     if (config) Object.assign(config, dto);
@@ -24,7 +24,7 @@ export class LogisticsService {
   }
 
   findMyConfig(userId: string, userType: UserType.STORE | UserType.VETERINARY) {
-    const whereClause = userType === UserType.STORE ? { store_id: userId } : { veterinary_id: userId };
+    const whereClause = userType === UserType.STORE ? { storeId: userId } : { veterinaryId: userId };
     return this.logisticRepo.findOne({ where: whereClause });
   }
 

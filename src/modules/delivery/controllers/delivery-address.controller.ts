@@ -4,18 +4,20 @@ import { CreateDeliveryAddressDTO, UpdateDeliveryAddressDTO } from "../dto/deliv
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { UserType } from "../../../common/enums/user-type.enum";
 import { AddressType } from "../../../common/enums/address-type.enum";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @UseGuards(JwtAuthGuard)
 @Controller('addresses/delivery')
+@ApiBearerAuth()
 export class DeliveryAddressController {
     constructor(private readonly service: DeliveryAddressService) { }
 
     @Post()
     create(@Req() req, @Body(ValidationPipe) dto: CreateDeliveryAddressDTO) {
         return this.service.create(dto, {
-            user_id: req.user.id,
-            user_type: UserType.DELIVERY,
-            address_type: AddressType.DELIVERY
+            userId: req.user.id,
+            userType: UserType.DELIVERY,
+            addressType: AddressType.DELIVERY
         });
     }
 

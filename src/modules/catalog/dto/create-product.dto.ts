@@ -17,14 +17,14 @@ export class CreateProductDTO {
     @IsNotEmpty({ message: 'A quantidade em estoque é obrigatória' })
     @IsNumber()
     @Min(0, { message: 'A quantidade em estoque não pode ser negativa' })
-    stock_quantity: number;
+    stockQuantity: number;
 
     @IsOptional()
     @IsUrl({}, { message: 'A URL da imagem é inválida' })
-    image_url?: string;
+    imageUrl?: string;
 
     @IsNotEmpty({ message: 'A categoria é obrigatória' })
     @IsUUID('4', { message: 'ID da categoria inválido' })
-    category_id: string;
+    categoryId: string;
 
 }

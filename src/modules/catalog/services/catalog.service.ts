@@ -63,7 +63,7 @@ export class CatalogService {
     }
 
     async removeCategory(storeId: string, id: string): Promise<void> {
-        const count = await this.productRepo.count({ where: { category_id: id } });
+        const count = await this.productRepo.count({ where: { categoryId: id } });
 
         if (count > 0) {
             throw new BadRequestException(

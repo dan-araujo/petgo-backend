@@ -15,7 +15,7 @@ export class StoreHoursService {
     ) { }
 
     private async findStore(storeId: string): Promise<Store> {
-        const store = await this.storeRepo.findOne({ where: { id: storeId, deleted_at: IsNull() } });
+        const store = await this.storeRepo.findOne({ where: { id: storeId, deletedAt: IsNull() } });
         if (!store) throw new NotFoundException('Loja não encontrada.');
         return store;
     }
@@ -67,13 +67,13 @@ export class StoreHoursService {
     async updateSpecialHours(storeId: string, dto: CreateSpecialHourDTO) {
         const store = await this.findStore(storeId);
 
-        if (!dto.is_closed && dto.opens_at >= dto.closes_at) {
+        if (!dto.isClosed && dto.opensAt >= dto.closesAt) {
             throw new BadRequestException(
                 `O horário de abertura deve ser menor que o de fechamento`);
         }
 
         let specialHour = await this.storeRepo.manager.findOne(StoreSpecialHours, {
-            where: { store_id: store.id, specific_date: dto.specific_date }
+            where: { storeId: store.id, specificDate: dto.specificDate }
         });
 
         if (specialHour) {
@@ -90,14 +90,14 @@ export class StoreHoursService {
 
     async findAllSpecialHours(storeId: string): Promise<StoreSpecialHours[]> {
         return await this.storeRepo.manager.find(StoreSpecialHours, {
-            where: { store_id: storeId },
-            order: { specific_date: 'ASC' },
+            where: { storeId: storeId },
+            order: { specificDate: 'ASC' },
         });
     }
 
     async removeSpecialHour(storeId: string, specialHourId: string) {
         const specialHour = await this.storeRepo.manager.findOne(StoreSpecialHours, {
-            where: { id: specialHourId, store_id: storeId }
+            where: { id: specialHourId, storeId: storeId }
         });
 
         if (!specialHour) throw new NotFoundException('Horário especial não encontrado.');

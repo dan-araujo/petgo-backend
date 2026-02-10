@@ -5,11 +5,11 @@ import { AddressInputDTO } from './address-input.dto';
 
 export class AddressContextDTO {
   @IsUUID()
-  user_id: string;
+  userId: string;
 
   @IsEnum(UserType)
-  user_type: UserType;
+  userType: UserType;
 
   @IsEnum(AddressType)
-  address_type: AddressType;
+  addressType: AddressType;
 }

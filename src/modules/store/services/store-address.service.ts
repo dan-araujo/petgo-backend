@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { AddressBaseService } from "../../address/address.base.service";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Address } from "../../address/entities/address.base.entity";
@@ -28,25 +28,25 @@ export class StoreAddressService extends AddressBaseService {
         context: AddressContextDTO,
     ): Promise<StoreAddress> {
         this.validateAddressType(
-            context.address_type,
-            context.user_type,
+            context.addressType,
+            context.userType,
             AddressType.STORE,
         );
 
         await this.checkDuplicateAddress({
             ...input,
-            user_id: context.user_id,
+            userId: context.userId,
         });
 
         const coordinates = await this.tryGetCoordinates(input, this.geoService);
 
         return this.dataSource.transaction(async manager => {
-            if (input.is_main_address === true) {
+            if (input.isMainAddress === true) {
                 await this.unsetAllMainAddressesForUser(manager, {
                     addressType: AddressType.STORE,
-                    userId: context.user_id,
+                    userId: context.userId,
                     relationEntity: StoreAddress,
-                    flagField: 'is_main_address',
+                    flagField: 'isMainAddress',
                 });
             }
 
@@ -61,7 +61,8 @@ export class StoreAddressService extends AddressBaseService {
 
             const storeAddress = manager.create(StoreAddress, {
                 id: address.id,
-                is_main_address: input.is_main_address ?? false,
+                storeId: context.userId,
+                isMainAddress: input.isMainAddress ?? false,
             });
 
             await manager.save(storeAddress);
@@ -87,11 +88,11 @@ export class StoreAddressService extends AddressBaseService {
             throw new NotFoundException('Endereço não encontrado');
         }
 
-        if (currentAddress.address.user_id !== userId) {
+        if (currentAddress.address.userId !== userId) {
             throw new ForbiddenException('Você não tem permissão para alterar esse endereço');
         }
 
-        const hasAddressChanged = !!(dto.street || dto.number || dto.city || dto.state || dto.zip_code);
+        const hasAddressChanged = !!(dto.street || dto.number || dto.city || dto.state || dto.zipCode);
         let newCoordinates = {};
 
         if (hasAddressChanged) {
@@ -111,15 +112,15 @@ export class StoreAddressService extends AddressBaseService {
 
             await this.updateBaseAddressFields(manager, addressId, finalUpdateData);
 
-            if (dto.is_main_address === true && !currentAddress.is_main_address) {
+            if (dto.isMainAddress === true && !currentAddress.isMainAddress) {
                 await this.unsetAllMainAddressesForUser(manager, {
                     addressType: AddressType.STORE,
                     userId,
                     relationEntity: StoreAddress,
-                    flagField: 'is_main_address',
+                    flagField: 'isMainAddress',
                 });
 
-                currentAddress.is_main_address = true;
+                currentAddress.isMainAddress = true;
             }
 
             await manager.save(currentAddress);
@@ -139,7 +140,7 @@ export class StoreAddressService extends AddressBaseService {
             throw new NotFoundException('Endereço não encontrado');
         }
 
-        if (address.user_id !== userId) {
+        if (address.userId !== userId) {
             throw new ForbiddenException('Você não tem permissão para excluir esse endereço');
         }
 
@@ -150,30 +151,29 @@ export class StoreAddressService extends AddressBaseService {
 
     async findAllByUser(userId: string): Promise<StoreAddress[]> {
         return this.storeAddressRepo.find({
-            where: {
-                address: {
-                    user_id: userId,
-                    address_type: AddressType.STORE,
-                },
-            },
+            where: { storeId: userId },
             relations: ['address'],
-            order: {
-                is_main_address: 'DESC',
-                address: { created_at: 'DESC' },
-            },
+            order: { isMainAddress: 'DESC' },
         });
     }
 
     async findMainAddress(userId: string): Promise<StoreAddress | null> {
         return this.storeAddressRepo.findOne({
-            where: {
-                is_main_address: true,
-                address: {
-                    user_id: userId,
-                    address_type: AddressType.STORE,
-                },
-            },
+            where: { storeId: userId, isMainAddress: true },
             relations: ['address'],
         });
+    }
+
+    async getStoreAddress(storeId: string): Promise<StoreAddress> {
+        const storeAddress = await this.storeAddressRepo.findOne({
+            where: { storeId: storeId, isMainAddress: true },
+            relations: ['address'],
+        });
+
+        if (!storeAddress || !storeAddress.address) {
+            throw new BadRequestException('A loja selecionado não possui endereço configurado para entrega.');
+        }
+
+        return storeAddress;
     }
 }

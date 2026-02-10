@@ -25,23 +25,23 @@ export class DeliveryAddressService extends AddressBaseService {
     ): Promise<DeliveryAddress> {
 
         this.validateAddressType(
-            context.address_type,
-            context.user_type,
+            context.addressType,
+            context.userType,
             AddressType.DELIVERY,
         );
 
         await this.checkDuplicateAddress({
             ...input,
-            user_id: context.user_id,
+            userId: context.userId,
         });
 
         return this.dataSource.transaction(async manager => {
-            if (input.is_current_location === true) {
+            if (input.isCurrentLocation === true) {
                 await this.unsetAllMainAddressesForUser(manager, {
                     addressType: AddressType.DELIVERY,
-                    userId: context.user_id,
+                    userId: context.userId,
                     relationEntity: DeliveryAddress,
-                    flagField: 'is_current_location',
+                    flagField: 'isCurrentLocation',
                 });
             }
 
@@ -53,7 +53,9 @@ export class DeliveryAddressService extends AddressBaseService {
 
             const deliveryAddress = manager.create(DeliveryAddress, {
                 id: address.id,
-                is_current_location: input.is_current_location ?? false,
+                deliveryId: context.userId,
+                addressType: AddressType.DELIVERY,
+                isCurrentLocation: input.isCurrentLocation ?? false,
             });
 
             await manager.save(deliveryAddress);
@@ -82,21 +84,21 @@ export class DeliveryAddressService extends AddressBaseService {
                 throw new NotFoundException('Endereço não encontrado');
             }
 
-            if (deliveryAddress.address.user_id !== userId) {
+            if (deliveryAddress.address.userId !== userId) {
                 throw new ForbiddenException('Você não tem permissão para alterar esse endereço');
             }
 
             await this.updateBaseAddressFields(manager, addressId, dto);
 
-            if (dto.is_current_location === true && !deliveryAddress.is_current_location) {
+            if (dto.isCurrentLocation === true && !deliveryAddress.isCurrentLocation) {
                 await this.unsetAllMainAddressesForUser(manager, {
                     addressType: AddressType.DELIVERY,
                     userId,
                     relationEntity: DeliveryAddress,
-                    flagField: 'is_current_location',
+                    flagField: 'isCurrentLocation',
                 });
 
-                deliveryAddress.is_current_location = true;
+                deliveryAddress.isCurrentLocation = true;
             }
 
             await manager.save(deliveryAddress);
@@ -117,7 +119,7 @@ export class DeliveryAddressService extends AddressBaseService {
             throw new NotFoundException('Endereço não encontrado');
         }
 
-        if (address.user_id !== userId) {
+        if (address.userId !== userId) {
             throw new ForbiddenException('Você não tem permissão para excluir esse endereço');
         }
 
@@ -129,29 +131,15 @@ export class DeliveryAddressService extends AddressBaseService {
 
     async findAllByUser(deliveryId: string): Promise<DeliveryAddress[]> {
         return this.deliveryAddressRepo.find({
-            where: {
-                address: {
-                    user_id: deliveryId,
-                    address_type: AddressType.DELIVERY,
-                },
-            },
+            where: { deliveryId: deliveryId },
             relations: ['address'],
-            order: {
-                is_current_location: 'DESC',
-                address: { created_at: 'DESC' },
-            },
+            order: { isCurrentLocation: 'DESC' },
         });
     }
 
     async findCurrentLocation(deliveryId: string): Promise<DeliveryAddress | null> {
         return this.deliveryAddressRepo.findOne({
-            where: {
-                is_current_location: true,
-                address: {
-                    user_id: deliveryId,
-                    address_type: AddressType.DELIVERY,
-                },
-            },
+            where: { deliveryId: deliveryId, isCurrentLocation: true },
             relations: ['address'],
         });
     }

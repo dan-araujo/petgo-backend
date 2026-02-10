@@ -140,7 +140,7 @@ export class ForgotPasswordService {
         const passwordHash = await bcrypt.hash(newPassword, 10);
 
         await userRepository.update(user.id, {
-            password_hash: passwordHash,
+            passwordHash: passwordHash,
         });
 
         return {

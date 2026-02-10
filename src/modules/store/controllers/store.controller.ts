@@ -34,7 +34,7 @@ export class StoreController {
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Partial<Store>> {
     const store = await this.storeService.findOne(id);
-    const { password_hash, ...safeStore } = store;
+    const { passwordHash: passwordHash, ...safeStore } = store;
 
     if (!store) {
       throw new NotFoundException('Loja não encontrada');
@@ -48,7 +48,7 @@ export class StoreController {
     @Body() dto: UpdateStoreDTO,
   ): Promise<Partial<Store>> {
     const updatedStore = await this.storeService.update(id, dto);
-    const { password_hash, ...safeStore } = updatedStore;
+    const { passwordHash: passwordHash, ...safeStore } = updatedStore;
 
     return safeStore;
   }

@@ -4,18 +4,20 @@ import { CreateStoreAddressDTO, UpdateStoreAddressDTO } from "../dto/store-addre
 import { UserType } from "../../../common/enums/user-type.enum";
 import { AddressType } from "../../../common/enums/address-type.enum";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @UseGuards(JwtAuthGuard)
 @Controller('addresses/store')
+@ApiBearerAuth()
 export class StoreAddressController {
     constructor(private readonly service: StoreAddressService) { }
 
     @Post()
-    create(@Req() req, @Body(ValidationPipe) dto: CreateStoreAddressDTO) {
+    create(@Req() req: any, @Body(ValidationPipe) dto: CreateStoreAddressDTO) {
         return this.service.create(dto, {
-            user_id: req.user.id,
-            user_type: UserType.STORE,
-            address_type: AddressType.STORE,
+            userId: req.user.id,
+            userType: UserType.STORE,
+            addressType: AddressType.STORE,
         });
     }
 

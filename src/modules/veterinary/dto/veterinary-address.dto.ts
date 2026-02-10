@@ -5,11 +5,11 @@ import { UpdateBaseAddressDTO } from "../../address/dto/update-address.dto";
 export class CreateVeterinaryAddressDTO extends AddressInputDTO {
     @IsOptional()
     @IsBoolean()
-    is_main_location?: boolean;
+    isMainLocation?: boolean;
 }
 
 export class UpdateVeterinaryAddressDTO extends UpdateBaseAddressDTO {
     @IsOptional()
     @IsBoolean()
-    is_main_location?: boolean;
+    isMainLocation?: boolean;
 }

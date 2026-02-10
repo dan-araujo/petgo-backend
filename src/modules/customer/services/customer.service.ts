@@ -37,7 +37,7 @@ export class CustomerService extends BaseService<Customer> {
         },
       );
 
-      const password_hash = await bcrypt.hash(data.password, 10);
+      const passwordHash = await bcrypt.hash(data.password, 10);
       const cpf = data.cpf?.trim() === '' ? null : data.cpf;
 
       const customer = this.customerRepo.create({
@@ -45,7 +45,7 @@ export class CustomerService extends BaseService<Customer> {
         email: data.email,
         phone: data.phone,
         cpf: cpf as any,
-        password_hash,
+        passwordHash,
         status: AccountStatus.PENDING,
       });
 

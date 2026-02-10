@@ -4,18 +4,20 @@ import { CreateVeterinaryAddressDTO, UpdateVeterinaryAddressDTO } from "../dto/v
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { UserType } from "../../../common/enums/user-type.enum";
 import { AddressType } from "../../../common/enums/address-type.enum";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @UseGuards(JwtAuthGuard)
 @Controller('addresses/veterinary')
+@ApiBearerAuth()
 export class VeterinaryAddressController {
     constructor(private readonly service: VeterinaryAddressService) { }
 
     @Post()
     create(@Req() req, @Body(ValidationPipe) dto: CreateVeterinaryAddressDTO) {
         return this.service.create(dto, {
-            user_id: req.user.id,
-            user_type: UserType.VETERINARY,
-            address_type: AddressType.VETERINARY,
+            userId: req.user.id,
+            userType: UserType.VETERINARY,
+            addressType: AddressType.VETERINARY,
         });
     }
 

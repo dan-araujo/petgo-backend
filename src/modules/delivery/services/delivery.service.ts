@@ -35,7 +35,7 @@ export class DeliveryService extends BaseService<Delivery> {
         },
       );
 
-      const password_hash = await this.hashPassword(data.password);
+      const passwordHash = await this.hashPassword(data.password);
       const cpf = data.cpf?.trim() === '' ? null : data.cpf;
 
       const delivery = this.deliveryRepo.create({
@@ -43,7 +43,7 @@ export class DeliveryService extends BaseService<Delivery> {
         email: data.email,
         phone: data.phone,
         cpf: cpf as any,
-        password_hash,
+        passwordHash: passwordHash,
         status: AccountStatus.PENDING,
       });
 
@@ -105,12 +105,12 @@ export class DeliveryService extends BaseService<Delivery> {
   }
 
   async findAll(): Promise<Delivery[]> {
-    return this.deliveryRepo.find({ where: { deleted_at: IsNull() } });
+    return this.deliveryRepo.find({ where: { deletedAt: IsNull() } });
   }
 
   async findOne(id: string): Promise<Delivery> {
     const delivery = await this.deliveryRepo.findOne({
-      where: { id, deleted_at: IsNull() },
+      where: { id, deletedAt: IsNull() },
     });
     if (!delivery) throw new NotFoundException('Entregador não encontrado');
     return delivery;

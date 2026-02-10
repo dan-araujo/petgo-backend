@@ -7,7 +7,6 @@ import { Address } from "../../address/entities/address.base.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { AddressBaseService } from "../../address/address.base.service";
 import { AddressContextDTO } from "../../address/dto/address-context.dto";
-import { UpdateBaseAddressDTO } from "../../address/dto/update-address.dto";
 
 @Injectable()
 export class CustomerAddressService extends AddressBaseService {
@@ -27,23 +26,23 @@ export class CustomerAddressService extends AddressBaseService {
     ): Promise<CustomerAddress> {
 
         this.validateAddressType(
-            context.address_type,
-            context.user_type,
+            context.addressType,
+            context.userType,
             AddressType.CUSTOMER,
         );
 
         await this.checkDuplicateAddress({
             ...input,
-            user_id: context.user_id,
+            userId: context.userId,
         });
 
         return this.dataSource.transaction(async manager => {
-            if (input.is_default === true) {
+            if (input.isDefault === true) {
                 await this.unsetAllMainAddressesForUser(manager, {
                     addressType: AddressType.CUSTOMER,
-                    userId: context.user_id,
+                    userId: context.userId,
                     relationEntity: CustomerAddress,
-                    flagField: 'is_default',
+                    flagField: 'isDefault',
                 });
             }
 
@@ -55,8 +54,9 @@ export class CustomerAddressService extends AddressBaseService {
 
             const customerAddress = manager.create(CustomerAddress, {
                 id: address.id,
-                address_label: input.address_label ?? 'other',
-                is_default: input.is_default ?? false,
+                customerId: context.userId,
+                addressLabel: input.addressLabel ?? 'other',
+                isDefault: input.isDefault ?? false,
             });
 
             await manager.save(customerAddress);
@@ -84,25 +84,25 @@ export class CustomerAddressService extends AddressBaseService {
                 throw new NotFoundException('Endereço não encontrado');
             }
 
-            if (customerAddress.address.user_id !== userId) {
+            if (customerAddress.address.userId !== userId) {
                 throw new ForbiddenException('Você não pode alterar este endereço');
             }
 
             await this.updateBaseAddressFields(manager, addressId, dto);
 
-            if (dto.is_default === true && !customerAddress.is_default) {
+            if (dto.isDefault === true && !customerAddress.isDefault) {
                 await this.unsetAllMainAddressesForUser(manager, {
                     addressType: AddressType.CUSTOMER,
                     userId,
                     relationEntity: CustomerAddress,
-                    flagField: 'is_default',
+                    flagField: 'isDefault',
                 });
 
-                customerAddress.is_default = true;
+                customerAddress.isDefault = true;
             }
 
-            if (dto.address_label !== undefined) {
-                customerAddress.address_label = dto.address_label;
+            if (dto.addressLabel !== undefined) {
+                customerAddress.addressLabel = dto.addressLabel;
             }
 
             await manager.save(customerAddress);
@@ -124,7 +124,7 @@ export class CustomerAddressService extends AddressBaseService {
             throw new NotFoundException('Endereço não encontrado');
         }
 
-        if (address.user_id !== userId) {
+        if (address.userId !== userId) {
             throw new ForbiddenException('Você não tem permissão para excluir esse endereço');
         }
 
@@ -136,30 +136,28 @@ export class CustomerAddressService extends AddressBaseService {
 
     async findAllByUser(userId: string): Promise<CustomerAddress[]> {
         return this.customerAddressRepo.find({
-            where: {
-                address: {
-                    user_id: userId,
-                    address_type: AddressType.CUSTOMER,
-                },
-            },
+            where: { customerId: userId },
             relations: ['address'],
-            order: {
-                is_default: 'DESC',
-                address: { created_at: 'DESC' },
-            },
+            order: { isDefault: 'DESC' },
         });
     }
 
     async findMainAddress(userId: string): Promise<CustomerAddress | null> {
         return this.customerAddressRepo.findOne({
-            where: {
-                is_default: true,
-                address: {
-                    user_id: userId,
-                    address_type: AddressType.CUSTOMER,
-                },
-            },
+            where: { customerId: userId, isDefault: true },
             relations: ['address'],
         });
+    }
+
+    async getDeliveryAddress(customerId: string, addressId: string): Promise<Address> {
+        const address = await this.addressRepo.findOne({
+            where: { id: addressId, userId: customerId },
+        });
+
+        if (!address) {
+            throw new NotFoundException('Endereço de entrega não encontrado.');
+        }
+
+        return address;
     }
 }

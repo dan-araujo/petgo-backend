@@ -35,14 +35,14 @@ export class VeterinaryService extends BaseService<Veterinary> {
         },
       );
 
-      const password_hash = await bcrypt.hash(data.password, 10);
+      const passwordHash = await bcrypt.hash(data.password, 10);
 
       const veterinary = this.veterinaryRepo.create({
         name: data.name,
         email: data.email,
         phone: data.phone,
         category: data.category,
-        password_hash,
+        passwordHash: passwordHash,
         status: AccountStatus.PENDING,
       });
 
@@ -120,12 +120,12 @@ export class VeterinaryService extends BaseService<Veterinary> {
   }
 
   async findAll(): Promise<Veterinary[]> {
-    return this.veterinaryRepo.find({ where: { deleted_at: IsNull() } });
+    return this.veterinaryRepo.find({ where: { deletedAt: IsNull() } });
   }
 
   async findOne(id: string) {
     const veterinary = await this.veterinaryRepo.findOne({
-      where: { id, deleted_at: IsNull() },
+      where: { id, deletedAt: IsNull() },
     });
     if (!veterinary) {
       throw new NotFoundException('Veterinário não encontrado');

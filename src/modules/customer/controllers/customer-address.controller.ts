@@ -4,18 +4,20 @@ import { CreateCustomerAddressDTO, UpdateCustomerAddressDTO } from "../dto/custo
 import { UserType } from "../../../common/enums/user-type.enum";
 import { AddressType } from "../../../common/enums/address-type.enum";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @UseGuards(JwtAuthGuard)
 @Controller('addresses/customer')
+@ApiBearerAuth()
 export class CustomerAddressController {
     constructor(private readonly service: CustomerAddressService) { }
 
     @Post()
-    create(@Req() req, @Body(ValidationPipe) dto: CreateCustomerAddressDTO) {
+    create(@Req() req: any, @Body(ValidationPipe) dto: CreateCustomerAddressDTO) {
         return this.service.create(dto, {
-            user_id: req.user.id,
-            user_type: UserType.CUSTOMER,
-            address_type: AddressType.CUSTOMER,
+            userId: req.user.id,
+            userType: UserType.CUSTOMER,
+            addressType: AddressType.CUSTOMER,
         });
     }
 

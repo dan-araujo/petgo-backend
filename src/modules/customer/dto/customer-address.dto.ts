@@ -6,20 +6,20 @@ export class CreateCustomerAddressDTO extends AddressInputDTO {
   @IsOptional()
   @IsString()
   @MaxLength(50)
-  address_label?: string;
+  addressLabel?: string;
 
   @IsOptional()
   @IsBoolean()
-  is_default?: boolean;
+  isDefault?: boolean;
 }
 
 export class UpdateCustomerAddressDTO extends UpdateBaseAddressDTO {
   @IsOptional()
   @IsBoolean()
-  is_default?: boolean;
+  isDefault?: boolean;
 
   @IsOptional()
   @IsString()
   @MaxLength(50)
-  address_label?: string;
+  addressLabel?: string;
 }

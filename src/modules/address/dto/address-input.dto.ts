@@ -20,13 +20,17 @@ export class AddressInputDTO {
   city: string;
 
   @IsString()
+  @MaxLength(100)
+  neighborhood: string;
+
+  @IsString()
   @Length(2, 2)
   state: string;
 
   @IsString()
   @Length(8, 8, { message: 'O CEP deve ter 8 dígitos numéricos' })
   @Transform(({ value }) => value?.replace(/\D/g, ''))
-  zip_code: string;
+  zipCode: string;
 
   @IsOptional()
   @IsNumber()

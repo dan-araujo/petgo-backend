@@ -44,7 +44,7 @@ export class CustomerController {
       throw new NotFoundException('Cliente não encontrado');
     }
 
-    const { password_hash, ...safeCustomer } = customer;
+    const { passwordHash, ...safeCustomer } = customer;
     return {
       status: 'success',
       message: 'Cliente recuperado com sucesso!',
@@ -59,7 +59,7 @@ export class CustomerController {
     @Body() dto: Partial<UpdateCustomerDTO>,
   ): Promise<ApiResponse<Partial<Customer>>> {
     const updatedCustomer = await this.customerService.update(id, dto);
-    const { password_hash, ...safeCustomer } = updatedCustomer;
+    const { passwordHash, ...safeCustomer } = updatedCustomer;
     return {
       status: 'success',
       message: 'Cliente atualizado com sucesso!',
