@@ -17,6 +17,6 @@ import { Address } from '../address/entities/address.base.entity';
 ],
     providers: [CustomerService, CustomerAddressService],
     controllers: [CustomerController, CustomerAddressController],
-    exports: [CustomerService],
+    exports: [CustomerService, CustomerAddressService],
 })
 export class CustomerModule { }
