@@ -6,22 +6,22 @@ export class StoreSpecialHours {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => Store, (store) => store.special_hours)
+    @ManyToOne(() => Store, (store) => store.specialHours)
     @JoinColumn({ name: 'store_id' })
     store: Store;
 
-    @Column({ type: 'uuid' })
-    store_id: string;
+    @Column({ name: 'store_id', type: 'uuid' })
+    storeId: string;
 
-    @Column({ type: 'date' })
-    specific_date: string;
+    @Column({ name: 'specific_date', type: 'date' })
+    specificDate: string;
 
-    @Column({ type: 'time', nullable: true })
-    opens_at: string | null;
+    @Column({ name: 'opens_at', type: 'time', nullable: true })
+    opensAt: string | null;
 
-    @Column({ type: 'time', nullable: true })
-    closes_at: string | null;
+    @Column({ name: 'closes_at', type: 'time', nullable: true })
+    closesAt: string | null;
 
-    @Column({ default: false, nullable: true })
-    is_closed: boolean;
+    @Column({ name: 'is_closed', default: false, nullable: true })
+    isClosed: boolean;
 }

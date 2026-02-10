@@ -3,11 +3,13 @@ import {
     CreateDateColumn,
     DeleteDateColumn,
     Entity,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
 import { UserType } from "../../../common/enums/user-type.enum";
 import { AccountStatus } from "../../../common/enums/account-status.enum";
+import { Order } from "../../order/entities/order.entity";
 
 @Entity('delivery')
 export class Delivery {
@@ -27,26 +29,26 @@ export class Delivery {
     @Column({ nullable: true, length: 14 })
     cpf?: string;
 
-    @Column()
-    password_hash: string;
+    @Column({ name: 'password_hash' })
+    passwordHash: string;
 
-    @Column({ length: 20, nullable: true })
-    vehicle_type?: string;
+    @Column({ name: 'vehicle_type', length: 20, nullable: true })
+    vehicleType?: string;
 
-    @Column({ length: 10, nullable: true })
-    vehicle_plate?: string;
+    @Column({ name: 'vehicle_plate', length: 10, nullable: true })
+    vehiclePlate?: string;
 
-    @Column({ length: 20, nullable: true })
-    cnh_number?: string;
+    @Column({ name: 'cnh_number', length: 20, nullable: true })
+    cnhNumber?: string;
 
-    @Column({ type: 'date', nullable: true })
-    cnh_valid_until?: Date;
+    @Column({ name: 'cnh_valid_until', type: 'date', nullable: true })
+    cnhValidUntil?: Date;
 
-    @Column({ type: 'text', nullable: true })
-    photo_url?: string;
+    @Column({ name: 'photo_url', type: 'text', nullable: true })
+    photoUrl?: string;
 
-    @Column({ type: 'enum', enum: UserType, default: UserType.DELIVERY })
-    user_type: UserType;
+    @Column({ name: 'user_type', type: 'enum', enum: UserType, default: UserType.DELIVERY })
+    userType: UserType;
 
     @Column({
         type: 'enum',
@@ -55,16 +57,18 @@ export class Delivery {
     })
     status: AccountStatus;
 
-    @Column({ type: 'boolean', default: false })
-    profile_completed: boolean;
+    @Column({ name: 'profile_completed', type: 'boolean', default: false })
+    profileCompleted: boolean;
 
-    @CreateDateColumn({ type: 'timestamp' })
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+    createdAt: Date;
 
-    @UpdateDateColumn({ type: 'timestamp' })
-    updated_at: Date;
+    @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+    updatedAt: Date;
 
-    @DeleteDateColumn({ type: 'timestamp', nullable: true })
-    deleted_at?: Date;
+    @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+    deletedAt?: Date;
 
+    @OneToMany(() => Order, (order) => order.delivery)
+    orders: Order[];
 }

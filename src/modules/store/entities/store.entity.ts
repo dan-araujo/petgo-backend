@@ -24,20 +24,20 @@ export class Store {
     @Column({ unique: true, length: 100 })
     email: string;
 
-    @Column({ nullable: false })
-    password_hash: string;
+    @Column({ name: 'password_hash', nullable: false })
+    passwordHash: string;
 
     @Column({ length: 20, nullable: true })
     phone?: string;
 
-    @Column({ type: 'enum', enumName: 'store_type', nullable: true })
-    store_type: StoreType | null;
+    @Column({ name: 'store_type', type: 'enum', enumName: 'store_type', nullable: true })
+    storeType: StoreType | null;
 
     @Column({ length: 20, unique: true, nullable: false })
     cnpj: string;
 
-    @Column({ default: true })
-    is_open: boolean;
+    @Column({ name: 'is_open', default: true })
+    isOpen: boolean;
 
     @Column({
         type: 'enum',
@@ -47,14 +47,14 @@ export class Store {
     })
     status: AccountStatus;
 
-    @Column({ default: false })
-    profile_completed: boolean;
+    @Column({ name: 'profile_completed', default: false })
+    profileCompleted: boolean;
 
-    @Column({ type: 'varchar', length: 500, nullable: true })
-    logo_url?: string;
+    @Column({ name: 'logo_url', type: 'varchar', length: 500, nullable: true })
+    logoUrl?: string;
 
-    @Column({ type: 'varchar', length: 255, nullable: true })
-    banner_url?: string;
+    @Column({ name: 'banner_url', type: 'varchar', length: 255, nullable: true })
+    bannerUrl?: string;
 
     @Column({ type: 'text', nullable: true })
     description?: string;
@@ -62,24 +62,27 @@ export class Store {
     @Column({ type: 'numeric', precision: 3, scale: 2, nullable: true })
     rating?: number;
 
-    @Column({ type: 'int', default: 0 })
-    total_reviews: number;
+    @Column({ name: 'total_reviews', type: 'int', default: 0 })
+    totalReviews: number;
 
-    @Column({ type: 'enum', enum: UserType, default: UserType.STORE })
-    user_type: UserType;
+    @Column({ name: 'user_type', type: 'enum', enum: UserType, default: UserType.STORE })
+    userType: UserType;
 
-    @CreateDateColumn({ type: 'timestamp' })
-    created_at: Date;
+    @Column({ name: 'uses_app_logistics', default: false })
+    usesAppLogistics: boolean;
 
-    @UpdateDateColumn({ type: 'timestamp' })
-    updated_at: Date;
+    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+    createdAt: Date;
 
-    @DeleteDateColumn({ type: 'timestamp', nullable: true })
-    deleted_at?: Date;
+    @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+    updatedAt: Date;
+
+    @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+    deletedAt?: Date;
 
     @OneToMany(() => StoreBusinessHours, (businessHours) => businessHours.store, { cascade: true })
-    business_hours: StoreBusinessHours[];
+    businessHours: StoreBusinessHours[];
 
     @OneToMany(() => StoreSpecialHours, (specialHours) => specialHours.store)
-    special_hours: StoreSpecialHours[];
+    specialHours: StoreSpecialHours[];
 }

@@ -1,8 +1,9 @@
-import { Column, Entity, Index, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from "typeorm";
 import { Address } from "../../address/entities/address.base.entity";
+import { Veterinary } from "./veterinary.entity";
 
 @Entity('veterinary_addresses')
-@Index(['is_main_location'])
+@Index(['isMainLocation'])
 export class VeterinaryAddress {
     @PrimaryColumn('uuid')
     id: string;
@@ -11,6 +12,13 @@ export class VeterinaryAddress {
     @JoinColumn({ name: 'id' })
     address: Address;
 
-    @Column({ type: 'boolean', default: false, nullable: true })
-    is_main_location: boolean;
+    @Column({ name: 'veterinary_id' })
+    veterinaryId: string;
+
+    @ManyToOne(() => Veterinary, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'veterinary_id' })
+    delivery: Veterinary;
+
+    @Column({ name: 'is_main_location', type: 'boolean', default: false, nullable: true })
+    isMainLocation: boolean;
 }

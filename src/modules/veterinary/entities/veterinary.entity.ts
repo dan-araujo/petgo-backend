@@ -23,8 +23,8 @@ export class Veterinary {
   @Column({ unique: true, length: 20 })
   phone: string;
 
-  @Column()
-  password_hash: string;
+  @Column({ name: 'password_hash' })
+  passwordHash: string;
 
   @Column({
     type: 'enum',
@@ -36,14 +36,14 @@ export class Veterinary {
   @Column({ type: 'varchar', length: 50, nullable: true })
   speciality?: string;
 
-  @Column({ type: 'boolean', default: false })
-  home_service: boolean;
+  @Column({ name: 'home_service', type: 'boolean', default: false })
+  homeService: boolean;
 
-  @Column({ type: 'boolean', default: true })
-  is_available: boolean;
+  @Column({ name: 'is_available', type: 'boolean', default: true })
+  isAvailable: boolean;
 
-  @Column({ type: 'enum', enum: UserType, default: UserType.VETERINARY })
-  user_type: UserType;
+  @Column({ name: 'user_type', type: 'enum', enum: UserType, default: UserType.VETERINARY })
+  userType: UserType;
 
   @Column({
     type: 'enum',
@@ -52,15 +52,15 @@ export class Veterinary {
   })
   status: AccountStatus;
 
-  @Column({ type: 'boolean', default: false })
-  profile_completed: boolean;
+  @Column({ name: 'profile_completed', type: 'boolean', default: false })
+  profileCompleted: boolean;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt: Date;
 
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at?: Date;
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+  deletedAt?: Date;
 }

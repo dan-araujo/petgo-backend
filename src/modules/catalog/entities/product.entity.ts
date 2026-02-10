@@ -24,35 +24,35 @@ export class Product {
     })
     price: number;
 
-    @Column({ type: 'int' })
-    stock_quantity: number;
+    @Column({ name: 'stock_quantity', type: 'int' })
+    stockQuantity: number;
 
-    @Column({ nullable: true })
-    image_url: string;
+    @Column({ name: 'image_url', nullable: true })
+    imageUrl: string;
 
-    @Column({ default: true })
-    is_active: boolean;
+    @Column({ name: 'is_active', default: true })
+    isActive: boolean;
 
     @ManyToOne(() => Store, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'store_id' })
     store: Store;
 
-    @Column('uuid')
-    store_id: string;
+    @Column({ name: 'store_id', type: 'uuid' })
+    storeId: string;
 
     @ManyToOne(() => Category)
     @JoinColumn({ name: 'category_id' })
     category: Category;
 
-    @Column('uuid')
-    category_id: string;
+    @Column({ name: 'category_id', type: 'uuid' })
+    categoryId: string;
 
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({ name: 'updated_at' })
+    updatedAt: Date;
 
-    @DeleteDateColumn()
-    deleted_at: Date;
+    @DeleteDateColumn({ name: 'deleted_at' })
+    deletedAt: Date;
 }

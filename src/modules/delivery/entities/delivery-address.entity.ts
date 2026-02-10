@@ -1,8 +1,9 @@
-import { Column, Entity, Index, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from "typeorm";
 import { Address } from "../../address/entities/address.base.entity";
+import { Delivery } from "./delivery.entity";
 
 @Entity('delivery_addresses')
-@Index(['is_current_location'])
+@Index(['isCurrentLocation'])
 export class DeliveryAddress {
     @PrimaryColumn('uuid')
     id: string;
@@ -11,6 +12,13 @@ export class DeliveryAddress {
     @JoinColumn({ name: 'id' })
     address: Address;
 
-    @Column({ type: 'boolean', default: false })
-    is_current_location: boolean;
+    @Column({ name: 'delivery_id' })
+    deliveryId: string;
+
+    @ManyToOne(() => Delivery, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'delivery_id' })
+    delivery: Delivery;
+
+    @Column({ name: 'is_current_location', type: 'boolean', default: false })
+    isCurrentLocation: boolean;
 }

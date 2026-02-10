@@ -26,8 +26,8 @@ export class Customer {
     @Column({ type: 'varchar', unique: true, length: 14, nullable: true })
     cpf?: string;
 
-    @Column({ nullable: true })
-    password_hash: string;
+    @Column({ name: 'password_hash', nullable: true })
+    passwordHash: string;
 
     @Column({ type: 'enum', enum: UserType, default: UserType.CUSTOMER })
     user_type: UserType;

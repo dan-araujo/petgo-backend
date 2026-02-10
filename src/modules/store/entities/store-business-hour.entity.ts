@@ -6,7 +6,7 @@ export class StoreBusinessHours {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => Store, (store) => store.business_hours)
+    @ManyToOne(() => Store, (store) => store.businessHours)
     @JoinColumn({ name: 'store_id' })
     store: Store;
 

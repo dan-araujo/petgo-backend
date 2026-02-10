@@ -1,8 +1,9 @@
-import { Column, Entity, Index, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from 'typeorm';
 import { Address } from '../../address/entities/address.base.entity';
+import { Customer } from './customer.entity';
 
 @Entity('customer_addresses')
-@Index(['is_default'])
+@Index(['isDefault'])
 export class CustomerAddress {
   @PrimaryColumn('uuid')
   id: string;
@@ -11,9 +12,16 @@ export class CustomerAddress {
   @JoinColumn({ name: 'id' })
   address: Address;
 
-  @Column({ type: 'varchar', length: 50, default: 'other' })
-  address_label: string;
+  @Column({ name: 'customer_id', type: 'uuid' })
+  customerId: string;
 
-  @Column({ type: 'boolean', default: false })
-  is_default: boolean;
+  @ManyToOne(() => Customer)
+  @JoinColumn({ name: 'customer_id' })
+  customer: Customer;
+
+  @Column({ name: 'address_label', type: 'varchar', length: 50, default: 'other' })
+  addressLabel: string;
+
+  @Column({ name: 'is_default', type: 'boolean', default: false })
+  isDefault: boolean;
 }
