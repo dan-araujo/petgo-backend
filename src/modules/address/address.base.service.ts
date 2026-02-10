@@ -47,6 +47,7 @@ export class AddressBaseService {
         if (dto.number !== undefined) unsafe.number = dto.number;
         if (dto.complement !== undefined) unsafe.complement = dto.complement;
         if (dto.city !== undefined) unsafe.city = dto.city;
+        if (dto.neighborhood !== undefined) unsafe.neighborhood = dto.neighborhood;
         if (dto.state !== undefined) unsafe.state = dto.state;
         if (dto.zip_code !== undefined) unsafe.zip_code = dto.zip_code;
         if (dto.longitude !== undefined) unsafe.longitude = dto.longitude;
@@ -86,10 +87,10 @@ export class AddressBaseService {
     async checkDuplicateAddress(dto: DeepPartial<Address>): Promise<void> {
         const existing = await this.addressRepo.findOne({
             where: {
-                user_id: dto.user_id,
+                userId: dto.userId,
                 street: dto.street,
                 number: dto.number,
-                zip_code: dto.zip_code,
+                zipCode: dto.zipCode,
             },
         });
 
@@ -109,8 +110,8 @@ export class AddressBaseService {
     ): Promise<void> {
         const addressIds = await manager.find(Address, {
             where: {
-                user_id: options.userId,
-                address_type: options.addressType,
+                userId: options.userId,
+                addressType: options.addressType,
             },
             select: ['id'],
         });
