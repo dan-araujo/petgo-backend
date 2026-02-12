@@ -12,6 +12,7 @@ import { UserType } from "../../../common/enums/user-type.enum";
 import { StoreBusinessHours } from "./store-business-hour.entity";
 import { StoreSpecialHours } from "./store-special-hour.entity";
 import { StoreType } from "../../../common/enums/store-type.enum";
+import { ColumnNumericTransformer } from "../../../common/transformer/column-numeric.transformer";
 
 @Entity('stores')
 export class Store {
@@ -59,7 +60,7 @@ export class Store {
     @Column({ type: 'text', nullable: true })
     description?: string;
 
-    @Column({ type: 'numeric', precision: 3, scale: 2, nullable: true })
+    @Column({ type: 'numeric', precision: 3, scale: 2, nullable: true, transformer: new ColumnNumericTransformer() })
     rating?: number;
 
     @Column({ name: 'total_reviews', type: 'int', default: 0 })
@@ -70,6 +71,9 @@ export class Store {
 
     @Column({ name: 'uses_app_logistics', default: false })
     usesAppLogistics: boolean;
+
+    @Column({ name: 'min_order_value', type: 'numeric', precision: 10, scale: 2, default: 0, transformer: new ColumnNumericTransformer() })
+    minOrderValue: number;
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
     createdAt: Date;

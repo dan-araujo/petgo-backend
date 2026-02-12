@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateStoreDTO } from './create-store.dto';
-import { IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
+import { IsNumber, IsOptional, IsString, IsUrl, MaxLength, Min } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateStoreDTO extends PartialType(CreateStoreDTO) {
     @IsOptional()
@@ -15,4 +16,10 @@ export class UpdateStoreDTO extends PartialType(CreateStoreDTO) {
     @IsOptional()
     @IsUrl({}, { message: 'URL do banner inválida' })
     bannerUrl?: string;
+
+    @ApiProperty({ description: 'Valor mínimo do pedido', example: 10.00 })
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    minOrderValue?: number;
 }
