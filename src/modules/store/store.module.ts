@@ -16,11 +16,13 @@ import { StoreHoursService } from './services/store-hours.service';
 import { LogisticsModule } from '../logistics/logistics.module';
 import { StoreHoursController } from './controllers/store-hours.controller';
 import { GeolocationService } from '../logistics/services/geolocation.service';
+import { StoreUploadController } from './controllers/store-upload.controller';
+import { CloudinaryModule } from '../../shared/cloudinary/cloudinary.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
-    Store, 
-    StoreAddress, 
+    Store,
+    StoreAddress,
     Address,
     StoreBusinessHours,
     StoreSpecialHours,
@@ -29,8 +31,9 @@ import { GeolocationService } from '../logistics/services/geolocation.service';
     EmailVerificationModule,
     AddressModule,
     LogisticsModule,
+    CloudinaryModule,
   ],
-  controllers: [StoreController, StoreAddressController, StoreHoursController],
+  controllers: [StoreController, StoreAddressController, StoreHoursController, StoreUploadController],
   providers: [StoreService, StoreAddressService, StoreHoursService, GeolocationService],
   exports: [StoreService, StoreAddressService, StoreHoursService],
 })
