@@ -32,7 +32,7 @@ export class StoreUploadController {
         return this.executeUpload(id, req.user.id, file, 'logo');
     }
 
-    @Post('id:/upload-banner')
+    @Post(':id/upload-banner')
     @ApiOperation({ summary: 'Upload de Banner' })
     @ApiConsumes('multipart/form-data')
     @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
