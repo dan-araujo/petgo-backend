@@ -52,6 +52,8 @@ export class AuthService {
             type: userType,
         });
 
+        const subtype = user.storeType || user.category || null;
+
         return {
             status: 'success',
             success: true,
@@ -62,7 +64,9 @@ export class AuthService {
                     id: user.id,
                     name: user.name,
                     email: user.email,
-                    category: user.category,
+                    userType: user.userType,
+                    profileCompleted: user.profiledCompleted ?? true,
+                    subtype: user.subtype || user.category || null,
                 },
             },
         };

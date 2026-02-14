@@ -1,20 +1,20 @@
 export type ResponseStatus =
-    | 'success'
-    | 'pending_code'
-    | 'invalid_code'
-    | 'rate_limited'
-    | 'error';
+  | 'success'
+  | 'pending_code'
+  | 'invalid_code'
+  | 'rate_limited'
+  | 'error';
 
 export interface ApiResponse<T = any> {
-    status: ResponseStatus;
-    success?: boolean;
-    message: string;
-    data?: T;
-    email?: string;
-    error?: {
-        code: string;
-        details?: Record<string, any>;
-    };
+  status: ResponseStatus;
+  success?: boolean;
+  message: string;
+  data?: T;
+  email?: string;
+  error?: {
+    code: string;
+    details?: Record<string, any>;
+  };
 }
 
 export interface LoginSuccessData {
@@ -23,7 +23,9 @@ export interface LoginSuccessData {
     id: string;
     name: string;
     email: string;
-    category?: string;
+    userType: string;
+    profileCompleted: boolean;
+    subtype?: string | null;
   };
 }
 
