@@ -29,8 +29,8 @@ export class Customer {
     @Column({ name: 'password_hash', nullable: true })
     passwordHash: string;
 
-    @Column({ type: 'enum', enum: UserType, default: UserType.CUSTOMER })
-    user_type: UserType;
+    @Column({ name: 'user_type', type: 'enum', enum: UserType, default: UserType.CUSTOMER })
+    userType: UserType;
 
     @Column({
         type: 'enum',
@@ -39,13 +39,13 @@ export class Customer {
     })
     status: AccountStatus;
 
-    @CreateDateColumn({ type: 'timestamp' })
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+    createdAt: Date;
 
-    @UpdateDateColumn({ type: 'timestamp' })
-    updated_at: Date;
+    @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+    updatedAt: Date;
 
-    @DeleteDateColumn({ type: 'timestamp', nullable: true })
-    deleted_at?: Date;
+    @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+    deletedAt?: Date;
 
 }

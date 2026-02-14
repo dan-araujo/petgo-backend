@@ -119,12 +119,12 @@ export class CustomerService extends BaseService<Customer> {
   }
 
   async findAll(): Promise<Customer[]> {
-    return this.customerRepo.find({ where: { deleted_at: IsNull() } });
+    return this.customerRepo.find({ where: { deletedAt: IsNull() } });
   }
 
   async findOne(id: string): Promise<Customer> {
     const customer = await this.customerRepo.findOne({
-      where: { id, deleted_at: IsNull() },
+      where: { id, deletedAt: IsNull() },
     });
     if (!customer) {
       throw new NotFoundException('Cliente não encontrado');
