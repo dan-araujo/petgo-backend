@@ -10,30 +10,30 @@ export class Petshop {
     @JoinColumn({ name: 'store_id' })
     store: Store;
 
-    @Column({ type: 'uuid' })
-    store_id: string;
+    @Column({ name: 'store_id', type: 'uuid' })
+    storeId: string;
 
-    @Column({ default: true })
-    accepts_appointments: boolean;
+    @Column({ name: 'accepts_appointments', default: true })
+    acceptsAppointments: boolean;
 
-    @Column({ type: 'int', default: 60, nullable: true })
-    average_service_duration_minutes: number;
+    @Column({ name: 'average_service_duration_minutes', type: 'int', default: 60, nullable: true })
+    averageServiceDurationMinutes: number;
 
-    @Column({ type: 'int', default: 0 })
-    total_appointments: number;
+    @Column({ name: 'total_appointments', type: 'int', default: 0 })
+    totalAppointments: number;
 
-    @Column({ type: 'int', default: 0 })
-    completed_appointments: number;
+    @Column({ name: 'completed_appointments', type: 'int', default: 0 })
+    completedAppointments: number;
 
-    @Column({ type: 'int', default: 0 })
-    cancelled_appointments: number;
+    @Column({ name: 'cancelled_appointments', type: 'int', default: 0 })
+    cancelledAppointments: number;
 
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+    updatedAt: Date;
 
-    @DeleteDateColumn({ nullable: true })
-    deleted_at?: Date;
+    @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+    deletedAt?: Date;
 }

@@ -78,7 +78,7 @@ export class StoreService extends BaseService<Store> {
 
     if (!store) throw new NotFoundException('Loja não encontrada');
 
-    store.storeType = dto.store_type;
+    store.storeType = dto.storeType;
     store.profileCompleted = true;
 
     return await this.storeRepo.save(store);

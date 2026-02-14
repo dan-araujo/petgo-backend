@@ -5,22 +5,22 @@ export class BusinessHourDTO {
     @IsInt()
     @Min(0)
     @Max(6)
-    day_of_week: number;
+    dayOfWeek: number;
 
     @IsString()
     @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
         message: 'Horário de abertura deve estar no formato HH:MM (ex: 08:30)',
     })
-    opens_at: string;
+    opensAt: string;
 
     @IsString()
     @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
         message: 'Horário de abertura deve estar no formato HH:MM (ex: 18:00)',
     })
-    closes_at: string;
+    closesAt: string;
 
     @IsBoolean()
-    is_closed: boolean;
+    isClosed: boolean;
 }
 
 export class ManageBusinessHoursDTO {

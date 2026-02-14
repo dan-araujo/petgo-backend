@@ -25,15 +25,15 @@ export class StoreHoursService {
         const store = await this.findStore(storeId);
 
         for (const hourDTO of dto.hours) {
-            if (!hourDTO.is_closed && hourDTO.opens_at >= hourDTO.closes_at) {
+            if (!hourDTO.isClosed && hourDTO.opensAt >= hourDTO.closesAt) {
                 throw new BadRequestException(
-                    `No dia ${hourDTO.day_of_week}, o horário de abertura (${hourDTO.opens_at}) deve ser menor que o horário de fechamento (${hourDTO.closes_at}).`,
+                    `No dia ${hourDTO.dayOfWeek}, o horário de abertura (${hourDTO.opensAt}) deve ser menor que o horário de fechamento (${hourDTO.closesAt}).`,
                 );
             }
 
             const existingHour = await this.storeRepo.manager.findOne(StoreBusinessHours, {
                 where: {
-                    store_id: store.id, day_of_week: hourDTO.day_of_week
+                    storeId: store.id, dayOfWeek: hourDTO.dayOfWeek
                 },
             });
 
@@ -54,8 +54,8 @@ export class StoreHoursService {
 
     async findBusinessHours(storeId: string): Promise<StoreBusinessHours[]> {
         return await this.storeRepo.manager.find(StoreBusinessHours, {
-            where: { store_id: storeId },
-            order: { day_of_week: 'ASC' },
+            where: { storeId: storeId },
+            order: { dayOfWeek: 'ASC' },
         });
     }
 

@@ -10,18 +10,18 @@ export class StoreBusinessHours {
     @JoinColumn({ name: 'store_id' })
     store: Store;
 
-    @Column({ type: 'uuid' })
-    store_id: string;
+    @Column({ name: 'store_id', type: 'uuid' })
+    storeId: string;
 
-    @Column({ type: 'int' })
-    day_of_week: number;
+    @Column({ name: 'day_of_week', type: 'int' })
+    dayOfWeek: number;
 
-    @Column({ type: 'time' })
-    opens_at: string;
+    @Column({ name: 'opens_at', type: 'time' })
+    opensAt: string;
 
-    @Column({ type: 'time' })
-    closes_at: string;
+    @Column({ name: 'closes_at', type: 'time' })
+    closesAt: string;
 
-    @Column({ default: false, nullable: true })
-    is_closed: boolean;
+    @Column({ name: 'is_closed', default: false, nullable: true })
+    isClosed: boolean;
 }
