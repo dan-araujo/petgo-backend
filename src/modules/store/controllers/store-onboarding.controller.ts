@@ -1,4 +1,4 @@
-import { Body, Controller, Patch, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Patch, Req, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { SelectStoreTypeDTO } from "../dto/select-store-type.dto";

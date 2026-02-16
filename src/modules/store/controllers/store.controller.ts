@@ -4,7 +4,8 @@ import { CreateStoreDTO } from '../dto/create-store.dto';
 import { ApiResponse } from '../../../common/interfaces/api-response.interface';
 import { Store } from '../entities/store.entity';
 import { UpdateStoreDTO } from '../dto/update-store.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 
 @ApiTags('Stores')
@@ -22,14 +23,19 @@ export class StoreController {
     return await this.storeService.findAll();
   }
 
+  @Get('profile/me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Busca o perfil da loja logada' })
+  async getMe(@Req() req: any): Promise<Partial<Store>> {
+    return await this.storeService.findOne(req.user.id);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Partial<Store>> {
     const store = await this.storeService.findOne(id);
     const { passwordHash: passwordHash, ...safeStore } = store;
 
-    if (!store) {
-      throw new NotFoundException('Loja não encontrada');
-    }
     return safeStore;
   }
 
