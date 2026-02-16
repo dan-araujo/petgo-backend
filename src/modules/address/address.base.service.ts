@@ -49,7 +49,7 @@ export class AddressBaseService {
         if (dto.city !== undefined) unsafe.city = dto.city;
         if (dto.neighborhood !== undefined) unsafe.neighborhood = dto.neighborhood;
         if (dto.state !== undefined) unsafe.state = dto.state;
-        if (dto.zip_code !== undefined) unsafe.zip_code = dto.zip_code;
+        if (dto.zipCode !== undefined) unsafe.zipCode = dto.zipCode;
         if (dto.longitude !== undefined) unsafe.longitude = dto.longitude;
         if (dto.latitude !== undefined) unsafe.latitude = dto.latitude;
 

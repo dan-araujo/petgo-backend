@@ -17,7 +17,7 @@ export class VeterinaryAddress {
 
     @ManyToOne(() => Veterinary, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'veterinary_id' })
-    delivery: Veterinary;
+    veterinary: Veterinary;
 
     @Column({ name: 'is_main_location', type: 'boolean', default: false, nullable: true })
     isMainLocation: boolean;
