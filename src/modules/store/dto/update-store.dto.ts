@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateStoreDTO } from './create-store.dto';
-import { IsNumber, IsOptional, IsString, IsUrl, MaxLength, Min } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, IsUrl, MaxLength, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateStoreDTO extends PartialType(CreateStoreDTO) {
@@ -22,4 +22,9 @@ export class UpdateStoreDTO extends PartialType(CreateStoreDTO) {
     @IsNumber()
     @Min(0)
     minOrderValue?: number;
+
+    @ApiProperty({ description: 'Usa logística do app?', example: false })
+    @IsOptional()
+    @IsBoolean()
+    usesAppLogistics?: boolean;
 }
