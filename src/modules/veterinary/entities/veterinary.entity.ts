@@ -3,11 +3,13 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserType } from '../../../common/enums/user-type.enum';
 import { AccountStatus } from '../../../common/enums/account-status.enum';
+import { VeterinaryAddress } from './veterinary-address.entity';
 
 @Entity('veterinaries')
 export class Veterinary {
@@ -63,4 +65,7 @@ export class Veterinary {
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
   deletedAt?: Date;
+
+  @OneToMany(() => VeterinaryAddress, (veterinaryAddress) => veterinaryAddress.veterinary, { cascade: true })
+  addresses: VeterinaryAddress[];
 }

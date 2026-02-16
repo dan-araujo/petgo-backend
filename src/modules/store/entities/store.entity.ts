@@ -13,6 +13,7 @@ import { StoreBusinessHours } from "./store-business-hour.entity";
 import { StoreSpecialHours } from "./store-special-hour.entity";
 import { StoreType } from "../../../common/enums/store-type.enum";
 import { ColumnNumericTransformer } from "../../../common/transformer/column-numeric.transformer";
+import { StoreAddress } from "./store-address.entity";
 
 @Entity('stores')
 export class Store {
@@ -89,4 +90,7 @@ export class Store {
 
     @OneToMany(() => StoreSpecialHours, (specialHours) => specialHours.store)
     specialHours: StoreSpecialHours[];
+
+    @OneToMany(() => StoreAddress, (storeAddress) => storeAddress.store, { cascade: true })
+    addresses: StoreAddress[];
 }

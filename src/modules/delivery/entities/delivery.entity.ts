@@ -10,6 +10,7 @@ import {
 import { UserType } from "../../../common/enums/user-type.enum";
 import { AccountStatus } from "../../../common/enums/account-status.enum";
 import { Order } from "../../order/entities/order.entity";
+import { DeliveryAddress } from "./delivery-address.entity";
 
 @Entity('delivery')
 export class Delivery {
@@ -71,4 +72,7 @@ export class Delivery {
 
     @OneToMany(() => Order, (order) => order.delivery)
     orders: Order[];
+
+    @OneToMany(() => DeliveryAddress, (deliveryAddress) => deliveryAddress.delivery, { cascade: true })
+    addresses: DeliveryAddress[];
 }
