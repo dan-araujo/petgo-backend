@@ -4,9 +4,8 @@ import { CreateStoreDTO } from '../dto/create-store.dto';
 import { ApiResponse } from '../../../common/interfaces/api-response.interface';
 import { Store } from '../entities/store.entity';
 import { UpdateStoreDTO } from '../dto/update-store.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { SelectStoreTypeDTO } from '../dto/select-store-type.dto';
+import { ApiTags } from '@nestjs/swagger';
+
 
 @ApiTags('Stores')
 @Controller('stores')
@@ -21,14 +20,6 @@ export class StoreController {
   @Get()
   async findAll(): Promise<Store[]> {
     return await this.storeService.findAll();
-  }
-
-  @Patch('select-type')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async selectStoreType(@Req() req: any, @Body() dto: SelectStoreTypeDTO) {
-    const storeId = req.user.id;
-    return await this.storeService.selectStoreType(storeId, dto);
   }
 
   @Get(':id')

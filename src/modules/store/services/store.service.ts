@@ -73,17 +73,6 @@ export class StoreService extends BaseService<Store> {
     }
   }
 
-  async selectStoreType(storeId: string, dto: SelectStoreTypeDTO): Promise<Store> {
-    const store = await this.storeRepo.findOne({ where: { id: storeId } });
-
-    if (!store) throw new NotFoundException('Loja não encontrada');
-
-    store.storeType = dto.storeType;
-    store.profileCompleted = true;
-
-    return await this.storeRepo.save(store);
-  }
-
   async update(id: string, data: UpdateStoreDTO): Promise<Store> {
     try {
       const store = await this.storeRepo.findOne({ where: { id } });
