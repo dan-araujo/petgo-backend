@@ -20,9 +20,6 @@ export class UserRepoHelper {
     private readonly veterinaryRepository: Repository<Veterinary>,
   ) {}
 
-  /**
-   * Retorna o repositório correto baseado no tipo de usuário
-   */
   getRepositoryByType(userType: UserType): Repository<any> {
     const repositories: Record<UserType, Repository<any>> = {
       [UserType.CUSTOMER]: this.customerRepository,
@@ -39,9 +36,6 @@ export class UserRepoHelper {
     return repository;
   }
 
-  /**
-   * Busca um usuário por email em todos os repositórios
-   */
   async findUserByEmail(email: string): Promise<{
     user: any;
     userType: UserType;
@@ -68,9 +62,6 @@ export class UserRepoHelper {
     throw new NotFoundException('Usuário não encontrado');
   }
 
-  /**
-   * Busca um usuário por ID e tipo
-   */
   async findUserById(id: string, userType: UserType): Promise<{
     user: any;
     repository: Repository<any>;
