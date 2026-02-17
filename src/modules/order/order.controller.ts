@@ -21,7 +21,7 @@ export class OrderController {
 
   @Get()
   findAll(@Req() req: any) {
-    return this.orderService.findAll(req.user.id, req.user.type);
+    return this.orderService.findAll(req.user.id, req.user.userType);
   }
 
   @Get(':id')

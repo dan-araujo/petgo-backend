@@ -14,14 +14,14 @@ export class LogisticsController {
 
   @Post('config')
   upsertConfig(@Req() req: any, @Body() dto: UpsertLogisticsDTO) {
-    const userType = req.user.type === UserType.VETERINARY ? UserType.VETERINARY : UserType.STORE;
+    const userType = req.user.userType === UserType.VETERINARY ? UserType.VETERINARY : UserType.STORE;
     const userId = req.user.id;
     return this.logisticsService.upsert(userId, userType, dto);
   }
 
   @Get('config')
   getConfig(@Req() req: any) {
-    const userType = req.user.type === UserType.VETERINARY ? UserType.VETERINARY : UserType.STORE;
+    const userType = req.user.userType === UserType.VETERINARY ? UserType.VETERINARY : UserType.STORE;
     const userId = req.user.id;
     return this.logisticsService.findMyConfig(userId, userType);
   }
