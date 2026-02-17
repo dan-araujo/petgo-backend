@@ -26,12 +26,17 @@ export class StoreController {
   @Get('profile/me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Busca o perfil da loja logada' })
+  @ApiOperation({
+    summary: 'Acesso Restrito: Busca todos os dados da loja logada (via Token)'
+  })
   async getMe(@Req() req: any): Promise<Partial<Store>> {
     return await this.storeService.findOne(req.user.id);
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Acesso Público: Busca informações de uma loja para exibir ao cliente'
+  })
   async findOne(@Param('id') id: string): Promise<Partial<Store>> {
     const store = await this.storeService.findOne(id);
     const { passwordHash: passwordHash, ...safeStore } = store;
