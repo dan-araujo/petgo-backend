@@ -68,7 +68,7 @@ export class MailgunEmailService {
     `;
   }
 
-  getPasswordResetTemplate(code: string, expiresMinutes: number): string {
+  getForgotPasswordTemplate(code: string, expiresMinutes: number): string {
     return `
     <!DOCTYPE html>
       <html>
@@ -96,5 +96,71 @@ export class MailgunEmailService {
       </body>
       </html>
      `;
+  }
+
+  getEmailChangeTemplate(code: string, userName: string, expiresMinutes: number): string {
+    return `
+    <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; }
+          .header { text-align: center; color: #85AB6D; } /* Cor da Loja */
+          .code-box { background-color: #ffffff; border: 2px dashed #85AB6D; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }
+          .code { font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #85AB6D; margin: 0; }
+          .warning { font-size: 12px; color: #666; margin-top: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header"><h1>Troca de E-mail 📧</h1></div>
+          <p>Olá <strong>${userName}</strong>,</p>
+          <p>Recebemos um pedido para alterar o e-mail da sua conta PetGo!</p>
+          <p>Para confirmar que este novo endereço pertence a você, use o código abaixo:</p>
+          
+          <div class="code-box">
+            <p class="code">${code}</p>
+          </div>
+
+          <p>Este código expira em ${expiresMinutes} minutos.</p>
+          <p class="warning">Se não foi você que solicitou, ignore este e-mail. Nenhuma alteração foi feita.</p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  getPasswordChangeCodeTemplate(code: string, userName: string, expiresMinutes: number): string {
+    return `
+    <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; background-color: #f4f4f4; }
+          .container { max-width: 600px; margin: 20px auto; padding: 30px; background-color: #ffffff; border-radius: 12px; }
+          .header h1 { color: #85AB6D; text-align: center; }
+          .code-box { background-color: #FFF0F0; border: 2px dashed #85AB6D; padding: 15px; text-align: center; margin: 20px 0; border-radius: 8px; }
+          .code { font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #85AB6D; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header"><h1>Solicitação de Troca de Senha 🔐</h1></div>
+          <p>Olá, <strong>${userName}</strong>!</p>
+          <p>Para concluir a alteração da sua senha, insira o código abaixo no aplicativo:</p>
+          
+          <div class="code-box">
+            <div class="code">${code}</div>
+          </div>
+
+          <p>Este código expira em <strong>${expiresMinutes} minutos</strong>.</p>
+          <p><strong>Não foi você?</strong> Não compartilhe este código com ninguém. Sua senha atual continua segura.</p>
+        </div>
+      </body>
+      </html>
+    `;
   }
 }
