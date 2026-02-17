@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, Update
 import { UserType } from "../../../../common/enums/user-type.enum";
 
 @Entity('email_verification_requests')
-@Index(['email', 'user_type'])
+@Index(['email', 'userType'])
 export class EmailVerificationRequest {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -10,30 +10,30 @@ export class EmailVerificationRequest {
     @Column()
     email: string;
 
-    @Column({ type: 'enum', enum: UserType })
-    user_type: UserType;
+    @Column({ name: 'user_type', type: 'enum', enum: UserType })
+    userType: UserType;
 
-    @Column()
-    code_hash: string;
+    @Column({ name: 'code_hash' })
+    codeHash: string;
 
-    @Column({ type: 'timestamptz' })
-    expires_at: Date;
+    @Column({ name: 'expires_at', type: 'timestamptz' })
+    expiresAt: Date;
 
     @Column({ type: 'int', default: 0 })
     attempts: number;
 
-    @Column({ type: 'timestamptz', nullable: true })
-    locked_until: Date | null;
+    @Column({ name: 'locked_until', type: 'timestamptz', nullable: true })
+    lockedUntil: Date | null;
 
-    @Column({ type: 'timestamptz', nullable: true })
-    used_at: Date | null;
+    @Column({ name: 'used_at', type: 'timestamptz', nullable: true })
+    usedAt: Date | null;
 
-    @Column({ type: 'timestamptz', default: () => 'now()' })
-    last_sent_at: Date | null;
+    @Column({ name: 'last_sent_at', type: 'timestamptz', default: () => 'now()' })
+    lastSentAt: Date | null;
 
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
 
-    @UpdateDateColumn({ type: 'timestamptz' })
-    updated_at: Date;
+    @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
+    updatedAt: Date;
 }

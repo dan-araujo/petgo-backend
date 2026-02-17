@@ -8,7 +8,7 @@ import { IsNull, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
 import { UserType } from '../../../common/enums/user-type.enum';
-import { EmailVerificationServiceV2 } from '../../auth/email-verification/email-verification.v2.service';
+import { EmailVerificationService } from '../../auth/email-verification/email-verification.service';
 import { ApiResponse } from '../../../common/interfaces/api-response.interface';
 import { AccountStatus } from '../../../common/enums/account-status.enum';
 
@@ -17,7 +17,7 @@ export class VeterinaryService extends BaseService<Veterinary> {
   constructor(
     @InjectRepository(Veterinary)
     private readonly veterinaryRepo: Repository<Veterinary>,
-    private readonly emailVerificationService: EmailVerificationServiceV2,
+    private readonly emailVerificationService: EmailVerificationService,
   ) {
     super(veterinaryRepo);
   }

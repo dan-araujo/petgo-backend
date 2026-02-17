@@ -4,7 +4,7 @@ import { IsNull, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Customer } from '../entities/customer.entity';
 import { BaseService } from '../../../common/base/base.service';
-import { EmailVerificationServiceV2 } from '../../auth/email-verification/email-verification.v2.service';
+import { EmailVerificationService } from '../../auth/email-verification/email-verification.service';
 import { CreateCustomerDTO } from '../dto/create-customer.dto';
 import { ApiResponse } from '../../../common/interfaces/api-response.interface';
 import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
@@ -18,7 +18,7 @@ export class CustomerService extends BaseService<Customer> {
   constructor(
     @InjectRepository(Customer)
     private readonly customerRepo: Repository<Customer>,
-    private readonly emailVerificationService: EmailVerificationServiceV2,
+    private readonly emailVerificationService: EmailVerificationService,
   ) {
     super(customerRepo);
   }

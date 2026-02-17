@@ -7,7 +7,7 @@ import { IsNull, Repository } from 'typeorm';
 import { BaseService } from '../../../common/base/base.service';
 import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
 import { UserType } from '../../../common/enums/user-type.enum';
-import { EmailVerificationServiceV2 } from '../../auth/email-verification/email-verification.v2.service';
+import { EmailVerificationService } from '../../auth/email-verification/email-verification.service';
 import { ApiResponse } from '../../../common/interfaces/api-response.interface';
 import { AccountStatus } from '../../../common/enums/account-status.enum';
 import { SelectStoreTypeDTO } from '../dto/select-store-type.dto';
@@ -17,7 +17,7 @@ export class StoreService extends BaseService<Store> {
   constructor(
     @InjectRepository(Store)
     private readonly storeRepo: Repository<Store>,
-    private readonly emailVerificationService: EmailVerificationServiceV2,
+    private readonly emailVerificationService: EmailVerificationService,
   ) {
     super(storeRepo);
   }

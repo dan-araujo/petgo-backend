@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmailVerificationController } from './email-verification.controller';
 import { CommonModule } from '../../../common/common.module';
-import { EmailVerificationServiceV2 } from './email-verification.v2.service';
+import { EmailVerificationService } from './email-verification.service';
 import { EmailVerificationRequest } from './entities/email-verification-request.entity';
 
 @Module({
@@ -11,7 +11,7 @@ import { EmailVerificationRequest } from './entities/email-verification-request.
     CommonModule,
   ],
   controllers: [EmailVerificationController],
-  providers: [EmailVerificationServiceV2],
-  exports: [EmailVerificationServiceV2],
+  providers: [EmailVerificationService],
+  exports: [EmailVerificationService],
 })
 export class EmailVerificationModule { }

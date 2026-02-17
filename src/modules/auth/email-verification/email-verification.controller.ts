@@ -1,11 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { UserType } from '../../../common/enums/user-type.enum';
-import { EmailVerificationServiceV2 } from './email-verification.v2.service';
+import { EmailVerificationService } from './email-verification.service';
 import { ApiResponse, VerifyCodeResponse, SendCodeResponse } from '../../../common/interfaces/api-response.interface';
 
 @Controller('auth')
 export class EmailVerificationController {
-    constructor(private readonly emailVerificationService: EmailVerificationServiceV2) { }
+    constructor(private readonly emailVerificationService: EmailVerificationService) { }
 
     @Post('verify-email')
     async verifyEmail(
