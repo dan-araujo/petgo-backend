@@ -25,8 +25,14 @@ export class LogisticsConfig {
     minValue: number;
 
     @Column({ name: 'lead_time_min', type: 'int', default: 15 })
-    // Tempo de preparo ou prontidão em minutos antes do deslocamento
+    // Tempo de preparo em minutos antes do deslocamento
     leadTimeMin: number;
+
+    @Column({ name: 'free_delivery_above', type: 'numeric', precision: 10, scale: 2, nullable: true, transformer: new ColumnNumericTransformer() })
+    freeDeliveryAbove: number;
+
+    @Column({ name: 'avg_delivery_time', type: 'int', default: 20 })
+    avgDeliveryTime: number;
 
     @OneToOne(() => Store, { nullable: true, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'store_id' })
