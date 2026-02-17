@@ -13,12 +13,14 @@ import { mailerConfig } from '../../config/mailer.config';
 import { CommonModule } from '../../common/common.module';
 import { ForgotPasswordModule } from './forgot-password/forgot-password.module';
 import { EmailVerificationModule } from './email-verification/email-verification.module';
+import { SecurityModule } from './security/security.module';
 
 @Module({
   imports: [
     EmailVerificationModule,
     ForgotPasswordModule,
     CommonModule,
+    SecurityModule,
     TypeOrmModule.forFeature([
       Customer,
       Delivery,
