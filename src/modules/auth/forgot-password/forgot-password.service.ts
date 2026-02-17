@@ -59,7 +59,7 @@ export class ForgotPasswordService {
 
         await this.prrRepo.save(entity);
 
-        await this.emailService.sendPasswordResetCodeEmail(email, code, this.CODE_TTL_MINUTES);
+        await this.emailService.sendForgotPasswordCodeEmail(email, code, this.CODE_TTL_MINUTES);
     }
 
     async verifyResetCode(email: string, userType: UserType, code: string):
