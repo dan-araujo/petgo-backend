@@ -20,13 +20,20 @@ export class LogisticsConfig {
     // Valor cobrado por cada quilômetro de distância
     kmFee: number;
 
-    @Column({ name: 'min_value', type: 'numeric', precision: 10, scale: 2, default: 0, transformer: new ColumnNumericTransformer() })
-    // Valor mínimo para viabilizar a logística (Pedido Mín. ou Consulta Mín.).
-    minValue: number;
-
     @Column({ name: 'lead_time_min', type: 'int', default: 15 })
     // Tempo de preparo em minutos antes do deslocamento
     leadTimeMin: number;
+
+    @Column({ name: 'min_order_value', type: 'numeric', precision: 10, scale: 2, default: 0, transformer: new ColumnNumericTransformer() })
+    // Valor mínimo para o pedido (Vem do App)
+    minOrderValue: number;
+
+    @Column({ name: 'uses_app_logistics', default: false })
+    usesAppLogistics: boolean;
+
+    @Column({ name: 'is_free_delivery', default: false })
+    // O Switch "Frete Grátis?" do seu App
+    isFreeDelivery: boolean;
 
     @Column({ name: 'free_delivery_above', type: 'numeric', precision: 10, scale: 2, nullable: true, transformer: new ColumnNumericTransformer() })
     freeDeliveryAbove: number;
@@ -34,7 +41,7 @@ export class LogisticsConfig {
     @Column({ name: 'avg_delivery_time', type: 'int', default: 20 })
     avgDeliveryTime: number;
 
-    @OneToOne(() => Store, { nullable: true, onDelete: 'CASCADE' })
+    @OneToOne(() => Store, (store) => store.logisticsConfig, { nullable: true, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'store_id' })
     store: Store;
 

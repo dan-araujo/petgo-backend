@@ -4,6 +4,7 @@ import {
     DeleteDateColumn,
     Entity,
     OneToMany,
+    OneToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
@@ -14,6 +15,7 @@ import { StoreSpecialHours } from "./store-special-hour.entity";
 import { StoreType } from "../../../common/enums/store-type.enum";
 import { ColumnNumericTransformer } from "../../../common/transformer/column-numeric.transformer";
 import { StoreAddress } from "./store-address.entity";
+import { LogisticsConfig } from "../../logistics/entities/logistics-config.entity";
 
 @Entity('stores')
 export class Store {
@@ -70,12 +72,6 @@ export class Store {
     @Column({ name: 'user_type', type: 'enum', enum: UserType, default: UserType.STORE })
     userType: UserType;
 
-    @Column({ name: 'uses_app_logistics', default: false })
-    usesAppLogistics: boolean;
-
-    @Column({ name: 'min_order_value', type: 'numeric', precision: 10, scale: 2, default: 0, transformer: new ColumnNumericTransformer() })
-    minOrderValue: number;
-
     @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
     createdAt: Date;
 
@@ -93,4 +89,7 @@ export class Store {
 
     @OneToMany(() => StoreAddress, (storeAddress) => storeAddress.store, { cascade: true })
     addresses: StoreAddress[];
+
+    @OneToOne(() => LogisticsConfig, (logisticsConfig) => logisticsConfig.store)
+    logisticsConfig: LogisticsConfig;
 }

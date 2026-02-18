@@ -26,6 +26,14 @@ export class LogisticsCalculatorService {
         clientInfo: Address,
         orderSubtotal: number
     ) {
+        const config = await this.logisticsConfigRepository.findOne({
+            where: { storeId: store.id },
+        });
+
+        if (!config) {
+            throw new BadRequestException('Esta loja não configurou suas regras de entrega ainda.');
+        }
+
         const distanceKm = this.geoService.calculateDistance(
             Number(storeInfo.address.latitude),
             Number(storeInfo.address.longitude),
@@ -33,10 +41,10 @@ export class LogisticsCalculatorService {
             Number(clientInfo.longitude),
         );
 
-        if (store.usesAppLogistics) {
+        if (config.usesAppLogistics) {
             return this.calculateAppDelivery(distanceKm);
         } else {
-            return this.calculateStoreDelivery(store.id, distanceKm, orderSubtotal);
+            return this.calculateStoreDelivery(config, distanceKm, orderSubtotal);
         }
     }
 
@@ -55,27 +63,27 @@ export class LogisticsCalculatorService {
         }
 
         const deliveryFee = Number(systemConfig.appBaseFee) + (distanceKm * Number(systemConfig.appKmFee));
-        return { deliveryFee, distanceKm, deliveryType: DeliveryType.APP_PARTNER };
+        return { deliveryFee: Math.round(deliveryFee * 100) / 100, distanceKm, deliveryType: DeliveryType.APP_PARTNER };
     }
 
-    async calculateStoreDelivery(storeId: string, distanceKm: number, orderSubtotal: number) {
-        const config = await this.logisticsConfigRepository.findOne({
-            where: { storeId: storeId },
-        });
-
-        if (!config) {
-            throw new BadRequestException('Essa loja não configurou suas regras de entrega ainda.');
-        }
-
-        if (orderSubtotal < config.minValue) {
-            throw new BadRequestException(`O pedido mínimo para esta loja é de R$ ${config.minValue.toFixed(2)}`);
-        }
-
+    async calculateStoreDelivery(config: LogisticsConfig, distanceKm: number, orderSubtotal: number) {
         if (distanceKm > config.radiusKm) {
-            throw new BadRequestException(`Fora da área de entrega da loja (${config.radiusKm}km).`);
+            throw new BadRequestException(`Fora da área de entrega da loja (Máx: ${config.radiusKm}km).`);
+        }
+
+        if (orderSubtotal < config.minOrderValue) {
+            throw new BadRequestException(`O pedido mínimo para esta loja é de R$ ${config.minOrderValue.toFixed(2)}`);
+        }
+
+        if (config.isFreeDelivery && config.freeDeliveryAbove && orderSubtotal >= config.freeDeliveryAbove) {
+            return {
+                deliveryFee: 0,
+                distanceKm,
+                deliveryType: DeliveryType.STORE_OWN
+            }
         }
 
         const deliveryFee = Number(config.baseFee) + (distanceKm * Number(config.kmFee));
-        return { deliveryFee, distanceKm, deliveryType: DeliveryType.STORE_OWN };
+        return { deliveryFee: Math.round(deliveryFee * 100) / 100, distanceKm, deliveryType: DeliveryType.STORE_OWN };
     }
 }
