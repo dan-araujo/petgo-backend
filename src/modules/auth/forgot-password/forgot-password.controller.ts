@@ -1,5 +1,5 @@
 import { Body, Controller, Logger, Post } from "@nestjs/common";
-import { ApiResponse } from "../../../common/interfaces/api-response.interface";
+import { ApiResponse, ResponseStatus } from "../../../common/interfaces/api-response.interface";
 import { ForgotPasswordDTO } from "./dto/forgot-password.dto";
 import { ForgotPasswordService } from "./forgot-password.service";
 import { ForgotPasswordCodeDTO } from "./dto/forgot-password-code.dto";
@@ -33,7 +33,7 @@ export class ForgotPasswordController {
       );
 
       return {
-        status: 'success',
+        status: ResponseStatus.SUCCESS,
         message: result.message,
         data: {
           message: result.message,
@@ -57,7 +57,7 @@ export class ForgotPasswordController {
       await this.forgotPasswordService.requestPasswordReset(dto.email, dto.userType);
 
       return {
-        status: 'success',
+        status: ResponseStatus.SUCCESS,
         message: 'Se o e-mail existir, você receberá um código de recuperação de senha',
         data: {
           email: dto.email,
@@ -84,7 +84,7 @@ export class ForgotPasswordController {
       );
 
       return {
-        status: 'success',
+        status: ResponseStatus.SUCCESS,
         message: 'Código validado com sucesso',
         data: {
           reset_token: result.reset_token,

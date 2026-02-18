@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, NotFo
 import { CreateDeliveryDTO } from '../dto/create-delivery.dto';
 import { UpdateDeliveryDTO } from '../dto/update-delivery.dto';
 import { Delivery } from '../entities/delivery.entity';
-import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { ApiResponse, ResponseStatus } from '../../../common/interfaces/api-response.interface';
 import { DeliveryService } from '../services/delivery.service';
 
 @Controller('delivery')
@@ -18,7 +18,7 @@ export class DeliveryController {
   async findAll(): Promise<ApiResponse<Delivery[]>> {
     const deliveries = await this.deliveryService.findAll();
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Entregadores recuperados com sucesso!',
       data: deliveries,
     };
@@ -33,7 +33,7 @@ export class DeliveryController {
 
     const { passwordHash: passwordHash, ...safeDelivery } = delivery;
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Entregador recuperado com sucesso!',
       data: safeDelivery,
     };
@@ -47,7 +47,7 @@ export class DeliveryController {
     const updatedDelivery = await this.deliveryService.update(id, dto);
     const { passwordHash: passwordHash, ...safeDelivery } = updatedDelivery;
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Entregador atualizado com sucesso!',
       data: safeDelivery,
     };
@@ -57,7 +57,7 @@ export class DeliveryController {
   async remove(@Param('id') id: string): Promise<ApiResponse<null>> {
     await this.deliveryService.remove(id);
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Entregador removido com sucesso.',
     };
   }

@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OrderStatus } from '../../common/enums/order-status.enum';
 import { OrderStatusLabels } from '../../common/constants/order-status-labels.constant';
 import { PaymentStatus } from '../../common/enums/payment-status.enum';
+import { ResponseStatus } from '../../common/interfaces/api-response.interface';
 
 @ApiTags('Orders')
 @Controller('orders')
@@ -35,7 +36,7 @@ export class OrderController {
     const translatedStatus = OrderStatusLabels[order.status];
 
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: `O status do pedido foi atualizado para ${translatedStatus}`,
       data: {
         id: order.id,
@@ -53,7 +54,7 @@ export class OrderController {
       : 'Pedido cancelado com sucesso.';
 
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: message,
       data: {
         id: order.id,

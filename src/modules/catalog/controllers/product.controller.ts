@@ -4,6 +4,7 @@ import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { ProductService } from "../services/product.service";
 import { CreateProductDTO } from "../dto/create-product.dto";
 import { UpdateProductDTO } from "../dto/update-product.dto";
+import { ResponseStatus } from "../../../common/interfaces/api-response.interface";
 
 @ApiTags('Products')
 @Controller('products')
@@ -36,7 +37,7 @@ export class ProductController {
     async remove(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
         await this.productService.remove(req.user.id, id);
         return {
-            status: 'success',
+            status: ResponseStatus.SUCCESS,
             message: 'Produto removido com sucesso.'
         };
     }

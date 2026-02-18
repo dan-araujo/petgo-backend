@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, ParseUUIDPipe, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CreateVeterinaryDTO } from '../dto/create-veterinary.dto';
 import { UpdateVeterinaryDTO } from '../dto/update-veterinary.dto';
-import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { ApiResponse, ResponseStatus } from '../../../common/interfaces/api-response.interface';
 import { Veterinary } from '../entities/veterinary.entity';
 import { VeterinaryService } from '../services/veterinary.service';
 
@@ -18,7 +18,7 @@ export class VeterinaryController {
   async findAll(): Promise<ApiResponse<Veterinary[]>> {
     const veterinaries = await this.veterinaryService.findAll();
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Veterinários recuperados com sucesso!',
       data: veterinaries,
     };
@@ -33,7 +33,7 @@ export class VeterinaryController {
 
     const { passwordHash: passwordHash, ...safeVeterinary } = veterinary;
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Veterinário recuperado com sucesso!',
       data: safeVeterinary,
     };
@@ -48,7 +48,7 @@ export class VeterinaryController {
     const updatedVeterinary = await this.veterinaryService.update(id, dto);
     const { passwordHash: passwordHash, ...safeVeterinary } = updatedVeterinary;
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Veterinário atualizado com sucesso!',
       data: safeVeterinary,
     };
@@ -58,7 +58,7 @@ export class VeterinaryController {
   async remove(@Param('id', new ParseUUIDPipe()) id: string): Promise<ApiResponse<null>> {
     await this.veterinaryService.remove(id);
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Veterinário excluído com sucesso!',
     };
   }

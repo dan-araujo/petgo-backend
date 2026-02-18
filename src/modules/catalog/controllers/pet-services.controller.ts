@@ -4,6 +4,7 @@ import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { PetServicesService } from "../services/pet-services.service";
 import { CreatePetServiceDTO } from "../dto/create-service.dto";
 import { UpdatePetServiceDTO } from "../dto/update-service.dto";
+import { ResponseStatus } from "../../../common/interfaces/api-response.interface";
 
 @ApiTags('Services')
 @Controller('services')
@@ -36,7 +37,7 @@ export class PetServicesController {
     async remove(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
         await this.petServicesService.remove(req.user.id, id);
         return {
-            status: 'success',
+            status: ResponseStatus.SUCCESS,
             message: 'Serviço removido com sucesso.'
         };
     }

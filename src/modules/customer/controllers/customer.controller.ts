@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { CustomerService } from '../services/customer.service';
 import { CreateCustomerDTO } from '../dto/create-customer.dto';
-import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { ApiResponse, ResponseStatus } from '../../../common/interfaces/api-response.interface';
 import { Customer } from '../entities/customer.entity';
 import { UpdateCustomerDTO } from '../dto/update-customer.dto';
 
@@ -31,7 +31,7 @@ export class CustomerController {
   async findAll(): Promise<ApiResponse<Customer[]>> {
     const customers = await this.customerService.findAll();
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Clientes recuperados com sucesso!',
       data: customers,
     };
@@ -46,7 +46,7 @@ export class CustomerController {
 
     const { passwordHash, ...safeCustomer } = customer;
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Cliente recuperado com sucesso!',
       data: safeCustomer,
     };
@@ -61,7 +61,7 @@ export class CustomerController {
     const updatedCustomer = await this.customerService.update(id, dto);
     const { passwordHash, ...safeCustomer } = updatedCustomer;
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Cliente atualizado com sucesso!',
       data: safeCustomer,
     };
@@ -71,7 +71,7 @@ export class CustomerController {
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ApiResponse<null>> {
     await this.customerService.remove(id);
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Cliente excluído com sucesso!',
     };
   }

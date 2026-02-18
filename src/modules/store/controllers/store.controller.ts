@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, NotFoundException, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { StoreService } from '../services/store.service';
 import { CreateStoreDTO } from '../dto/create-store.dto';
-import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { ApiResponse, ResponseStatus } from '../../../common/interfaces/api-response.interface';
 import { Store } from '../entities/store.entity';
 import { UpdateStoreDTO } from '../dto/update-store.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -77,7 +77,7 @@ export class StoreController {
       throw new ForbiddenException('Você não tem permissão para excluir esta loja.');
     }
     await this.storeService.remove(id);
-    return { status: 'success', message: 'Loja excluída com sucesso.' };
+    return { status: ResponseStatus.SUCCESS, message: 'Loja excluída com sucesso.' };
   }
 }
 
