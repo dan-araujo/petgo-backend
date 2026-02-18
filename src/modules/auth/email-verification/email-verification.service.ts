@@ -8,7 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { randomInt } from 'crypto';
 import { EmailVerificationRequest } from './entities/email-verification-request.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ApiResponse, SendCodeResponse, VerifyCodeResponse } from '../../../common/interfaces/api-response.interface';
+import { ApiResponse, ResponseStatus, SendCodeResponse, VerifyCodeResponse } from '../../../common/interfaces/api-response.interface';
 import { use } from 'passport';
 
 @Injectable()
@@ -92,7 +92,7 @@ export class EmailVerificationService {
     );
 
     return {
-      status: 'success' as const,
+      status: ResponseStatus.SUCCESS,
       message: 'Código de verificação enviado',
       data: {
         email: email,
@@ -112,7 +112,7 @@ export class EmailVerificationService {
     );
 
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Código de verificação enviado',
       data: {
         email,
@@ -132,7 +132,7 @@ export class EmailVerificationService {
     );
 
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Código de verificação enviado para o novo e-mail',
       data: {
         email,
@@ -187,7 +187,7 @@ export class EmailVerificationService {
     await this.repository.save(request);
 
     return {
-      status: 'success',
+      status: ResponseStatus.SUCCESS,
       message: 'Código verificado com sucesso!',
       data: {
         verified: true,

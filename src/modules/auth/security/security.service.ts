@@ -3,7 +3,7 @@ import { UserReposityResolver } from '../../../common/services/user-repository.r
 import { UserType } from '../../../common/enums/user-type.enum';
 import { ConfirmChangePasswordDTO, ValidateChangePasswordCodeDTO } from './dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
-import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { ApiResponse, ResponseStatus } from '../../../common/interfaces/api-response.interface';
 import { ConfirmEmailChangeDTO, RequestEmailChangeDTO } from './dto/change-email.dto';
 import { EmailVerificationService } from '../email-verification/email-verification.service';
 import { JwtService } from '@nestjs/jwt';
@@ -21,7 +21,7 @@ export class SecurityService {
         await this.emailVerificationService.createPasswordChangeRequest(user.email, userType);
 
         return {
-            status: 'success',
+            status: ResponseStatus.SUCCESS,
             message: `Código de verificação enviado para ${user.email}`,
         } as ApiResponse;
     }
@@ -39,7 +39,7 @@ export class SecurityService {
         const tempToken = this.jwtService.sign(payload);
 
         return {
-            status: 'success',
+            status: ResponseStatus.SUCCESS,
             message: 'Código de verificação válido.',
             data: {
                 token: tempToken,
@@ -77,7 +77,7 @@ export class SecurityService {
         await repository.update(userId, { passwordHash: newHash });
 
         return {
-            status: 'success',
+            status: ResponseStatus.SUCCESS,
             message: 'Senha alterada com sucesso!',
         } as ApiResponse;
     }
@@ -90,7 +90,7 @@ export class SecurityService {
         await this.emailVerificationService.createEmailChangeRequest(dto.newEmail, userType, user?.name);
 
         return {
-            status: 'success',
+            status: ResponseStatus.SUCCESS,
             message: `Código de verificação enviado para ${dto.newEmail}`,
         } as ApiResponse;
     }
@@ -102,7 +102,7 @@ export class SecurityService {
         await repository.update(userId, { email: dto.newEmail });
 
         return {
-            status: 'success',
+            status: ResponseStatus.SUCCESS,
             message: 'E-mail alterado com sucesso.'
         } as ApiResponse;
     }

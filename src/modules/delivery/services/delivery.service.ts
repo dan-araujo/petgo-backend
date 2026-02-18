@@ -8,7 +8,7 @@ import { BaseService } from '../../../common/base/base.service';
 import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
 import { UserType } from '../../../common/enums/user-type.enum';
 import { EmailVerificationService } from '../../auth/email-verification/email-verification.service';
-import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { ApiResponse, ResponseStatus } from '../../../common/interfaces/api-response.interface';
 import { AccountStatus } from '../../../common/enums/account-status.enum';
 
 @Injectable()
@@ -55,7 +55,7 @@ export class DeliveryService extends BaseService<Delivery> {
       );
 
       return {
-        status: 'pending_code',
+        status: ResponseStatus.PENDING_CODE,
         message: 'Cadastro realizado! Código de verificação enviado para seu e-mail.',
         email: savedDelivery.email,
         data: { userId: savedDelivery.id },

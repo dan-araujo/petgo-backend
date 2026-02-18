@@ -9,6 +9,7 @@ import { EmailService } from "../../../common/services/email.service";
 import { UserReposityResolver } from "../../../common/services/user-repository.resolver";
 import { CODE_SECURITY } from "../../../common/constants/code-security.constants";
 import { ForgotPasswordRequest } from "./entities/forgot-password-request.entity";
+import { ResponseStatus } from "../../../common/interfaces/api-response.interface";
 
 @Injectable()
 export class ForgotPasswordService {
@@ -110,7 +111,7 @@ export class ForgotPasswordService {
         confirmPassword: string,
         userType: UserType,
     ): Promise<{
-        status: 'success';
+        status: ResponseStatus.SUCCESS;
         message: string;
         email: string;
     }> {
@@ -144,7 +145,7 @@ export class ForgotPasswordService {
         });
 
         return {
-            status: 'success',
+            status: ResponseStatus.SUCCESS,
             message: 'Senha atualizada com sucesso!',
             email: payload.email,
         };

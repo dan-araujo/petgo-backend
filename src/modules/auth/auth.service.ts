@@ -8,8 +8,10 @@ import { UserReposityResolver } from '../../common/services/user-repository.reso
 import {
     ApiResponse,
     LoginSuccessData,
+    ResponseStatus,
     VerificationData
 } from '../../common/interfaces/api-response.interface';
+import { AccountStatus } from '../../common/enums/account-status.enum';
 
 @Injectable()
 export class AuthService {
@@ -34,9 +36,9 @@ export class AuthService {
             throw new UnauthorizedException('E-mail ou senha incorretos');
         }
 
-        if (user.status !== 'active') {
+        if (user.status !== AccountStatus.ACTIVE) {
             return {
-                status: 'pending_code',
+                status: ResponseStatus.PENDING_CODE,
                 success: false,
                 message: 'Conta não verificada. Código enviado para seu e-mail',
                 email: user.email,
@@ -55,7 +57,7 @@ export class AuthService {
         const subtype = user.storeType || user.category || null;
 
         return {
-            status: 'success',
+            status: ResponseStatus.SUCCESS,
             success: true,
             message: 'Login realizado com sucesso!',
             data: {

@@ -6,7 +6,7 @@ import { Customer } from '../entities/customer.entity';
 import { BaseService } from '../../../common/base/base.service';
 import { EmailVerificationService } from '../../auth/email-verification/email-verification.service';
 import { CreateCustomerDTO } from '../dto/create-customer.dto';
-import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { ApiResponse, ResponseStatus } from '../../../common/interfaces/api-response.interface';
 import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
 import { UserType } from '../../../common/enums/user-type.enum';
 import { UpdateCustomerDTO } from '../dto/update-customer.dto';
@@ -57,7 +57,7 @@ export class CustomerService extends BaseService<Customer> {
       );
 
       return {
-        status: 'pending_code',
+        status: ResponseStatus.PENDING_CODE,
         message: 'Cadastro realizado! Código de verificação enviado para seu e-mail.',
         email: savedCustomer.email,
         data: { userId: savedCustomer.id },

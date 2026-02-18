@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { ValidationMessages } from '../../../common/constants/validation-messages.constants';
 import { UserType } from '../../../common/enums/user-type.enum';
 import { EmailVerificationService } from '../../auth/email-verification/email-verification.service';
-import { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import { ApiResponse, ResponseStatus } from '../../../common/interfaces/api-response.interface';
 import { AccountStatus } from '../../../common/enums/account-status.enum';
 
 @Injectable()
@@ -54,7 +54,7 @@ export class VeterinaryService extends BaseService<Veterinary> {
       );
 
       return {
-        status: 'pending_code',
+        status: ResponseStatus.PENDING_CODE,
         message: 'Cadastro realizado! Código de verificação enviado para seu e-mail.',
         email: savedVeterinary.email,
         data: { userId: savedVeterinary.id },
