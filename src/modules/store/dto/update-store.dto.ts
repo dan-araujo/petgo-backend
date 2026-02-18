@@ -27,4 +27,9 @@ export class UpdateStoreDTO extends PartialType(CreateStoreDTO) {
     @IsOptional()
     @IsBoolean()
     usesAppLogistics?: boolean;
+
+    @ApiProperty({ description: 'Define se a loja está aberta ou fechada', example: true })
+    @IsOptional()
+    @IsBoolean()
+    isOpen?: boolean;
 }
