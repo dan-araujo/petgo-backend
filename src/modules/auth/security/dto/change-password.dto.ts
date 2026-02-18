@@ -1,10 +1,16 @@
-import { IsNotEmpty, IsString, Length, MinLength } from "class-validator";
+import { IsNotEmpty, IsString, MinLength } from "class-validator";
+
+export class ValidateChangePasswordCodeDTO {
+    @IsNotEmpty()
+    @IsString()
+    @MinLength(6, { message: 'O código deve ter 6 dígitos' })
+    code: string;
+}
 
 export class ConfirmChangePasswordDTO {
     @IsNotEmpty()
     @IsString()
-    @Length(6, 6)
-    code: string;
+    token: string;
 
     @IsNotEmpty()
     @IsString()
