@@ -22,11 +22,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message = err.message || message;
     }
 
-    let apiStatus: ResponseStatus = 'error';
+    let apiStatus: ResponseStatus = ResponseStatus.ERROR;
     if (status === HttpStatus.TOO_MANY_REQUESTS) {
-      apiStatus = 'rate_limited';
+      apiStatus = ResponseStatus.RATE_LIMITED;
     } else if (status === HttpStatus.BAD_REQUEST) {
-      apiStatus = 'invalid_code';
+      apiStatus = ResponseStatus.INVALID_CODE;
     }
 
     const apiResponse: ApiResponse = {

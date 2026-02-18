@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ApiResponse } from '../interfaces/api-response.interface';
+import { ApiResponse, ResponseStatus } from '../interfaces/api-response.interface';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
@@ -18,7 +18,7 @@ export class ResponseInterceptor implements NestInterceptor {
         }
 
         return {
-          status: 'success',
+          status: ResponseStatus.SUCCESS,
           message: 'Operação realizada com sucesso',
           data,
         } as ApiResponse;
@@ -32,13 +32,7 @@ export class ResponseInterceptor implements NestInterceptor {
       typeof data === 'object' &&
       'status' in data &&
       'message' in data &&
-      [
-        'success',
-        'pending_code',
-        'invalid_code',
-        'rate_limited',
-        'error',
-      ].includes(data.status)
+      Object.values(ResponseStatus).includes(data.status)
     );
   }
 }

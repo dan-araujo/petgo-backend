@@ -1,9 +1,10 @@
-export type ResponseStatus =
-  | 'success'
-  | 'pending_code'
-  | 'invalid_code'
-  | 'rate_limited'
-  | 'error';
+export enum ResponseStatus {
+  SUCCESS = 'success',
+  PENDING_CODE = 'pending_code',
+  INVALID_CODE = 'invalid_code',
+  RATE_LIMITED = 'rate_limited',
+  ERROR = 'error',
+}
 
 export interface ApiResponse<T = any> {
   status: ResponseStatus;
