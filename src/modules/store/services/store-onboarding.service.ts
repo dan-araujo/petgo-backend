@@ -23,13 +23,16 @@ export class StoreOnboardingService {
     async completeOnboarding(storeId: string): Promise<Store> {
         const store = await this.storeRepo.findOne({
             where: { id: storeId },
-            relations: ['addresses', 'addresses.address', 'businessHours', 'specialHours']
+            relations: ['addresses', 'businessHours', 'logisticsConfig']
         });
 
         if (!store) throw new NotFoundException('Loja não encontrada');
         if (!store.storeType) throw new BadRequestException('Selecione o tipo de loja');
         if (!store.addresses?.length) throw new BadRequestException('Cadastre pelo menos um endereço');
-        if (!store.businessHours?.length) throw new BadRequestException('Cadastre o horário de funcionamento da sua loja');
+        if (!store.businessHours?.length) throw new BadRequestException('Defina seus horários de funcionamento');
+        if(!store.logoUrl) throw new BadRequestException('É necessário fazer upload do Logo para dar personalidade a sua loja');
+        if(!store.description) throw new BadRequestException('Adicione uma descrição para sua loja');
+        if(!store.logisticsConfig) throw new BadRequestException('Configure suas regras de venda e entrega');
 
         store.profileCompleted = true;
         store.status = AccountStatus.ACTIVE;
