@@ -1,6 +1,10 @@
-import { IsBoolean, IsDateString, IsNotEmpty, IsString, Matches } from "class-validator";
+import { IsBoolean, IsDateString, IsNotEmpty, IsOptional, IsString, IsUUID, Matches } from "class-validator";
 
 export class CreateSpecialHourDTO {
+    @IsOptional()
+    @IsUUID()
+    id?: string;
+
     @IsNotEmpty()
     @IsDateString()
     specificDate: string;
