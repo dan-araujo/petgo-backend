@@ -46,7 +46,7 @@ export class CustomerService extends BaseService<Customer> {
         phone: data.phone,
         cpf: cpf as any,
         passwordHash,
-        status: AccountStatus.PENDING,
+        status: AccountStatus.AWAITING_VERIFICATION,
       });
 
       savedCustomer = await this.customerRepo.save(customer);

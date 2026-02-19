@@ -43,7 +43,7 @@ export class VeterinaryService extends BaseService<Veterinary> {
         phone: data.phone,
         category: data.category,
         passwordHash: passwordHash,
-        status: AccountStatus.PENDING,
+        status: AccountStatus.AWAITING_VERIFICATION,
       });
 
       savedVeterinary = await this.veterinaryRepo.save(veterinary);

@@ -44,7 +44,7 @@ export class DeliveryService extends BaseService<Delivery> {
         phone: data.phone,
         cpf: cpf as any,
         passwordHash: passwordHash,
-        status: AccountStatus.PENDING,
+        status: AccountStatus.AWAITING_VERIFICATION,
       });
 
       savedDelivery = await this.deliveryRepo.save(delivery);

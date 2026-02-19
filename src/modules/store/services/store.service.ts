@@ -10,7 +10,6 @@ import { UserType } from '../../../common/enums/user-type.enum';
 import { EmailVerificationService } from '../../auth/email-verification/email-verification.service';
 import { ApiResponse, ResponseStatus } from '../../../common/interfaces/api-response.interface';
 import { AccountStatus } from '../../../common/enums/account-status.enum';
-import { SelectStoreTypeDTO } from '../dto/select-store-type.dto';
 
 @Injectable()
 export class StoreService extends BaseService<Store> {
@@ -44,7 +43,7 @@ export class StoreService extends BaseService<Store> {
         passwordHash: passwordHash,
         phone: data.phone,
         cnpj: data.cnpj,
-        status: AccountStatus.PENDING,
+        status: AccountStatus.AWAITING_VERIFICATION,
       });
 
       savedStore = await this.storeRepo.save(store);
