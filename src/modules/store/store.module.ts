@@ -18,6 +18,8 @@ import { StoreHoursController } from './controllers/store-hours.controller';
 import { GeolocationService } from '../logistics/services/geolocation.service';
 import { StoreUploadController } from './controllers/store-upload.controller';
 import { CloudinaryModule } from '../../shared/cloudinary/cloudinary.module';
+import { StoreOnboardingController } from './controllers/store-onboarding.controller';
+import { StoreOnboardingService } from './services/store-onboarding.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
@@ -33,8 +35,20 @@ import { CloudinaryModule } from '../../shared/cloudinary/cloudinary.module';
     LogisticsModule,
     CloudinaryModule,
   ],
-  controllers: [StoreController, StoreAddressController, StoreHoursController, StoreUploadController],
-  providers: [StoreService, StoreAddressService, StoreHoursService, GeolocationService],
+  controllers: [
+    StoreController, 
+    StoreAddressController, 
+    StoreHoursController, 
+    StoreUploadController,
+    StoreOnboardingController
+  ],
+  providers: [
+    StoreService, 
+    StoreAddressService, 
+    StoreHoursService, 
+    StoreOnboardingService,
+    GeolocationService
+  ],
   exports: [StoreService, StoreAddressService, StoreHoursService],
 })
 export class StoreModule { }
