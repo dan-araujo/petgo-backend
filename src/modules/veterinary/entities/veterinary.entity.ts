@@ -50,7 +50,7 @@ export class Veterinary {
   @Column({
     type: 'enum',
     enum: AccountStatus,
-    default: AccountStatus.PENDING
+    default: AccountStatus.AWAITING_VERIFICATION
   })
   status: AccountStatus;
 

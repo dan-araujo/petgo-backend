@@ -47,7 +47,7 @@ export class Store {
         type: 'enum',
         enum: AccountStatus,
         enumName: 'account_status',
-        default: AccountStatus.PENDING
+        default: AccountStatus.AWAITING_VERIFICATION
     })
     status: AccountStatus;
 
