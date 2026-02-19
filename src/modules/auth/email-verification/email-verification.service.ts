@@ -10,6 +10,7 @@ import { EmailVerificationRequest } from './entities/email-verification-request.
 import { InjectRepository } from '@nestjs/typeorm';
 import { ApiResponse, ResponseStatus, SendCodeResponse, VerifyCodeResponse } from '../../../common/interfaces/api-response.interface';
 import { use } from 'passport';
+import { AccountStatus } from '../../../common/enums/account-status.enum';
 
 @Injectable()
 export class EmailVerificationService {
@@ -167,10 +168,8 @@ export class EmailVerificationService {
     }
 
     const valid = await bcrypt.compare(code, request.codeHash);
-
     if (!valid) {
       request.attempts += 1;
-
       if (request.attempts >= this.MAX_ATTEMPTS) {
         request.lockedUntil = new Date(
           Date.now() + this.LOCK_MINUTES * 60 * 1000
@@ -179,6 +178,15 @@ export class EmailVerificationService {
 
       await this.repository.save(request);
       throw new BadRequestException('Código inválido ou expirado');
+    }
+
+
+    const userRepository = this.userRepoResolver.resolve(userType);
+    const user = await userRepository.findOne({ where: { email } });
+
+    if (user && user.status === AccountStatus.AWAITING_VERIFICATION) {
+      user.status = AccountStatus.PENDING;
+      await userRepository.save(user);
     }
 
     request.usedAt = new Date();

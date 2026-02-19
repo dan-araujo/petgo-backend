@@ -36,7 +36,7 @@ export class AuthService {
             throw new UnauthorizedException('E-mail ou senha incorretos');
         }
 
-        if (user.status !== AccountStatus.ACTIVE) {
+        if (user.status === AccountStatus.AWAITING_VERIFICATION) {
             return {
                 status: ResponseStatus.PENDING_CODE,
                 success: false,
@@ -54,8 +54,6 @@ export class AuthService {
             type: userType,
         });
 
-        const subtype = user.storeType || user.category || null;
-
         return {
             status: ResponseStatus.SUCCESS,
             success: true,
@@ -67,7 +65,7 @@ export class AuthService {
                     name: user.name,
                     email: user.email,
                     userType: user.userType,
-                    profileCompleted: user.profiledCompleted ?? true,
+                    profileCompleted: user.profiledCompleted ?? (user.status === AccountStatus.ACTIVE),
                     subtype: user.subtype || user.category || null,
                 },
             },

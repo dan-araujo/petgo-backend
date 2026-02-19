@@ -1,6 +1,7 @@
 export enum ResponseStatus {
   SUCCESS = 'success',
   PENDING_CODE = 'pending_code',
+  NEW_SENT_CODE = 'new_sent_code',
   INVALID_CODE = 'invalid_code',
   RATE_LIMITED = 'rate_limited',
   ERROR = 'error',
