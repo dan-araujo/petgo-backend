@@ -23,11 +23,14 @@ export class StoreHoursService {
 
     async updateBusinessHours(storeId: string, dto: ManageBusinessHoursDTO) {
         const store = await this.findStore(storeId);
+        const dayNames = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 
         for (const hourDTO of dto.hours) {
-            if (!hourDTO.isClosed && hourDTO.opensAt >= hourDTO.closesAt) {
-                throw new BadRequestException(
-                    `No dia ${hourDTO.dayOfWeek}, o horário de abertura (${hourDTO.opensAt}) deve ser menor que o horário de fechamento (${hourDTO.closesAt}).`,
+            if (!hourDTO.isClosed) {
+                this.validateTimeRange(
+                    hourDTO.opensAt,
+                    hourDTO.closesAt,
+                    `No dia ${hourDTO.dayOfWeek} (${dayNames[hourDTO.dayOfWeek]}})`
                 );
             }
 
@@ -67,14 +70,27 @@ export class StoreHoursService {
     async updateSpecialHours(storeId: string, dto: CreateSpecialHourDTO) {
         const store = await this.findStore(storeId);
 
-        if (!dto.isClosed && dto.opensAt >= dto.closesAt) {
-            throw new BadRequestException(
-                `O horário de abertura deve ser menor que o de fechamento`);
+        if (!dto.isClosed) {
+            this.validateTimeRange(
+                dto.opensAt,
+                dto.closesAt,
+                `Na data ${dto.specificDate}`
+            );
         }
 
-        let specialHour = await this.storeRepo.manager.findOne(StoreSpecialHours, {
-            where: { storeId: store.id, specificDate: dto.specificDate }
-        });
+        let specialHour: StoreSpecialHours | null = null;
+
+        if (dto.id) {
+            specialHour = await this.storeRepo.manager.findOne(StoreSpecialHours, {
+                where: { id: dto.id, storeId: store.id }
+            });
+        }
+
+        if (!specialHour) {
+            specialHour = await this.storeRepo.manager.findOne(StoreSpecialHours, {
+                where: { storeId: store.id, specificDate: dto.specificDate }
+            });
+        }
 
         if (specialHour) {
             Object.assign(specialHour, dto);
@@ -105,5 +121,19 @@ export class StoreHoursService {
         await this.storeRepo.manager.remove(specialHour);
 
         return { message: 'Horário especial removido com sucesso!' };
+    }
+
+    private validateTimeRange(opensAt: string, closesAt: string, contextLabel?: string): void {
+        const [openH, openM] = opensAt.split(':').map(Number);
+        const [closeH, closeM] = closesAt.split(':').map(Number);
+
+        const openMinutes = openH * 60 + openM;
+        const closeMinutes = closeH * 60 + closeM;
+
+        if (openMinutes >= closeMinutes) {
+            const prefix = contextLabel ? `${contextLabel}: ` : '';
+            throw new BadRequestException(
+                `${prefix} horário de abertura (${opensAt}) deve ser menor que o de fechamento (${closesAt}).`);
+        }
     }
 }
