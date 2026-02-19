@@ -109,7 +109,7 @@ export class StoreService extends BaseService<Store> {
   async findOne(id: string) {
     const store = await this.storeRepo.findOne({
       where: { id },
-      relations: ['businessHours', 'specialHours', 'addresses', 'addresses.address'],
+      relations: ['businessHours', 'specialHours', 'addresses', 'addresses.address', 'logisticsConfig'],
     });
     if (!store) {
       throw new NotFoundException('Loja não encontrada');

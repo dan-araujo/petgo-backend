@@ -49,7 +49,7 @@ import { StoreOnboardingService } from './services/store-onboarding.service';
     StoreOnboardingService,
     GeolocationService
   ],
-  exports: [StoreService, StoreAddressService, StoreHoursService],
+  exports: [StoreService, StoreAddressService, StoreHoursService, StoreOnboardingService],
 })
 export class StoreModule { }
 

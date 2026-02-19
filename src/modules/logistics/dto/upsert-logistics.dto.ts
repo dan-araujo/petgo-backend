@@ -8,11 +8,12 @@ export class UpsertLogisticsDTO {
     @Min(0)
     minOrderValue?: number;
 
+    // CORREÇÃO: Alterado de deliveryFee para baseFee
     @ApiProperty({ example: 5.00 })
     @IsOptional()
     @IsNumber()
     @Min(0)
-    deliveryFee?: number;
+    baseFee?: number; 
 
     @ApiProperty({ example: true })
     @IsOptional()
@@ -23,10 +24,15 @@ export class UpsertLogisticsDTO {
     @IsOptional()
     @IsNumber()
     @Min(0)
-    freeDeliveryMinOrderValue?: number;
+    freeDeliveryAbove?: number; 
 
     @ApiProperty({ example: false })
     @IsOptional()
     @IsBoolean()
     usesAppLogistics?: boolean;
+
+    @IsOptional() @IsNumber() radiusKm?: number;
+    @IsOptional() @IsNumber() kmFee?: number;
+    @IsOptional() @IsNumber() leadTimeMin?: number;
+    @IsOptional() @IsNumber() avgDeliveryTime?: number;
 }
