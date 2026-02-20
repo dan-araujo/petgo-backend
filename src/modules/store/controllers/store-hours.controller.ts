@@ -6,7 +6,7 @@ import { CreateSpecialHourDTO } from "../dto/special-hours.dto";
 import { ManageBusinessHoursDTO } from "../dto/business-hours.dto";
 
 @ApiTags('Stores | Hours')
-@Controller('stores')
+@Controller('stores/profile')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class StoreHoursController {
