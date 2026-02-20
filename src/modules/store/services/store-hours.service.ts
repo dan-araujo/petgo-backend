@@ -30,7 +30,7 @@ export class StoreHoursService {
                 this.validateTimeRange(
                     hourDTO.opensAt,
                     hourDTO.closesAt,
-                    `No dia ${hourDTO.dayOfWeek} (${dayNames[hourDTO.dayOfWeek]}})`
+                    `No dia ${dayNames[hourDTO.dayOfWeek]}`
                 );
             }
 
@@ -133,7 +133,7 @@ export class StoreHoursService {
         if (openMinutes >= closeMinutes) {
             const prefix = contextLabel ? `${contextLabel}: ` : '';
             throw new BadRequestException(
-                `${prefix} horário de abertura (${opensAt}) deve ser menor que o de fechamento (${closesAt}).`);
+                `${prefix}O horário de abertura deve ser antes do fechamento.`);
         }
     }
 }
