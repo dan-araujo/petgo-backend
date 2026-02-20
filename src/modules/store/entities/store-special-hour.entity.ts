@@ -16,6 +16,9 @@ export class StoreSpecialHours {
     @Column({ name: 'specific_date', type: 'date' })
     specificDate: string;
 
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    description: string | null;
+
     @Column({ name: 'opens_at', type: 'time', nullable: true })
     opensAt: string | null;
 

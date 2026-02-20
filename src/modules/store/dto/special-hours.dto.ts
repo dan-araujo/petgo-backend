@@ -9,6 +9,10 @@ export class CreateSpecialHourDTO {
     @IsDateString()
     specificDate: string;
 
+    @IsOptional()
+    @IsString()
+    description?: string;
+
     @IsString()
     @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: 'Formato HH:mm' })
     opensAt: string;
