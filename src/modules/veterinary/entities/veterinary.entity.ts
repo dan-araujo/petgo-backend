@@ -10,6 +10,7 @@ import {
 import { UserType } from '../../../common/enums/user-type.enum';
 import { AccountStatus } from '../../../common/enums/account-status.enum';
 import { VeterinaryAddress } from './veterinary-address.entity';
+import { ColumnNumericTransformer } from '../../../common/transformer/column-numeric.transformer';
 
 @Entity('veterinaries')
 export class Veterinary {
@@ -56,6 +57,39 @@ export class Veterinary {
 
   @Column({ name: 'profile_completed', type: 'boolean', default: false })
   profileCompleted: boolean;
+
+  @Column({
+    name: 'profile_picture_url',
+    type: 'varchar',
+    length: 500,
+    nullable: true
+  })
+  profilePictureUrl?: string;
+
+  @Column({ type: 'text', nullable: true })
+  bio?: string;
+
+  @Column({
+    name: 'consultation_fee_base',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    transformer: new ColumnNumericTransformer()
+  })
+  consultationFeeBase?: number;
+
+  @Column({
+    type: 'numeric',
+    precision: 3,
+    scale: 2,
+    default: 0,
+    transformer: new ColumnNumericTransformer()
+  })
+  rating?: number;
+
+  @Column({ name: 'total_reviews', type: 'int', default: 0 })
+  totalReviews: Date;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
