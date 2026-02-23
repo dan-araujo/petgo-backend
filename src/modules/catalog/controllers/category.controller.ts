@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { CatalogService } from "../services/catalog.service";
 import { CreateCategoryDTO } from "../dto/create-category.dto";
 import { UpdateCategoryDTO } from "../dto/update-category.dto";
+import { User } from "../../../common/decorators/user.decorator";
 
 @ApiTags('Catalog')
 @Controller('categories')
@@ -13,32 +14,32 @@ export class CategoryController {
     constructor(private readonly catalogService: CatalogService) { }
 
     @Post()
-    async create(@Req() req: any, @Body() dto: CreateCategoryDTO) {
-        return await this.catalogService.createCategory(req.user.id, dto);
+    async create(@User('id') userId: string, @Body() dto: CreateCategoryDTO) {
+        return await this.catalogService.createCategory(userId, dto);
     }
 
     @Get()
-    async findAll(@Req() req: any) {
-        return await this.catalogService.findAllCategories(req.user.id);
+    async findAll(@User('id') userId: string) {
+        return await this.catalogService.findAllCategories(userId);
     }
 
     @Get(':id')
-    async findOne(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
-        return await this.catalogService.findOneCategory(req.user.id, id);
+    async findOne(@User('id') userId: string, @Param('id', ParseUUIDPipe) id: string) {
+        return await this.catalogService.findOneCategory(userId, id);
     }
 
     @Patch(':id')
     async update(
-        @Req() req: any,
+        @User('id') userId: string,
         @Param('id') id: string,
         @Body() dto: UpdateCategoryDTO,
     ) {
-        return await this.catalogService.updateCategory(req.user.id, id, dto);
+        return await this.catalogService.updateCategory(userId, id, dto);
     }
 
     @Delete(':id')
-    async remove(@Req() req: any, @Param('id') id: string) {
-        return await this.catalogService.removeCategory(req.user.id, id);
+    async remove(@User('id') userId: string, @Param('id') id: string) {
+        return await this.catalogService.removeCategory(userId, id);
     }
 
 }

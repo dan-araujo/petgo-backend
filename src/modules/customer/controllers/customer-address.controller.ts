@@ -5,6 +5,7 @@ import { UserType } from "../../../common/enums/user-type.enum";
 import { AddressType } from "../../../common/enums/address-type.enum";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { ApiBearerAuth } from "@nestjs/swagger";
+import { User } from "../../../common/decorators/user.decorator";
 
 @UseGuards(JwtAuthGuard)
 @Controller('addresses/customer')
@@ -13,35 +14,31 @@ export class CustomerAddressController {
     constructor(private readonly service: CustomerAddressService) { }
 
     @Post()
-    create(@Req() req: any, @Body(ValidationPipe) dto: CreateCustomerAddressDTO) {
+    create(@User('id') customerId: string, @Body(ValidationPipe) dto: CreateCustomerAddressDTO) {
         return this.service.create(dto, {
-            userId: req.user.id,
+            userId: customerId,
             userType: UserType.CUSTOMER,
             addressType: AddressType.CUSTOMER,
         });
     }
 
     @Patch(':id')
-    update(@Req() req, @Param('id', ParseUUIDPipe) id: string, @Body(ValidationPipe) dto: UpdateCustomerAddressDTO) {
-        const customerId = req.user.id;
+    update(@User('id') customerId: string, @Param('id', ParseUUIDPipe) id: string, @Body(ValidationPipe) dto: UpdateCustomerAddressDTO) {
         return this.service.update(id, dto, customerId);
     }
 
     @Delete(':id')
-    delete(@Req() req, @Param('id', ParseUUIDPipe) id: string) {
-        const userId = req.user.id;
-        return this.service.delete(id, userId);
+    delete(@User('id') customerId: string, @Param('id', ParseUUIDPipe) id: string) {
+        return this.service.delete(id, customerId);
     }
 
     @Get()
-    findAll(@Req() req) {
-        const customerId = req.user.id;
+    findAll(@User('id') customerId: string) {
         return this.service.findAllByUser(customerId);
     }
 
     @Get('main')
-    findMainAddress(@Req() req) {
-        const customerId = req.user.id;
+    findMainAddress(@User('id') customerId: string) {
         return this.service.findMainAddress(customerId);
     }
 }

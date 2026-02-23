@@ -1,9 +1,9 @@
 export enum AccountStatus {
-    AWAITING_VERIFICATION = 'awaiting_verification',
-    PENDING = 'pending',
-    ACTIVE = 'active',
-    SUSPENDED = 'suspended',
-    DELETED = 'deleted',
+    AWAITING_VERIFICATION = 'AWAITING_VERIFICATION',
+    PENDING = 'PENDING',
+    ACTIVE = 'ACTIVE',
+    SUSPENDED = 'SUSPENDED',
+    DELETED = 'DELETED',
 }
 
-export type AccountStatusType = 'awaiting_verification' | 'pending'  | 'active' | 'suspended' | 'deleted';
+export type AccountStatusType = 'AWAITING_VERIFICATION' | 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'DELETED';

@@ -1,16 +1,16 @@
 export enum OrderStatus {
-    PENDING = 'pending',
-    CONFIRMED = 'confirmed',
-    PREPARING = 'preparing',
-    IN_DELIVERY = 'in_delivery',
-    DELIVERED = 'delivered',
-    CANCELLED = 'cancelled',
+    PENDING = 'PENDING',
+    CONFIRMED = 'CONFIRMED',
+    PREPARING = 'PREPARING',
+    IN_DELIVERY = 'IN_DELIVERY',
+    DELIVERED = 'DELIVERED',
+    CANCELLED = 'CANCELLED',
 }
 
 export type OrderStatusType =
-    | 'pending'
-    | 'confirmed'
-    | 'preparing'
-    | 'in_delivery'
-    | 'delivered'
-    | 'cancelled';
+    | 'PENDING'
+    | 'CONFIRMED'
+    | 'PREPARING'
+    | 'IN_DELIVERY'
+    | 'DELIVERED'
+    | 'CANCELLED';

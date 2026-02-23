@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Store } from "../../store/entities/store.entity";
+import { Veterinary } from "../../veterinary/entities/veterinary.entity";
 
 @Entity('categories')
 @Index(['storeId', 'slug'], { unique: true, where: '"store_id" IS NOT NULL' })
@@ -23,6 +24,13 @@ export class Category {
 
    @Column({ name: 'store_id', type: 'uuid' })
    storeId: string;
+
+   @ManyToOne(() => Veterinary, { onDelete: 'CASCADE' })
+   @JoinColumn({ name: 'veterinary_id' })
+   veterinary: Veterinary;
+
+   @Column({ name: 'veterinary_id', type: 'uuid' })
+   veterinaryId: string;
 
    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
    createdAt: Date;

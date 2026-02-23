@@ -20,6 +20,7 @@ import { StoreUploadController } from './controllers/store-upload.controller';
 import { CloudinaryModule } from '../../shared/cloudinary/cloudinary.module';
 import { StoreOnboardingController } from './controllers/store-onboarding.controller';
 import { StoreOnboardingService } from './services/store-onboarding.service';
+import { PetSupply } from './entities/pet-supply.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
@@ -29,6 +30,7 @@ import { StoreOnboardingService } from './services/store-onboarding.service';
     StoreBusinessHours,
     StoreSpecialHours,
     Petshop,
+    PetSupply,
   ]),
     EmailVerificationModule,
     AddressModule,

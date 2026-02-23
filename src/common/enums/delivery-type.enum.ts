@@ -1,4 +1,4 @@
 export enum DeliveryType {
-    STORE_OWN = 'store_own',
-    APP_PARTNER = 'app_partner',
+    STORE_OWN = 'STORE_OWN',
+    APP_PARTNER = 'APP_PARTNER',
 }

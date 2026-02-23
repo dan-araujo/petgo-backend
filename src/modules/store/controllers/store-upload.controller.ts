@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, ForbiddenException, NotFoundException, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { BadRequestException, Controller, ForbiddenException, NotFoundException, Param, Post, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CloudinaryService } from "../../../shared/cloudinary/cloudinary.service";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -7,6 +7,7 @@ import { Repository } from "typeorm";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import multer from 'multer';
+import { User } from "../../../common/decorators/user.decorator";
 
 
 @ApiTags('Store | Uploads')
@@ -28,8 +29,8 @@ export class StoreUploadController {
         storage: multer.memoryStorage(),
         limits: { fileSize: 5 * 1024 * 1024 },
     }))
-    async uploadImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Req() req) {
-        return this.executeUpload(id, req.user.id, file, 'logo');
+    async uploadImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @User('id') loggedStoreId: string) {
+        return this.executeUpload(id, loggedStoreId, file, 'logo');
     }
 
     @Post(':id/upload-banner')
@@ -40,8 +41,8 @@ export class StoreUploadController {
         storage: multer.memoryStorage(),
         limits: { fileSize: 10 * 1024 * 1024 },
     }))
-    async uploadBanner(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Req() req) {
-        return this.executeUpload(id, req.user.id, file, 'banner');
+    async uploadBanner(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @User('id') loggedStoreId: string) {
+        return this.executeUpload(id, loggedStoreId, file, 'banner');
     }
 
     private async executeUpload(storeId: string, userId: string, file: Express.Multer.File, type: 'logo' | 'banner') {

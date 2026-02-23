@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, NotFoundException, UseGuards, Req, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards, ForbiddenException } from '@nestjs/common';
 import { StoreService } from '../services/store.service';
 import { CreateStoreDTO } from '../dto/create-store.dto';
 import { ApiResponse, ResponseStatus } from '../../../common/interfaces/api-response.interface';
@@ -6,6 +6,7 @@ import { Store } from '../entities/store.entity';
 import { UpdateStoreDTO } from '../dto/update-store.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { User } from '../../../common/decorators/user.decorator';
 
 
 @ApiTags('Stores')
@@ -27,16 +28,16 @@ export class StoreController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Busca os dados da loja logada' })
-  async getMe(@Req() req: any): Promise<Partial<Store>> {
-    return await this.storeService.findOne(req.user.id);
+  async getMe(@User('id') storeId: string): Promise<Partial<Store>> {
+    return await this.storeService.findOne(storeId);
   }
 
   @Patch('profile/me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Atualiza os dados da loja logada' })
-  async updateMe(@Req() req: any, @Body() dto: UpdateStoreDTO): Promise<Partial<Store>> {
-    const updatedStore = await this.storeService.update(req.user.id, dto);
+  async updateMe(@User('id') storeId: string, @Body() dto: UpdateStoreDTO): Promise<Partial<Store>> {
+    const updatedStore = await this.storeService.update(storeId, dto);
     const { passwordHash, ...safeStore } = updatedStore;
     return safeStore;
   }
@@ -53,14 +54,14 @@ export class StoreController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard) 
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateStoreDTO,
-    @Req() req: any
+    @User('id') storeId: string
   ): Promise<Partial<Store>> {
-    if (req.user.id !== id) {
+    if (storeId !== id) {
       throw new ForbiddenException('Você não tem permissão para editar esta loja.');
     }
 
@@ -72,8 +73,8 @@ export class StoreController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  async remove(@Param('id') id: string, @Req() req: any): Promise<ApiResponse<null>> {
-    if (req.user.id !== id) {
+  async remove(@Param('id') id: string, @User('id') loggedUserId: string): Promise<ApiResponse<null>> {
+    if (loggedUserId !== id) {
       throw new ForbiddenException('Você não tem permissão para excluir esta loja.');
     }
     await this.storeService.remove(id);

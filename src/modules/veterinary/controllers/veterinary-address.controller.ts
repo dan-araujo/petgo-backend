@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Req, UseGuards, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards, ValidationPipe } from "@nestjs/common";
 import { VeterinaryAddressService } from "../services/veterinary-address.service";
 import { CreateVeterinaryAddressDTO, UpdateVeterinaryAddressDTO } from "../dto/veterinary-address.dto";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { UserType } from "../../../common/enums/user-type.enum";
 import { AddressType } from "../../../common/enums/address-type.enum";
 import { ApiBearerAuth } from "@nestjs/swagger";
+import { User } from "../../../common/decorators/user.decorator";
 
 @UseGuards(JwtAuthGuard)
 @Controller('addresses/veterinary')
@@ -13,31 +14,31 @@ export class VeterinaryAddressController {
     constructor(private readonly service: VeterinaryAddressService) { }
 
     @Post()
-    create(@Req() req, @Body(ValidationPipe) dto: CreateVeterinaryAddressDTO) {
+    create(@User('id') veterinaryId: string, @Body(ValidationPipe) dto: CreateVeterinaryAddressDTO) {
         return this.service.create(dto, {
-            userId: req.user.id,
+            userId: veterinaryId,
             userType: UserType.VETERINARY,
             addressType: AddressType.VETERINARY,
         });
     }
 
     @Patch(':id')
-    update(@Req() req, @Param('id', ParseUUIDPipe) id: string, @Body(ValidationPipe) dto: UpdateVeterinaryAddressDTO) {
-        return this.service.update(id, dto, req.user.id);
+    update(@User('id') veterinaryId: string, @Param('id', ParseUUIDPipe) id: string, @Body(ValidationPipe) dto: UpdateVeterinaryAddressDTO) {
+        return this.service.update(id, dto, veterinaryId);
     }
 
     @Delete(':id')
-    delete(@Req() req, @Param('id', ParseUUIDPipe) id: string) {
-        return this.service.delete(id, req.user.id);
+    delete(@User('id') veterinaryId: string, @Param('id', ParseUUIDPipe) id: string) {
+        return this.service.delete(id, veterinaryId);
     }
 
     @Get()
-    findAll(@Req() req) {
-        return this.service.findAllByUser(req.user.id);
+    findAll(@User('id') veterinaryId: string) {
+        return this.service.findAllByUser(veterinaryId);
     }
 
     @Get('main')
-    findMain(@Req() req) {
-        return this.service.findMainAddress(req.user.id);
+    findMain(@User('id') veterinaryId: string) {
+        return this.service.findMainAddress(veterinaryId);
     }
 }

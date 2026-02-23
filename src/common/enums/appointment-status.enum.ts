@@ -1,16 +1,16 @@
 export enum AppointmentStatus {
-    SCHEDULED = 'scheduled',
-    CONFIRMED = 'confirmed',
-    IN_PROGRESS = 'in_progress',
-    COMPLETED = 'completed',
-    CANCELLED = 'cancelled',
-    NO_SHOW = 'no_show',
+    SCHEDULED = 'SCHEDULED',
+    CONFIRMED = 'CONFIRMED',
+    IN_PROGRESS = 'IN_PROGRESS',
+    COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED',
+    NO_SHOW = 'NO_SHOW',
 }
 
 export type AppointmentStatusType =
-    | 'scheduled'
-    | 'confirmed'
-    | 'in_progress'
-    | 'completed'
-    | 'cancelled'
-    | 'no_show';
+    | 'SCHEDULED'
+    | 'CONFIRMED'
+    | 'IN_PROGRESS'
+    | 'COMPLETED'
+    | 'CANCELLED'
+    | 'NO_SHOW';

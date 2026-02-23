@@ -1,6 +1,9 @@
 export enum AddressType {
-  CUSTOMER = 'customer',
-  DELIVERY = 'delivery',
-  STORE = 'store',
-  VETERINARY = 'veterinary',
+  MAIN = 'MAIN',
+  SECONDARY = 'SECONDARY',
+  BILLING = 'BILLING',
+  STORE = 'STORE',
+  CUSTOMER = 'CUSTOMER',
+  VETERINARY = 'VETERINARY',
+  DELIVERY = 'DELIVERY',
 }

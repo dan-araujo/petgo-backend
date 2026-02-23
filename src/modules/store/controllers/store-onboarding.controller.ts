@@ -1,8 +1,9 @@
-import { Body, Controller, Patch, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, HttpCode, HttpStatus, Patch, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { SelectStoreTypeDTO } from "../dto/select-store-type.dto";
 import { StoreOnboardingService } from "../services/store-onboarding.service";
+import { User } from "../../../common/decorators/user.decorator";
 
 @ApiTags('Store | Onboarding')
 @Controller('stores/onboarding')
@@ -12,14 +13,14 @@ export class StoreOnboardingController {
     constructor(private readonly storeOnboardingService: StoreOnboardingService) { }
 
     @Patch('select-type')
-    async selectStoreType(@Req() req: any, @Body() dto: SelectStoreTypeDTO) {
-        const storeId = req.user.id;
+    @HttpCode(HttpStatus.OK)
+    async selectStoreType(@User('id') storeId: string, @Body() dto: SelectStoreTypeDTO) {
         return await this.storeOnboardingService.selectStoreType(storeId, dto);
     }
 
     @Patch('complete')
-    async complete(@Req() req: any) {
-        const storeId = req.user.id;
+    @HttpCode(HttpStatus.OK)
+    async complete(@User('id') storeId: string) {
         return await this.storeOnboardingService.completeOnboarding(storeId);
     }
 }

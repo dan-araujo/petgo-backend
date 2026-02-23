@@ -5,6 +5,7 @@ import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { UserType } from "../../../common/enums/user-type.enum";
 import { AddressType } from "../../../common/enums/address-type.enum";
 import { ApiBearerAuth } from "@nestjs/swagger";
+import { User } from "../../../common/decorators/user.decorator";
 
 @UseGuards(JwtAuthGuard)
 @Controller('addresses/delivery')
@@ -13,33 +14,31 @@ export class DeliveryAddressController {
     constructor(private readonly service: DeliveryAddressService) { }
 
     @Post()
-    create(@Req() req, @Body(ValidationPipe) dto: CreateDeliveryAddressDTO) {
+    create(@User('id') deliveryId: string, @Body(ValidationPipe) dto: CreateDeliveryAddressDTO) {
         return this.service.create(dto, {
-            userId: req.user.id,
+            userId: deliveryId,
             userType: UserType.DELIVERY,
             addressType: AddressType.DELIVERY
         });
     }
 
     @Patch(':id')
-    update(@Req() req, @Param('id', ParseUUIDPipe) id: string, @Body(ValidationPipe) dto: UpdateDeliveryAddressDTO) {
-        return this.service.update(id, dto, req.user.id);
+    update(@User('id') deliveryId: string, @Param('id', ParseUUIDPipe) id: string, @Body(ValidationPipe) dto: UpdateDeliveryAddressDTO) {
+        return this.service.update(id, dto, deliveryId);
     }
 
     @Delete(':id')
-    delete(@Req() req, @Param('id', ParseUUIDPipe) id: string) {
-        return this.service.delete(id, req.user.id);
+    delete(@User('id') deliveryId: string, @Param('id', ParseUUIDPipe) id: string) {
+        return this.service.delete(id, deliveryId);
     }
 
     @Get()
-    findAll(@Req() req) {
-        const deliveryId = req.user.id;
+    findAll(@User('id') deliveryId: string) {
         return this.service.findAllByUser(deliveryId);
     }
 
     @Get('main')
-    findCurrentLocation(@Req() req) {
-        const deliveryId = req.user.id;
+    findCurrentLocation(@User('id') deliveryId: string) {
         return this.service.findCurrentLocation(deliveryId);
     }
 }
