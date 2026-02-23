@@ -17,14 +17,14 @@ export class CatalogService {
     async createCategory(storeId: string, dto: CreateCategoryDTO): Promise<Category> {
         const slug = slugify(dto.name, { lower: true, strict: true });
         const existing = await this.categoryRepo.findOne({
-            where: { store_id: storeId, slug }
+            where: { storeId: storeId, slug }
         });
 
         if (existing) throw new ConflictException('Você já possui uma categoria com esse nome');
 
         const category = this.categoryRepo.create({
             ...dto,
-            store_id: storeId,
+            storeId: storeId,
             slug
         });
 
@@ -36,7 +36,7 @@ export class CatalogService {
 
         if (dto.name && dto.name !== category.name) {
             const newSlug = slugify(dto.name, { lower: true, strict: true });
-            const conflict = await this.categoryRepo.findOne({ where: { store_id: storeId, slug: newSlug } });
+            const conflict = await this.categoryRepo.findOne({ where: { storeId: storeId, slug: newSlug } });
 
             if (conflict && conflict.id !== id) throw new ConflictException('Você já possui uma categoria com esse nome');
 
@@ -49,13 +49,13 @@ export class CatalogService {
 
     async findAllCategories(storeId: string): Promise<Category[]> {
         return await this.categoryRepo.find({
-            where: { store_id: storeId },
-            order: { created_at: 'DESC' }
+            where: { storeId: storeId },
+            order: { createdAt: 'DESC' }
         });
     }
 
     async findOneCategory(storeId: string, id: string): Promise<Category> {
-        const category = await this.categoryRepo.findOne({ where: { id, store_id: storeId } });
+        const category = await this.categoryRepo.findOne({ where: { id, storeId: storeId } });
 
         if (!category) throw new NotFoundException('Categoria não encontrada');
 
@@ -71,7 +71,7 @@ export class CatalogService {
             );
         }
 
-        const result = await this.categoryRepo.delete({ id, store_id: storeId });
+        const result = await this.categoryRepo.delete({ id, storeId: storeId });
 
         if (result.affected === 0) throw new NotFoundException('Categoria não encontrada.');
     }

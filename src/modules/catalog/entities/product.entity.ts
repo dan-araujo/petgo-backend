@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Store } from "../../store/entities/store.entity";
 import { Category } from "./category.entity";
+import { ColumnNumericTransformer } from "../../../common/transformer/column-numeric.transformer";
 
 @Entity('products')
 export class Product {
@@ -17,10 +18,7 @@ export class Product {
         type: 'numeric',
         precision: 10,
         scale: 2,
-        transformer: {
-            to: (value: number) => value,
-            from: (value: string) => parseFloat(value)
-        }
+        transformer: new ColumnNumericTransformer()
     })
     price: number;
 
@@ -32,6 +30,20 @@ export class Product {
 
     @Column({ name: 'is_active', default: true })
     isActive: boolean;
+
+    @Column({
+        length: 50,
+        nullable: true,
+        comment: 'Stock Keeping Unit - Identificador único de inventário/estoque'
+    })
+    sku?: string;
+
+    @Column({
+        length: 50,
+        nullable: true,
+        comment: 'Código de barras do produto (EAN, UPC, etc.)'
+    })
+    barcode?: string;
 
     @ManyToOne(() => Store, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'store_id' })

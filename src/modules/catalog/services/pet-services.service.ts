@@ -15,11 +15,11 @@ export class PetServicesService {
     ) { }
 
     async create(storeId: string, dto: CreatePetServiceDTO): Promise<PetService> {
-        await this.catalogService.findOneCategory(storeId, dto.category_id);
+        await this.catalogService.findOneCategory(storeId, dto.categoryId);
 
         const petService = this.petServiceRepo.create({
             ...dto,
-            store_id: storeId,
+            storeId: storeId,
         });
 
         return await this.petServiceRepo.save(petService);
@@ -39,7 +39,7 @@ export class PetServicesService {
 
     async findOne(storeId: string, id: string): Promise<PetService> {
         const petService = await this.petServiceRepo.findOne({
-            where: { id, store_id: storeId },
+            where: { id, storeId: storeId },
             relations: ['category']
         });
 
@@ -51,8 +51,8 @@ export class PetServicesService {
     async update(storeId: string, id: string, dto: UpdatePetServiceDTO): Promise<PetService> {
         const petService = await this.findOne(storeId, id);
 
-        if (dto.category_id && dto.category_id !== petService.category_id) {
-            await this.catalogService.findOneCategory(storeId, dto.category_id);
+        if (dto.categoryId && dto.categoryId !== petService.categoryId) {
+            await this.catalogService.findOneCategory(storeId, dto.categoryId);
         }
 
         Object.assign(petService, dto);
@@ -61,7 +61,7 @@ export class PetServicesService {
     }
 
     async remove(storeId: string, id: string): Promise<void> {
-        const result = await this.petServiceRepo.softDelete({ id, store_id: storeId });
+        const result = await this.petServiceRepo.softDelete({ id, storeId: storeId });
 
         if (result.affected === 0) throw new NotFoundException('Serviço não encontrado.');
     }

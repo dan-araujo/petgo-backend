@@ -8,5 +8,5 @@ export class CreateCategoryDTO {
 
     @IsOptional()
     @IsBoolean()
-    is_active?: boolean;
+    isActive?: boolean;
 }

@@ -1,6 +1,8 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Store } from "../../store/entities/store.entity";
 import { Category } from "./category.entity";
+import { Veterinary } from "../../veterinary/entities/veterinary.entity";
+import { ColumnNumericTransformer } from "../../../common/transformer/column-numeric.transformer";
 
 @Entity('services')
 export class PetService {
@@ -14,40 +16,44 @@ export class PetService {
         type: 'numeric',
         precision: 10,
         scale: 2,
-        transformer: {
-            to: (value: number) => value,
-            from: (value: string) => parseFloat(value)
-        }
+        transformer: new ColumnNumericTransformer()
     })
     price: number;
 
-    @Column({ type: 'int', comment: 'Duração em minutos' })
-    duration_minutes: number;
+    @Column({ name: 'duration_minutes', type: 'int' })
+    durationMinutes: number;
 
-    @Column({ default: true })
-    is_active: boolean;
+    @Column({ name: 'is_active', default: true })
+    isActive: boolean;
 
-    @Column('uuid')
-    store_id: string;
+    @Column({ name: 'store_id', type: 'uuid', nullable: true })
+    storeId?: string;
 
-    @ManyToOne(() => Store, { onDelete: 'CASCADE' })
+    @ManyToOne(() => Store, { onDelete: 'CASCADE', nullable: true })
     @JoinColumn({ name: 'store_id' })
-    store: Store;
+    store?: Store;
 
-    @Column('uuid')
-    category_id: string;
+    @Column({ name: 'veterinary_id', type: 'uuid', nullable: true })
+    veterinaryId?: string;
 
-    @ManyToOne(() => Category)
+    @ManyToOne(() => Veterinary, { onDelete: 'CASCADE', nullable: true })
+    @JoinColumn({ name: 'veterinary_id' })
+    veterinary?: Veterinary;
+
+    @Column({ name: 'category_id', type: 'uuid' })
+    categoryId: string;
+
+    @ManyToOne(() => Category, { onDelete: 'RESTRICT' })
     @JoinColumn({ name: 'category_id' })
     category: Category;
 
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+    updatedAt: Date;
 
-    @DeleteDateColumn()
-    deleted_at: Date;
+    @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+    deletedAt?: Date;
 
 }

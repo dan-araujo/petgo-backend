@@ -17,10 +17,10 @@ export class CreatePetServiceDTO {
     @IsNotEmpty({ message: 'A duração em minutos é obrigatória' })
     @IsInt({ message: 'A duração deve ser um número inteiro (minutos)' })
     @Min(10, { message: 'A duração mínima é de 10 minutos' })
-    duration_minutes: number;
+    durationMinutes: number;
 
     @IsNotEmpty({ message: 'A categoria é obrigatória' })
     @IsUUID('4', { message: 'ID da categoria inválido' })
-    category_id: string;
+    categoryId: string;
 
 }
