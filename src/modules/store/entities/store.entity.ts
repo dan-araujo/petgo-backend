@@ -16,6 +16,8 @@ import { StoreType } from "../../../common/enums/store-type.enum";
 import { ColumnNumericTransformer } from "../../../common/transformer/column-numeric.transformer";
 import { StoreAddress } from "./store-address.entity";
 import { LogisticsConfig } from "../../logistics/entities/logistics-config.entity";
+import { Petshop } from "./petshop.entity";
+import { PetSupply } from "./pet-supply.entity";
 
 @Entity('stores')
 export class Store {
@@ -92,4 +94,11 @@ export class Store {
 
     @OneToOne(() => LogisticsConfig, (logisticsConfig) => logisticsConfig.store)
     logisticsConfig: LogisticsConfig;
+
+    @OneToOne(() => Petshop, (petshop) => petshop.store)
+    petshop?: Petshop;
+
+    @OneToOne(() => PetSupply, (petSupply) => petSupply.store)
+    petSupply?: PetSupply;
+
 }
