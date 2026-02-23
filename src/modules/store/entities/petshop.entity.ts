@@ -6,7 +6,7 @@ export class Petshop {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @OneToOne(() => Store, { onDelete: 'CASCADE' })
+    @OneToOne(() => Store, (store) => store.petshop, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'store_id' })
     store: Store;
 
