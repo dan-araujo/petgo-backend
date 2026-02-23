@@ -20,6 +20,7 @@ import { CatalogModule } from './modules/catalog/catalog.module';
 import { OrderModule } from './modules/order/order.module';
 import { LogisticsModule } from './modules/logistics/logistics.module';
 import { CartModule } from './modules/cart/cart.module';
+import { ReviewModule } from './modules/review/review.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { CartModule } from './modules/cart/cart.module';
     OrderModule,
     LogisticsModule,
     CartModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [AppService,
