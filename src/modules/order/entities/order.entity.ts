@@ -31,10 +31,10 @@ export class Order {
     @Column({ name: 'delivery_number', type: 'text' })
     deliveryNumber: string;
 
-    @Column({ name: 'delivery_city', type: 'text' }) 
+    @Column({ name: 'delivery_city', type: 'text' })
     deliveryCity: string;
 
-    @Column({ name: 'delivery_neighborhood', type: 'text', nullable: true }) 
+    @Column({ name: 'delivery_neighborhood', type: 'text', nullable: true })
     deliveryNeighborhood: string;
 
     @Column({ name: 'delivery_zip_code', length: 8 })
@@ -92,6 +92,9 @@ export class Order {
         default: OrderStatus.PENDING,
     })
     status: OrderStatus;
+
+    @Column({ name: 'delivery_code', length: 4, nullable: true })
+    deliveryCode?: string;
 
     @Column({
         name: 'delivery_type',
