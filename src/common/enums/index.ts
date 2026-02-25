@@ -7,3 +7,4 @@ export * from './payment-status.enum';
 export * from './registration-status.enum';
 export * from './store-type.enum';
 export * from './user-type.enum';
+export * from './pets.enum';
