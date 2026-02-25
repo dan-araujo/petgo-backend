@@ -2,8 +2,9 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToO
 import { AppointmentStatus } from "../../../common/enums/appointment-status.enum";
 import { Store } from "../../store/entities/store.entity";
 import { Customer } from "../../customer/entities/customer.entity";
-import { PetService } from "../../catalog/entities/service.entity";
+import { Service } from "../../catalog/entities/service.entity";
 import { Veterinary } from "../../veterinary/entities/veterinary.entity";
+import { Pet } from "../../pet/entities/pet.entity";
 
 @Entity('appointments')
 export class Appointment {
@@ -34,9 +35,9 @@ export class Appointment {
     @Column({ name: 'service_id', type: 'uuid' })
     serviceId: string;
 
-    @ManyToOne(() => PetService, { onDelete: 'RESTRICT', nullable: false })
+    @ManyToOne(() => Service, { onDelete: 'RESTRICT', nullable: false })
     @JoinColumn({ name: 'service_id' })
-    service: PetService;
+    service: Service;
 
     @Column({ name: 'scheduled_at', type: 'timestamp' })
     scheduledAt: Date;
@@ -49,6 +50,9 @@ export class Appointment {
     })
     status: AppointmentStatus;
 
+    @Column({ name: 'pet_id', type: 'uuid' })
+    petId: string;
+
     @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
     createdAt: Date;
 
@@ -57,4 +61,8 @@ export class Appointment {
 
     @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
     deletedAt?: Date;
+
+    @ManyToOne(() => Pet, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'pet_id' })
+    pet: Pet;
 }

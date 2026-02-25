@@ -1,15 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ValidationPipe } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
-import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { CreateAppointmentDTO } from './dto/create-appointment.dto';
+import { UpdateAppointmentDTO } from './dto/update-appointment.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { User } from '../../common/decorators/user.decorator';
 
-@Controller('appointment')
+@ApiTags('Appointments')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@Controller('appointments')
 export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
   @Post()
-  create(@Body() createAppointmentDto: CreateAppointmentDto) {
-    return this.appointmentService.create(createAppointmentDto);
+  create(@User('id') customerId: string, @Body(ValidationPipe) dto: CreateAppointmentDTO) {
+    return this.appointmentService.create(customerId, dto);
   }
 
   @Get()
@@ -23,8 +29,8 @@ export class AppointmentController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAppointmentDto: UpdateAppointmentDto) {
-    return this.appointmentService.update(+id, updateAppointmentDto);
+  update(@Param('id') id: string, @Body() updateAppointmentDto: UpdateAppointmentDTO) {
+    return this.appointmentService.updateStatus(+id, updateAppointmentDto);
   }
 
   @Delete(':id')
