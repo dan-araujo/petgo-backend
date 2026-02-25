@@ -1,17 +1,19 @@
 import { In, Repository } from "typeorm";
-import { CatalogService } from "./catalog.service";
+import { CategoryService } from "./category.service";
 import { Product } from "../entities/product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateProductDTO } from "../dto/create-product.dto";
 import { UpdateProductDTO } from "../dto/update-product.dto";
 import { OrderItemDTO } from "../../order/dto/create-order.dto";
+import { CloudinaryService } from "../../../shared/cloudinary/cloudinary.service";
 
 @Injectable()
 export class ProductService {
     constructor(
         @InjectRepository(Product) private readonly productRepo: Repository<Product>,
-        private readonly catalogService: CatalogService,
+        private readonly catalogService: CategoryService,
+        private readonly cloudinaryService: CloudinaryService,
     ) { }
 
     async create(storeId: string, dto: CreateProductDTO): Promise<Product> {
@@ -24,25 +26,35 @@ export class ProductService {
         return await this.productRepo.save(product);
     }
 
-    async findAll(storeId: string, categoryId?: string): Promise<Product[]> {
-        const whereClause: any = { storeId: storeId };
+    async findAll(storeId?: string, categoryId?: string, publicView = false): Promise<Product[]> {
+        const whereClause: any = {};
 
+        if (storeId) whereClause.storeId = storeId;
         if (categoryId) whereClause.categoryId = categoryId;
+        if (publicView) {
+            whereClause.isActive = true;
+        }
 
         return await this.productRepo.find({
             where: whereClause,
-            order: { name: 'ASC' },
-            relations: ['category'],
+            order: { createdAt: 'DESC' },
+            relations: ['category', 'store'],
         });
     }
 
-    async findOne(storeId: string, id: string): Promise<Product> {
+    async findOne(id: string, storeId?: string): Promise<Product> {
+        const where: any = { id };
+
+        if (storeId) {
+            where.storeId = storeId;
+        }
+
         const product = await this.productRepo.findOne({
-            where: { id, storeId: storeId },
-            relations: ['category']
+            where,
+            relations: ['category', 'store']
         });
 
-        if (!product) throw new NotFoundException('Produto não encontrado.');
+        if (!product) throw new NotFoundException('Item não encontrado.');
 
         return product;
     }
@@ -76,5 +88,19 @@ export class ProductService {
         }
 
         return products;
+    }
+
+    async uploadImage(storeId: string, id: string, file: Express.Multer.File): Promise<Product> {
+        const product = await this.findOne(storeId, id);
+        const uploadResult = await this.cloudinaryService.uploadImage(file, 'petgo/products');
+
+        product.imageUrl = uploadResult.secure_url;
+        return await this.productRepo.save(product);
+    }
+
+    async toggleActive(storeId: string, id: string): Promise<Product> {
+        const product = await this.findOne(storeId, id);
+        product.isActive = !product.isActive;
+        return await this.productRepo.save(product);
     }
 }

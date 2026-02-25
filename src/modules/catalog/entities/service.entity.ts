@@ -5,7 +5,7 @@ import { Veterinary } from "../../veterinary/entities/veterinary.entity";
 import { ColumnNumericTransformer } from "../../../common/transformer/column-numeric.transformer";
 
 @Entity('services')
-export class PetService {
+export class Service {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -25,6 +25,9 @@ export class PetService {
 
     @Column({ name: 'is_active', default: true })
     isActive: boolean;
+
+    @Column({ name: 'image_url', nullable: true })
+    imageUrl: string;
 
     @Column({ name: 'store_id', type: 'uuid', nullable: true })
     storeId?: string;

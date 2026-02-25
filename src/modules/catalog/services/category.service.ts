@@ -8,7 +8,7 @@ import { UpdateCategoryDTO } from '../dto/update-category.dto';
 import { Product } from '../entities/product.entity';
 
 @Injectable()
-export class CatalogService {
+export class CategoryService {
     constructor(
         @InjectRepository(Category) private readonly categoryRepo: Repository<Category>,
         @InjectRepository(Product) private readonly productRepo: Repository<Product>,
@@ -47,15 +47,21 @@ export class CatalogService {
         return await this.categoryRepo.save(category);
     }
 
-    async findAllCategories(storeId: string): Promise<Category[]> {
+    async findAllCategories(storeId?: string): Promise<Category[]> {
+        const whereClause: any = {};
+        if (storeId) whereClause.storeId = storeId;
+
         return await this.categoryRepo.find({
-            where: { storeId: storeId },
-            order: { createdAt: 'DESC' }
+            where: whereClause,
+            order: { name: 'ASC' }
         });
     }
 
-    async findOneCategory(storeId: string, id: string): Promise<Category> {
-        const category = await this.categoryRepo.findOne({ where: { id, storeId: storeId } });
+    async findOneCategory(id: string, storeId?: string): Promise<Category> {
+        const where: any = { id };
+        if (storeId) where.storeId = storeId;
+
+        const category = await this.categoryRepo.findOne({ where });
 
         if (!category) throw new NotFoundException('Categoria não encontrada');
 
