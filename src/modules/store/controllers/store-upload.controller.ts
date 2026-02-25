@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, ForbiddenException, NotFoundException, Param, Post, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { BadRequestException, Controller, FileTypeValidator, ForbiddenException, MaxFileSizeValidator, NotFoundException, Param, ParseFilePipe, Post, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CloudinaryService } from "../../../shared/cloudinary/cloudinary.service";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -29,7 +29,19 @@ export class StoreUploadController {
         storage: multer.memoryStorage(),
         limits: { fileSize: 5 * 1024 * 1024 },
     }))
-    async uploadImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @User('id') loggedStoreId: string) {
+    async uploadImage(
+        @Param('id') id: string,
+        @User('id') loggedStoreId: string,
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
+                    new FileTypeValidator({ fileType: 'image/(jpeg|png|webp|jpg)' }),
+                ],
+                exceptionFactory: () => new BadRequestException('Selecione uma imagem de até 5 MB para o logo da loja.')
+            })
+        ) file: Express.Multer.File,
+    ) {
         return this.executeUpload(id, loggedStoreId, file, 'logo');
     }
 
@@ -39,14 +51,25 @@ export class StoreUploadController {
     @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
     @UseInterceptors(FileInterceptor('file', {
         storage: multer.memoryStorage(),
-        limits: { fileSize: 10 * 1024 * 1024 },
+        limits: { fileSize: 5 * 1024 * 1024 },
     }))
-    async uploadBanner(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @User('id') loggedStoreId: string) {
+    async uploadBanner(
+        @Param('id') id: string,
+        @User('id') loggedStoreId: string,
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
+                    new FileTypeValidator({ fileType: 'image/(jpeg|png|webp|jpg)' }),
+                ],
+                exceptionFactory: () => new BadRequestException('Por favor, selecione uma imagem de até 5 MB para a capa.')
+            })
+        ) file: Express.Multer.File,
+    ) {
         return this.executeUpload(id, loggedStoreId, file, 'banner');
     }
 
     private async executeUpload(storeId: string, userId: string, file: Express.Multer.File, type: 'logo' | 'banner') {
-        if (!file) throw new BadRequestException('Arquivo inválido');
         if (userId !== storeId) {
             throw new ForbiddenException('Você não tem permissão para alterar esta loja.');
         }
@@ -54,7 +77,7 @@ export class StoreUploadController {
         const store = await this.storeRepo.findOne({ where: { id: storeId } });
         if (!store) throw new NotFoundException('Loja não encontrada');
 
-        const result = await this.cloudinaryService.uploadImage(file);
+        const result = await this.cloudinaryService.uploadImage(file, 'petgo/stores');
         if (type === 'logo') store.logoUrl = result.secure_url;
         else store.bannerUrl = result.secure_url;
 
