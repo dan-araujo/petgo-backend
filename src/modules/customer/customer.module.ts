@@ -9,9 +9,10 @@ import { AddressModule } from '../address/address.module';
 import { CustomerAddressService } from './services/customer-address.service';
 import { CustomerAddressController } from './controllers/customer-address.controller';
 import { Address } from '../address/entities/address.base.entity';
+import { Pet } from '../pet/entities/pet.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Customer, CustomerAddress, Address]), 
+    imports: [TypeOrmModule.forFeature([Customer, CustomerAddress, Address, Pet]), 
     EmailVerificationModule,
     AddressModule,
 ],

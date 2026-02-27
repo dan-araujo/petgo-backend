@@ -3,6 +3,7 @@ import {
     CreateDateColumn,
     DeleteDateColumn,
     Entity,
+    JoinColumn,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
@@ -10,6 +11,7 @@ import {
 import { UserType } from '../../../common/enums/user-type.enum';
 import { AccountStatus } from '../../../common/enums/account-status.enum';
 import { CustomerAddress } from './customer-address.entity';
+import { Pet } from '../../pet/entities/pet.entity';
 
 @Entity('customers')
 export class Customer {
@@ -52,5 +54,9 @@ export class Customer {
 
     @OneToMany(() => CustomerAddress, (customerAddress) => customerAddress.customer, { cascade: true })
     addresses: CustomerAddress[];
+
+    @OneToMany(() => Pet, (pet) => pet.customer)
+    @JoinColumn({ name: 'customer_id' })
+    pet: Pet;
 
 }
