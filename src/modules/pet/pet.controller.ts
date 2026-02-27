@@ -1,34 +1,40 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ValidationPipe } from '@nestjs/common';
 import { PetService } from './pet.service';
 import { CreatePetDTO } from './dto/create-pet.dto';
 import { UpdatePetDTO } from './dto/update-pet.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { User } from '../../common/decorators/user.decorator';
 
-@Controller('pet')
+@ApiTags('Pets')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@Controller('pets')
 export class PetController {
-  constructor(private readonly petService: PetService) {}
+  constructor(private readonly petService: PetService) { }
 
   @Post()
-  create(@Body() createPetDto: CreatePetDTO) {
-    return this.petService.create(createPetDto);
+  create(@User('id') customerId: string, @Body(ValidationPipe) dto: CreatePetDTO) {
+    return this.petService.create(customerId, dto);
   }
 
   @Get()
-  findAll() {
-    return this.petService.findAll();
+  findAll(@User('id') customerId: string,) {
+    return this.petService.findAllByCustomer(customerId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.petService.findOne(+id);
+  findOne(@User('id') customerId: string, @Param('id') id: string) {
+    return this.petService.findOne(id, customerId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePetDto: UpdatePetDTO) {
-    return this.petService.update(+id, updatePetDto);
+  update(@User('id') customerId: string, @Param('id') id: string, @Body(ValidationPipe) dto: UpdatePetDTO) {
+    return this.petService.update(id, customerId, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.petService.remove(+id);
+  remove(@User('id') customerId: string, @Param('id') id: string) {
+    return this.petService.remove(id, customerId);
   }
 }

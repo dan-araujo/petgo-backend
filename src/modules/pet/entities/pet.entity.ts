@@ -23,6 +23,9 @@ export class Pet {
     @Column({ type: 'enum', enum: PetSize })
     size: PetSize;
 
+    @Column({ name: 'birth_date', type: 'date', enum: PetSize })
+    birthDate?: string;
+
     @Column({ name: 'photo_url', type: 'varchar', length: 500, nullable: true })
     photoUrl?: string;
 
