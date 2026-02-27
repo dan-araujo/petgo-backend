@@ -91,6 +91,15 @@ export class Veterinary {
   @Column({ name: 'total_reviews', type: 'int', default: 0 })
   totalReviews: Date;
 
+  @Column({ name: 'is_online', type: 'boolean', default: false })
+  isOnline: boolean;
+
+  @Column({ type: 'varchar', array: true, nullable: true })
+  specialties: string[];
+
+  @Column({ name: 'avg_response_time_minutes', type: 'integer', default: 1440 })
+  avgResponseTimeMinutes: number;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
