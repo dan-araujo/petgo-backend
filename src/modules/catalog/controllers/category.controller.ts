@@ -9,52 +9,69 @@ import { UserType } from "../../../common/enums";
 
 @ApiTags('Catalog | Categories')
 @Controller('categories')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class CategoryController {
-    constructor(private readonly catalogService: CategoryService) { }
+    constructor(private readonly categoryService: CategoryService) { }
 
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
     @Post()
-    async create(@User('id') userId: string, @Body() dto: CreateCategoryDTO) {
-        return await this.catalogService.createCategory(userId, dto);
+    async create(@User('id') userId: string, @User('userType') userType: UserType, @Body() dto: CreateCategoryDTO) {
+        return await this.categoryService.createCategory(userId, userType, dto);
     }
 
     @Get()
     async findAll(
-        @User('id') userId?: string,
-        @User('userType') userType?: UserType,
-        @Query('storeId') queryStoreId?: string
+        @User('id') userId: string,
+        @User('userType') userType: UserType,
+        @Query('storeId') queryStoreId?: string,
+        @Query('veterinaryId') queryVetId?: string,
     ) {
-        const targetStoreId = userType === UserType.STORE ? userId : queryStoreId;
+        let targetId: string | undefined = undefined;
+        let targetType: UserType | undefined = undefined;
 
-        if (!targetStoreId) {
-            throw new BadRequestException('Informe o Id da loja para listar as categorias.');
+        if (userType === UserType.STORE || userType === UserType.VETERINARY) {
+            targetId = userId;
+            targetType = userType;
+            return await this.categoryService.findAllCategories(targetId, targetType);
         }
 
-        return await this.catalogService.findAllCategories(targetStoreId);
+        if (queryStoreId) {
+            return await this.categoryService.findAllCategories(queryStoreId, UserType.STORE);
+        }
+
+        if (queryVetId) {
+            return await this.categoryService.findAllCategories(queryVetId, UserType.VETERINARY);
+        }
+
+        return await this.categoryService.findAllGlobalCategories();
     }
 
     @Get(':id')
-    async findOne(@Param('id', ParseUUIDPipe) id: string) {
-        return await this.catalogService.findOneCategory(id);
+    async findOne(
+        @Param('id', ParseUUIDPipe) id: string,
+        @User('id') userId: string,
+        @User('userType') userType: UserType
+    ) {
+        const isOwner = userType === UserType.STORE || userType === UserType.VETERINARY;
+        return await this.categoryService.findOneCategory(id, isOwner ? userId : undefined, isOwner ? userType : undefined);
     }
 
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
     @Patch(':id')
     async update(
         @User('id') userId: string,
-        @Param('id') id: string,
+        @User('userType') userType: UserType,
+        @Param('id', ParseUUIDPipe) id: string,
         @Body() dto: UpdateCategoryDTO,
     ) {
-        return await this.catalogService.updateCategory(userId, id, dto);
+        return await this.categoryService.updateCategory(userId, userType, id, dto);
     }
 
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
     @Delete(':id')
-    async remove(@User('id') userId: string, @Param('id') id: string) {
-        return await this.catalogService.removeCategory(userId, id);
+    async remove(
+        @User('id') userId: string,
+        @User('userType') userType: UserType,
+        @Param('id', ParseUUIDPipe) id: string
+    ) {
+        return await this.categoryService.removeCategory(userId, userType, id);
     }
-
 }
