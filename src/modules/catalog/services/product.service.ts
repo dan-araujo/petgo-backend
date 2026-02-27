@@ -17,7 +17,7 @@ export class ProductService {
     ) { }
 
     async create(storeId: string, dto: CreateProductDTO): Promise<Product> {
-        const category = await this.catalogService.findOneCategory(storeId, dto.categoryId);
+        await this.catalogService.findOneCategory(dto.categoryId, storeId);
         const product = this.productRepo.create({
             ...dto,
             storeId: storeId,
@@ -54,16 +54,16 @@ export class ProductService {
             relations: ['category', 'store']
         });
 
-        if (!product) throw new NotFoundException('Item não encontrado.');
+        if (!product) throw new NotFoundException('Produto não encontrado.');
 
         return product;
     }
 
     async update(storeId: string, id: string, dto: UpdateProductDTO): Promise<Product> {
-        const product = await this.findOne(storeId, id);
+        const product = await this.findOne(id, storeId);
 
         if (dto.categoryId && dto.categoryId !== product.categoryId) {
-            await this.catalogService.findOneCategory(storeId, dto.categoryId);
+            await this.catalogService.findOneCategory(dto.categoryId, storeId);
         }
 
         Object.assign(product, dto);
@@ -91,7 +91,7 @@ export class ProductService {
     }
 
     async uploadImage(storeId: string, id: string, file: Express.Multer.File): Promise<Product> {
-        const product = await this.findOne(storeId, id);
+        const product = await this.findOne(id, storeId);
         const uploadResult = await this.cloudinaryService.uploadImage(file, 'petgo/products');
 
         product.imageUrl = uploadResult.secure_url;
@@ -99,7 +99,7 @@ export class ProductService {
     }
 
     async toggleActive(storeId: string, id: string): Promise<Product> {
-        const product = await this.findOne(storeId, id);
+        const product = await this.findOne(id, storeId);
         product.isActive = !product.isActive;
         return await this.productRepo.save(product);
     }
