@@ -10,12 +10,16 @@ import {
   ValidationPipe,
   Delete,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { CustomerService } from '../services/customer.service';
 import { CreateCustomerDTO } from '../dto/create-customer.dto';
 import { ApiResponse, ResponseStatus } from '../../../common/interfaces/api-response.interface';
 import { Customer } from '../entities/customer.entity';
 import { UpdateCustomerDTO } from '../dto/update-customer.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { User } from '../../../common/decorators/user.decorator';
 
 
 @Controller('customers')
@@ -35,6 +39,24 @@ export class CustomerController {
       message: 'Clientes recuperados com sucesso!',
       data: customers,
     };
+  }
+
+  @Get('profile/me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Busca os dados do cliente logada' })
+  async getMe(@User('id') customerId: string): Promise<Partial<Customer>> {
+    return await this.customerService.findOne(customerId);
+  }
+
+  @Patch('profile/me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Atualiza os dados do cliente logado' })
+  async updateMe(@User('id') customerId: string, @Body() dto: UpdateCustomerDTO): Promise<Partial<Customer>> {
+    const updatedCustomer = await this.customerService.update(customerId, dto);
+    const { passwordHash, ...safeCustomer } = updatedCustomer;
+    return safeCustomer;
   }
 
   @Get(':id')
