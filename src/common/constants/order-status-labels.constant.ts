@@ -8,4 +8,5 @@ export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.IN_DELIVERY]: 'Em Rota de Entrega',
     [OrderStatus.DELIVERED]: 'Concluído',
     [OrderStatus.CANCELLED]: 'Cancelado',
+    [OrderStatus.REFUNDED]: 'Estorno de Pagamento',
 }

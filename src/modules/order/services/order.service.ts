@@ -88,6 +88,12 @@ export class OrderService {
     if (order.customerId !== userId && order.storeId !== userId && order.deliveryId !== userId) {
       throw new ForbiddenException('Você não tem permissão para ver este pedido.');
     }
+
+    return order;
+  }
+
+  async findOneMasked(id: string, userId: string): Promise<Order> {
+    const order = await this.findOne(id, userId);
     if (order.customerId !== userId) {
       delete order.deliveryCode;
     }

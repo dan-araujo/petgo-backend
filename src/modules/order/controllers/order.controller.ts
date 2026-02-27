@@ -36,7 +36,7 @@ export class OrderController {
 
   @Get(':id')
   findOne(@User('id') userId: string, @Param('id', ParseUUIDPipe) id: string) {
-    return this.orderService.findOne(id, userId);
+    return this.orderService.findOneMasked(id, userId);
   }
 
   @Patch(':id/status')

@@ -6,6 +6,7 @@ export enum OrderStatus {
     IN_DELIVERY = 'IN_DELIVERY',
     DELIVERED = 'DELIVERED',
     CANCELLED = 'CANCELLED',
+    REFUNDED = 'REFUNDED',
 }
 
 export type OrderStatusType =
@@ -14,4 +15,5 @@ export type OrderStatusType =
     | 'PREPARING'
     | 'IN_DELIVERY'
     | 'DELIVERED'
-    | 'CANCELLED';
+    | 'CANCELLED'
+    | 'REFUNDED';
