@@ -1,4 +1,5 @@
 export enum AppointmentStatus {
+    PENDING = 'PENDING',
     SCHEDULED = 'SCHEDULED',
     CONFIRMED = 'CONFIRMED',
     IN_PROGRESS = 'IN_PROGRESS',
@@ -8,6 +9,7 @@ export enum AppointmentStatus {
 }
 
 export type AppointmentStatusType =
+    | 'PENDING'
     | 'SCHEDULED'
     | 'CONFIRMED'
     | 'IN_PROGRESS'

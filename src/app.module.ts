@@ -22,6 +22,7 @@ import { LogisticsModule } from './modules/logistics/logistics.module';
 import { CartModule } from './modules/cart/cart.module';
 import { ReviewModule } from './modules/review/review.module';
 import { PetModule } from './modules/pet/pet.module';
+import { AppointmentModule } from './modules/appointment/appointment.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { PetModule } from './modules/pet/pet.module';
     LogisticsModule,
     CartModule,
     ReviewModule,
+    AppointmentModule,
     PetModule,
   ],
   controllers: [AppController],
